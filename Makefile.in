@@ -1,6 +1,6 @@
-DIRS = lib test
 TOPSRCDIR = @top_srcdir@
 DISTDIR = @DISTDIR@
+DIRS = lib test
 
 all :
 	@set -e && for i in $(DIRS); do \
@@ -9,13 +9,13 @@ all :
 
 install :
 	@set -e && for i in $(DIRS); do \
-        $(MAKE) -C $$i install; \
-        done
+	$(MAKE) -C $$i install; \
+	done
 
 uninstall :
 	@set -e && for i in $(DIRS); do \
-        $(MAKE) -C $$i uninstall; \
-        done
+	$(MAKE) -C $$i uninstall; \
+	done
 
 clean :
 	@set -e && for i in $(DIRS); do \
