@@ -27,6 +27,11 @@
 
 /* some macros */
 
+/* returns the minimum of the two values */
+#define TBE_INT_MIN(X,Y) ((X) <= (Y) ? (X) : (Y))
+/* returns the maximum of the two values */
+#define TBE_INT_MAX(X,Y) ((X) >= (Y) ? (X) : (Y))
+
 /* malloc(element type, number of elements) */
 #define TBE_PTR_MALLOC(X,Y) ((X *) malloc(sizeof(X) * (Y)))
 /* realloc(pointer, element type, number of elements) */
