@@ -10,15 +10,18 @@ STRIP = @STRIP@
 BUILDSHARED = @BUILDSHARED@
 STATIC = @STATIC@
 VERSION = @VERSION@
-BINS = test
+BINS =
 STATIC_LIBS =
 SHARED_LIBS =
 INCLUDES =
-OBJECTS = \
-  test.o \
-  $(NULL)
+OBJECTS =
 TEMPS1 =
 TEMPS2 =
+
+ifdef DEBUG
+  BINS += test
+  OBJECTS += test.o
+endif
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
