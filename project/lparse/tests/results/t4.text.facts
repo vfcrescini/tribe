@@ -1,7 +1,0 @@
-a(a).
-f(a,b,c).
-f(c,b,a).
-e(a,b,c,d) :- not d(a,b,c,d).
-d(a,b,c,d) :- not e(a,b,c,d).
-b(b,b).
-c(c,c,c).
