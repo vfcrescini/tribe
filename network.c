@@ -184,6 +184,55 @@ int tbe_net_rel_add(tbe_net *a_net,
   }
 }
 
+/* returns the rel set between the given two intervals in the given network */
+unsigned int tbe_net_rel(tbe_net a_net,
+                         unsigned int a_int1,
+                         unsigned int a_int2)
+{
+  tbe_net_node nnode;
+  tbe_net_node *nptr = NULL;
+  tbe_net_rlist_node rnode;
+  tbe_net_rlist_node *rptr = NULL;
+  unsigned int relset;
+
+  TBE_REL_SET_CLEAR(relset);
+
+  /* first, we eliminate the trivial case */
+  if (a_int1 == a_int2) {
+    TBE_REL_SET_ADD(relset, TBE_REL_EQL);
+    return relset;
+  }
+
+  /* get a reference of the node containing the smaller of the 2 intervals */
+  nnode.interval = TBE_INT_MIN(a_int1, a_int2);
+  if (tbe_list_get_data_one(a_net, (void *) &nnode, tbe_net_cmp, (void *) &nptr) != TBE_OK)
+    return relset;
+
+  /* then we check if the larger interval exists */
+  nnode.interval = TBE_INT_MAX(a_int1, a_int2);
+  if (tbe_list_find_data(a_net, (void *) &nnode, tbe_net_cmp) != TBE_OK)
+    return relset;
+
+  /* now we look for the larger interval in the rel list of the first */
+  rnode.interval = TBE_INT_MAX(a_int1, a_int2);
+  switch (tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr)) {
+    case TBE_NOTFOUND :
+      /* interval2 not in the list, so return a full relset */
+      TBE_REL_SET_FILL(relset);
+      return relset;
+    case TBE_OK :
+      /* found it. now we determine whether we need to find the inverse */
+      if (TBE_INT_MIN(a_int1, a_int2) == a_int1)
+        return rptr->relset;
+      else
+        return tbe_rel_set_inverse(rptr->relset); 
+    default :
+      return relset;
+  }
+
+  return relset;
+}
+
 /* print the network */
 void tbe_net_dump(tbe_net a_net, FILE *a_stream)
 {
