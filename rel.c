@@ -275,6 +275,10 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs)
 
   TBE_REL_SET_CLEAR(rs);
 
+  /* if it's everthing, don't bother */
+  if (TBE_REL_SET_ISFILL(a_rs))
+    return a_rs;
+
   /* equals: always reflexive */
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_EQL))
     TBE_REL_SET_ADD(rs, TBE_REL_EQL);
