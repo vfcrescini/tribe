@@ -266,15 +266,15 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
 
   /* make sure relation is already normalised */
   if (a_int1 > a_int2)
-    return TBE_INVALIDINPUT - 10;
+    return TBE_INVALIDINPUT;
 
   /* get a reference of the node containing the first interval */
   if ((nptr = tbe_net_get_noderef(*a_net, a_int1)) == NULL)
-    return TBE_INVALIDINPUT - 100;
+    return TBE_INVALIDINPUT;
 
   /* check if the second interval exists */
   if (tbe_net_get_noderef(*a_net, a_int2) == NULL)
-    return TBE_INVALIDINPUT - 200;
+    return TBE_INVALIDINPUT;
 
   /* now check if the second interval is in the relation list of the first */
   if ((rptr = tbe_net_get_rlist_noderef(*(nptr->rlist), a_int2)) != NULL) {
@@ -405,7 +405,7 @@ int tbe_net_add_rel(tbe_net *a_net,
   rs = TBE_REL_SET_INTERSECT(tbe_net_rel(*a_net, a_int1, a_int2), a_relset);
 
   if (TBE_REL_SET_ISCLEAR(rs))
-    return TBE_INVALIDINPUT - 300;
+    return TBE_INVALIDINPUT;
 
   /* intialise and load the queue */
   if ((retval = tbe_list_init(&rqueue)) != TBE_OK)
