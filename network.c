@@ -173,10 +173,10 @@ int tbe_net_rel_add(tbe_net *a_net,
   rnode.interval = TBE_INT_MAX(a_int1, a_int2);
   switch ((retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr))) {
     case TBE_NOTFOUND :
-      /* interval2 not in the list yet, so we have to add it */
-      return tbe_net_rlist_add(nptr->rlist, a_int2, relset);
+      /* larger interval  not in the list yet, so we have to add it */
+      return tbe_net_rlist_add(nptr->rlist, TBE_INT_MAX(a_int1, a_int2), relset);
     case TBE_OK :
-      /* interval2 already in the list. at this state, we just replace relset */
+      /* larger interval already in the list. for now, we just replace relset */
       rptr->relset = relset;
       return TBE_OK;
     default :
