@@ -12,6 +12,14 @@
     (TBE_REL_SET_ISIN(X,TBE_REL_DUR) && TBE_REL_SET_ISIN(Y,TBE_REL_DUI)) \
   )
 
+/* relation list for each interval */
+typedef struct {
+  unsigned int interval;
+  unsigned int relset;
+} tbe_net_rlist_node;
+
+typedef tbe_list tbe_net_rlist;
+
 /* queue to hold 2 intervals and a relation */
 typedef struct {
   unsigned int interval1;
@@ -21,16 +29,16 @@ typedef struct {
 
 typedef tbe_list tbe_net_rqueue;
 
-/* relation list for each interval */
-typedef struct {
-  unsigned int interval;
-  unsigned int relset;
-} tbe_net_rlist_node;
-
-typedef tbe_list tbe_net_rlist;
-
 /* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
 static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);
+/* deletes a_int from the rlist */
+static int tbe_net_rlist_del(tbe_net_rlist *a_rlist, unsigned int a_int);
+/* return a reference to the node containing a_int, NULL if it doesn't exist */
+static tbe_net_rlist_node *tbe_net_get_rlist_noderef(tbe_net_rlist a_rlist,
+                                                     unsigned int a_int);
+
+/* return TBE_OK if the 2 tbe_net_rqueue_nodes are equal */
+static int tbe_net_rqueue_cmp(void *a_ptr1, void *a_ptr2);
 /* enqueues a new node to the queue */
 static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
                                unsigned int a_int1,
@@ -41,8 +49,16 @@ static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
                               unsigned int *a_int1,
                               unsigned int *a_int2,
                               unsigned int *a_rs);
+/* return a reference to the matching node, NULL if it doesn't exist */
+static tbe_net_rqueue_node *tbe_net_get_rqueue_noderef(tbe_net_rqueue a_q,
+                                                       unsigned int a_int1,
+                                                       unsigned int a_int2,
+                                                       unsigned int a_rs);
+
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
 static int tbe_net_cmp(void *a_ptr1, void *a_ptr2);
+/* return a reference to the node containing a_int, NULL if it doesn't exist */
+static tbe_net_node *tbe_net_get_noderef(tbe_net a_net, unsigned int a_int);
 /* destroy contents of a tbe_net_node */
 static void tbe_net_free(void *a_node);
 /* add a new relation to existing intervals, but no propagation */
@@ -63,6 +79,52 @@ static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
   return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE); 
 }
 
+/* deletes a_int from the rlist */
+static int tbe_net_rlist_del(tbe_net_rlist *a_rlist, unsigned int a_int)
+{
+  tbe_net_rlist_node rnode;
+
+  rnode.interval = a_int;
+
+  return tbe_list_del_data(a_rlist, (void *) &rnode, tbe_net_rlist_cmp, NULL);
+}
+
+/* return a reference to the node containing a_int, NULL if it doesn't exist */
+static tbe_net_rlist_node *tbe_net_get_rlist_noderef(tbe_net_rlist a_rlist,
+                                                     unsigned int a_int)
+{
+  tbe_net_rlist_node node;
+  tbe_net_rlist_node *nptr = NULL;
+  int retval;
+
+  node.interval = a_int;
+  retval = tbe_list_get_data_one(a_rlist,
+                                 (void *) &node,
+                                 tbe_net_rlist_cmp,
+                                 (void *) &nptr);
+  if (retval == TBE_OK)
+    return nptr;
+
+  return NULL;
+}
+
+/* return TBE_OK if the 2 tbe_net_rqueue_nodes are equal */
+static int tbe_net_rqueue_cmp(void *a_ptr1, void *a_ptr2)
+{
+  tbe_net_rqueue_node *ptr1 = (tbe_net_rqueue_node *) a_ptr1;
+  tbe_net_rqueue_node *ptr2 = (tbe_net_rqueue_node *) a_ptr2;
+
+  if (!ptr1 || !ptr2)
+    return TBE_NULLPTR;
+
+  if (ptr1->interval1 == ptr2->interval1 &&
+      ptr1->interval2 == ptr2->interval2 &&
+      ptr1->relset == ptr2->relset)
+    return TBE_OK;
+    
+  return TBE_FAILURE; 
+}
+
 /* enqueues a new node to the queue */
 static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
                                unsigned int a_int1,
@@ -70,10 +132,20 @@ static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
                                unsigned int a_rs)
 {
   tbe_net_rqueue_node *node = NULL;
+  int retval;
 
   if (!a_q)
     return TBE_NULLPTR;
 
+  /* normalise the relation first */
+  if ((retval = tbe_net_normalise(&a_int1, &a_int2, &a_rs)) != TBE_OK)
+    return retval;
+
+  /* check if the node is already in the queue */
+  if (tbe_net_get_rqueue_noderef(*a_q, a_int1, a_int2, a_rs))
+    return TBE_OK;
+
+  /* create a new node */
   if (!(node = TBE_PTR_MALLOC(tbe_net_rqueue_node, 1)))
     return TBE_MALLOCFAILED;
 
@@ -109,6 +181,31 @@ static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
   return tbe_list_del_head(a_q, NULL);
 }
 
+/* return a reference to the matching node, NULL if it doesn't exist */
+static tbe_net_rqueue_node *tbe_net_get_rqueue_noderef(tbe_net_rqueue a_q,
+                                                       unsigned int a_int1,
+                                                       unsigned int a_int2,
+                                                       unsigned int a_rs)
+{
+  tbe_net_rqueue_node node;
+  tbe_net_rqueue_node *nptr = NULL;
+  unsigned int retval;
+
+  node.interval1 = a_int1;
+  node.interval2 = a_int2;
+  node.relset = a_rs;
+
+  retval = tbe_list_get_data_one(a_q,
+                                 (void *) &node,
+                                 tbe_net_rqueue_cmp,
+                                 (void *) &nptr);
+
+  if (retval == TBE_OK)
+    return nptr;
+
+  return NULL;
+}
+
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
 static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
 {
@@ -119,6 +216,25 @@ static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
     return TBE_NULLPTR;
 
   return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE);
+}
+
+/* return a reference to the node containing a_int, NULL if it doesn't exist */
+static tbe_net_node *tbe_net_get_noderef(tbe_net a_net, unsigned int a_int)
+{
+  tbe_net_node node;
+  tbe_net_node *nptr = NULL;
+  int retval;
+
+  node.interval = a_int;
+  retval = tbe_list_get_data_one(a_net,
+                                 (void *) &node,
+                                 tbe_net_cmp,
+                                 (void *) &nptr);
+
+  if (retval == TBE_OK)
+    return nptr;
+
+  return NULL;
 }
 
 /* destroy contents of a tbe_net_node */
@@ -138,63 +254,56 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
                                   unsigned int a_int2,
                                   unsigned int a_relset)
 {
-  tbe_net_node nnode;
   tbe_net_node *nptr = NULL;
-  tbe_net_rlist_node rnode;
   tbe_net_rlist_node *rptr = NULL;
-  unsigned int relset;
-  int retval;
 
   if (!a_net)
     return TBE_NULLPTR;
 
-  /* firstly, we check whether we are trying to add some trivial info */
+  /* firstly, we check whether we are trying to add something trivial */
   if (a_int1 == a_int2)
     return TBE_OK;
 
-  /* we then figure out what relset to store. the relset itself will be
-   * stored in the smaller interval. if the intervals were given in the
-   * right order (ie int1 <= int2) then we store the relset as it is. if given
-   * in reverse order, we have to store the inverse of the relset */
-  if (TBE_INT_MIN(a_int1, a_int2) == a_int1)
-    relset = a_relset;
-  else
-    relset = tbe_rel_set_inverse(a_relset);
+  /* make sure relation is already normalised */
+  if (a_int1 > a_int2)
+    return TBE_INVALIDINPUT - 10;
 
-  /* get a reference of the node containing the smaller of the 2 intervals */
-  nnode.interval = TBE_INT_MIN(a_int1, a_int2);
-  if ((retval = tbe_list_get_data_one(*a_net, (void *) &nnode, tbe_net_cmp, (void *) &nptr)) != TBE_OK)
-    return retval;
+  /* get a reference of the node containing the first interval */
+  if ((nptr = tbe_net_get_noderef(*a_net, a_int1)) == NULL)
+    return TBE_INVALIDINPUT - 100;
 
-  /* now that we have a reference to the node containing the smaller
-   * interval, we then check its relation list to see if the other interval
-   * is already in it. */
-  rnode.interval = TBE_INT_MAX(a_int1, a_int2);
-  switch ((retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr))) {
-    case TBE_NOTFOUND : {
-      /* larger interval  not in the list yet, so we have to add it */
-      if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
-        return TBE_MALLOCFAILED;
+  /* check if the second interval exists */
+  if (tbe_net_get_noderef(*a_net, a_int2) == NULL)
+    return TBE_INVALIDINPUT - 200;
 
-      rptr->interval = TBE_INT_MAX(a_int1, a_int2);
-      rptr->relset = relset;
-
-      return tbe_list_add_tail(nptr->rlist, (void *) rptr);
+  /* now check if the second interval is in the relation list of the first */
+  if ((rptr = tbe_net_get_rlist_noderef(*(nptr->rlist), a_int2)) != NULL) {
+    /* second interval already in the list */
+    if (TBE_REL_SET_ISFILL(a_relset)) {
+      /* new relation contains all possible relations! remove it */
+      return tbe_net_rlist_del(nptr->rlist, a_int2);
     }
-    case TBE_OK :
-      /* larger interval already in the list */
-      if (TBE_REL_SET_ISFILL(relset)) {
-        /* new relation contains all possible relations! remove it */
-        return tbe_list_del_data(nptr->rlist,
-                                 (void *) &rnode,
-                                 tbe_net_rlist_cmp,
-                                 NULL);
-      }
-      /* replace the relset with the new one */
-      rptr->relset = relset;
+
+    /* replace the relset with the new one */
+    rptr->relset = a_relset;
+
+    return TBE_OK;
+  }
+  else {
+    /* second interval  not in the rlist yet, so we have to add it */
+
+    if (TBE_REL_SET_ISFILL(a_relset)) {
+      /* if the relation is everything, do nothing */
       return TBE_OK;
-    default :
-      return retval;
+    }
+    
+    if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
+      return TBE_MALLOCFAILED;
+
+    rptr->interval = a_int2;
+    rptr->relset = a_relset;
+
+    return tbe_list_add_tail(nptr->rlist, (void *) rptr);
   }
 }
 
@@ -210,43 +319,69 @@ void tbe_net_purge(tbe_net *a_net)
   tbe_list_purge(a_net, tbe_net_free);
 }
 
+/* normalise the relation. a relation A rs B is normalised if A <= B */
+int tbe_net_normalise(unsigned int *a_int1,
+                      unsigned int *a_int2,
+                      unsigned int *a_relset)
+{
+  unsigned int a;
+  unsigned int b;
+
+  if (!a_int1 || !a_int2 || !a_relset)
+    return TBE_NULLPTR;
+
+  a = *a_int1;
+  b = *a_int2;
+
+  *a_int1 = TBE_INT_MIN(a, b);
+  *a_int2 = TBE_INT_MAX(a, b);
+
+  if (a != *a_int1)
+    *a_relset = tbe_rel_set_inverse(*a_relset);
+
+  return TBE_OK;
+}
+
 /* add a new interval into the network */
 int tbe_net_add_int(tbe_net *a_net, unsigned int a_int)
 {
-  tbe_net_node tmp;
-  tbe_net_node *node;
-  tbe_net_rlist *rlist;
+  tbe_net_node *nptr = NULL;
+  tbe_net_rlist *rptr = NULL;
   int retval;
 
   if (!a_net)
     return TBE_NULLPTR;
 
   /* check if interval is not in list yet */
-  tmp.interval = a_int;
-  if ((retval = tbe_list_find_data(*a_net, &tmp, tbe_net_cmp)) != TBE_NOTFOUND)
-    return ((retval == TBE_OK) ? TBE_DUPLICATE : retval);
+  if (tbe_net_get_noderef(*a_net, a_int))
+    return TBE_DUPLICATE;
 
   /* allocate mem for new node */
-  if (!(node = TBE_PTR_MALLOC(tbe_net_node, 1)))
+  if (!(nptr = TBE_PTR_MALLOC(tbe_net_node, 1)))
     return TBE_MALLOCFAILED;
 
-  if (!(rlist = TBE_PTR_MALLOC(tbe_net_rlist, 1))) {
-    TBE_PTR_FREE(node);
+  /* create a new empty rlist */
+  if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist, 1))) {
+    TBE_PTR_FREE(nptr);
     return TBE_MALLOCFAILED;
   }
 
-  /* create a new, empty relation list */
-  if ((retval = tbe_list_init(rlist)) != TBE_OK) {
-    TBE_PTR_FREE(node);
-    TBE_PTR_FREE(rlist);
+  if ((retval = tbe_list_init(rptr)) != TBE_OK) {
+    TBE_PTR_FREE(nptr);
+    TBE_PTR_FREE(rptr);
     return retval;
   }
 
   /* populate the new node */
-  node->interval = a_int;
-  node->rlist = rlist;
+  nptr->interval = a_int;
+  nptr->rlist = rptr;
 
-  return tbe_list_add_tail(a_net, (void *) node);
+  if ((retval = tbe_list_add_tail(a_net, (void *) nptr)) != TBE_OK) {
+    TBE_PTR_FREE(nptr);
+    TBE_PTR_FREE(rptr);
+  }
+
+  return retval;
 }
 
 /* add a new relation to an existing interval, also propagate the relation */
@@ -268,8 +403,9 @@ int tbe_net_add_rel(tbe_net *a_net,
 
   /* get intersection of what is already in the network and what is given */
   rs = TBE_REL_SET_INTERSECT(tbe_net_rel(*a_net, a_int1, a_int2), a_relset);
+
   if (TBE_REL_SET_ISCLEAR(rs))
-    return TBE_INVALIDINPUT;
+    return TBE_INVALIDINPUT - 300;
 
   /* intialise and load the queue */
   if ((retval = tbe_list_init(&rqueue)) != TBE_OK)
@@ -323,7 +459,7 @@ int tbe_net_add_rel(tbe_net *a_net,
         }
       }
  
-      /* now find rs(i,k), given rs(i,j), rs(j,k) */
+      /* find rs(i,k), given rs(i,j), rs(j,k) */
       rs1 = tbe_net_rel(*a_net, int2q, nnode->interval);
 
       if (!TBE_NET_SKIP(rsq, rs1)) {
@@ -353,10 +489,10 @@ unsigned int tbe_net_rel(tbe_net a_net,
                          unsigned int a_int1,
                          unsigned int a_int2)
 {
-  tbe_net_node nnode;
   tbe_net_node *nptr = NULL;
-  tbe_net_rlist_node rnode;
   tbe_net_rlist_node *rptr = NULL;
+  unsigned int int1 = TBE_INT_MIN(a_int1, a_int2);
+  unsigned int int2 = TBE_INT_MAX(a_int1, a_int2);
   unsigned int relset;
 
   TBE_REL_SET_CLEAR(relset);
@@ -368,30 +504,25 @@ unsigned int tbe_net_rel(tbe_net a_net,
   }
 
   /* get a reference of the node containing the smaller of the 2 intervals */
-  nnode.interval = TBE_INT_MIN(a_int1, a_int2);
-  if (tbe_list_get_data_one(a_net, (void *) &nnode, tbe_net_cmp, (void *) &nptr) != TBE_OK)
+  if (!(nptr = tbe_net_get_noderef(a_net, int1)))
     return relset;
 
   /* then we check if the larger interval exists */
-  nnode.interval = TBE_INT_MAX(a_int1, a_int2);
-  if (tbe_list_find_data(a_net, (void *) &nnode, tbe_net_cmp) != TBE_OK)
+  if (!tbe_net_get_noderef(a_net, int2))
     return relset;
 
   /* now we look for the larger interval in the rel list of the first */
-  rnode.interval = TBE_INT_MAX(a_int1, a_int2);
-  switch (tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr)) {
-    case TBE_NOTFOUND :
-      /* interval2 not in the list, so return a full relset */
-      TBE_REL_SET_FILL(relset);
-      return relset;
-    case TBE_OK :
-      /* found it. now we determine whether we need to find the inverse */
-      if (TBE_INT_MIN(a_int1, a_int2) == a_int1)
-        return rptr->relset;
-      else
-        return tbe_rel_set_inverse(rptr->relset); 
-    default :
-      return relset;
+  if (!(rptr = tbe_net_get_rlist_noderef(*(nptr->rlist), int2))) {
+    /* interval2 not in the list, so return a full relset */
+    TBE_REL_SET_FILL(relset);
+    return relset;
+  }
+  else {
+    /* found it. now we determine whether we need to find the inverse */
+    if (int1 == a_int1)
+      return rptr->relset;
+
+    return tbe_rel_set_inverse(rptr->relset); 
   }
 
   return relset;

@@ -1,3 +1,20 @@
+2005-03-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added a normalise() function to ensure that a relation:
+
+	      a rs b
+
+	    will have a <= b.
+
+	  - The enque() function now normalises the relation before it is
+	    added in. Enqueue also checks whether the relation is already
+	    in the queue.
+
+	  - Added other cleanup functions.
+
 2005-03-04  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/rel.c :
