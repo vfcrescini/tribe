@@ -8,6 +8,18 @@ int main(int argc, char *argv[])
   unsigned int rs;
   tbe_net net;
 #if 0
+  int i;
+  unsigned int rs1;
+
+  TBE_REL_SET_FILL(rs1);
+  for (i = 0; i <= 12; i++) {
+    TBE_REL_SET_CLEAR(rs);
+    TBE_REL_SET_ADD(rs, i);
+    printf("%2d FILL=%d\n", i, TBE_REL_SET_ISFILL(tbe_rel_set_lookup(rs, rs1)));
+  }
+#endif
+
+#if 0
   tbe_net_init(&net);
   tbe_net_add_int(&net, 1);
   tbe_net_add_int(&net, 2);
