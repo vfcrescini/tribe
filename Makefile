@@ -17,7 +17,7 @@ endef
 all : $(OBJS) $(PROGS)
 
 ifdef DEBUG
-test : test.c
+test : test.c $(OBJS)
 	$(CC) $(CFLAGS) -o $(@) $(OBJS) test.c
 endif
 
