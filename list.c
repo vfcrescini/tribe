@@ -133,6 +133,8 @@ int tbe_list_del_data(tbe_list *a_list,
 
   while (curr) {
     if (a_cmp(curr->data, a_data) == TBE_OK) {
+      tbe_list_node *ptmp;
+
       found = 1;
 
       if (!prev) {
@@ -146,15 +148,20 @@ int tbe_list_del_data(tbe_list *a_list,
         prev->next = curr->next;
       }
 
-      if (a_fr)
-        a_fr(curr->data);
+      ptmp = curr;
+      curr = curr->next;
 
-      TBE_PTR_FREE(curr);
+      if (a_fr)
+        a_fr(ptmp->data);
+
+      TBE_PTR_FREE(ptmp);
 
       (a_list->length)--;
     }
-    prev = curr;
-    curr = curr->next;
+    else {
+      prev = curr;
+      curr = curr->next;
+    }
   }
 
   return (found ? TBE_OK : TBE_NOTFOUND);
