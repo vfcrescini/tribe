@@ -38,9 +38,9 @@ int tbe_list_del_data(tbe_list *a_list,
                       void *a_data,
                       int (*a_cmp)(void *, void *),
                       void (*a_fr)(void *));
-/* gives a reference to the FIRST node in the list */
+/* gives a reference to the FIRST node data in the list */
 int tbe_list_get_head(tbe_list a_list, void **a_ref);
-/* gives a reference to the LAST node in the list */
+/* gives a reference to the LAST node data in the list */
 int tbe_list_get_tail(tbe_list a_list, void **a_ref);
 /* gives a reference to the index'th data */
 int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref);

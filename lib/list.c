@@ -230,7 +230,7 @@ int tbe_list_del_data(tbe_list *a_list,
   return (found ? TBE_OK : TBE_NOTFOUND);
 }
 
-/* gives a reference to the FIRST node in the list */
+/* gives a reference to the FIRST node data in the list */
 int tbe_list_get_head(tbe_list a_list, void **a_ref)
 {
   if (!a_ref)
@@ -239,7 +239,7 @@ int tbe_list_get_head(tbe_list a_list, void **a_ref)
   if (a_list.length <= 0)
     return TBE_NOTFOUND;
 
-  *a_ref = a_list.head;
+  *a_ref = a_list.head->data;
 
   return TBE_OK;
 }
@@ -253,7 +253,7 @@ int tbe_list_get_tail(tbe_list a_list, void **a_ref)
   if (a_list.length <= 0)
     return TBE_NOTFOUND;
 
-  *a_ref = a_list.tail;
+  *a_ref = a_list.tail->data;
 
   return TBE_OK;
 }
