@@ -1,5 +1,10 @@
 2005-02-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.0.2.
+
 	* lib/network.c :
 	* lib/network.h :
 
