@@ -48,7 +48,7 @@ int tbe_list_get_data_one(tbe_list a_list,
 /* gives a reference to the FIRST node whose hash value matches */
 int tbe_list_get_data_hash(tbe_list a_list,
                            unsigned int a_hval,
-                           int (a_hfn)(unsigned int, void *),
+                           unsigned int (a_hfn)(void *),
                            void **a_ref);
 /* returns 0 if data is in the list, uses cmp to compare pointers */
 int tbe_list_find_data(tbe_list a_list,

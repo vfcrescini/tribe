@@ -236,7 +236,7 @@ int tbe_list_get_data_one(tbe_list a_list,
 /* gives a reference to the FIRST node whose hash value matches */
 int tbe_list_get_data_hash(tbe_list a_list,
                            unsigned int a_hval,
-                           int (a_hfn)(unsigned int, void *),
+                           unsigned int (a_hfn)(void *),
                            void **a_ref)
 {
   tbe_list_node *curr;
@@ -247,7 +247,7 @@ int tbe_list_get_data_hash(tbe_list a_list,
   curr = a_list.head;
 
   while (curr) {
-    if (a_hfn(a_hval, curr->data) == TBE_OK) {
+    if (a_hfn(curr->data) == a_hval) {
       *a_ref = curr->data;
       break;
     }
