@@ -1,7 +1,7 @@
 #ifndef __TBE_LIST_H
 #define __TBE_LIST_H
 
-#include "tribe.h"
+#include <tribe/tribe.h>
 
 typedef struct tbe_list_node {
   void *data;

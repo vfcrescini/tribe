@@ -1,8 +1,8 @@
 #ifndef __TBE_NETWORK_H
 #define __TBE_NETWORK_H
 
-#include "tribe.h"
-#include "list.h"
+#include <tribe/tribe.h>
+#include <tribe/list.h>
 
 /* relation list for each interval */
 typedef struct {

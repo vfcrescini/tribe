@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "rel.h"
-#include "network.h"
+#include <tribe/rel.h>
+#include <tribe/network.h>
 
 /* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
 static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);

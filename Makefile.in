@@ -1,0 +1,29 @@
+DIRS = lib test
+TOPSRCDIR = @top_srcdir@
+DISTDIR = @DISTDIR@
+
+all :
+	@set -e && for i in $(DIRS); do \
+	$(MAKE) -C $$i all; \
+	done
+
+install :
+	@set -e && for i in $(DIRS); do \
+        $(MAKE) -C $$i install; \
+        done
+
+uninstall :
+	@set -e && for i in $(DIRS); do \
+        $(MAKE) -C $$i uninstall; \
+        done
+
+clean :
+	@set -e && for i in $(DIRS); do \
+	$(MAKE) -C $$i clean; \
+	done
+
+distclean :
+	@set -e && for i in $(DIRS); do \
+	$(MAKE) -C $$i distclean; \
+	done
+	$(RM) -r $(DISTDIR) Makefile configure config.status config.log autom4te.cache

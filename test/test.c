@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "rel.h"
-#include "network.h"
+#include <tribe/tribe.h>
+#include <tribe/rel.h>
+#include <tribe/network.h>
 
 int main(int argc, char *argv[])
 {

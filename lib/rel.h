@@ -1,7 +1,7 @@
 #ifndef __TBE_REL_H
 #define __TBE_REL_H
 
-#include "tribe.h"
+#include <tribe/tribe.h>
 
 /* equal */
 #define TBE_REL_EQL 0

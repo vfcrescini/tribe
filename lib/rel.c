@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "rel.h"
+#include <tribe/rel.h>
 
 /* relsets are unsigned ints. each rel is a bit mask */
 #define TBE_REL_MSK_NUL (0)

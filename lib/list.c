@@ -1,6 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include "list.h"
+#include <tribe/list.h>
 
 /* create a new list */
 int tbe_list_init(tbe_list *a_list)
