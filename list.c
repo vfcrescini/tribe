@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
 
@@ -173,7 +174,7 @@ int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref)
 
   curr = a_list.head;
 
-  for (i = 0; i < a_list.length - a_index - 1; i++)
+  for (i = 0; i < a_index; i++)
     curr = curr->next;
 
   *a_ref = curr->data;
