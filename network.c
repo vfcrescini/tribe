@@ -142,6 +142,7 @@ int tbe_net_rel_add(tbe_net *a_net,
   tbe_net_node *nptr;
   tbe_net_rlist_node rnode;
   tbe_net_rlist_node *rptr;
+  unsigned int relset;
   void *ntmp = NULL;
   void *rtmp = NULL;
   int retval;
@@ -152,6 +153,15 @@ int tbe_net_rel_add(tbe_net *a_net,
   /* firstly, we check whether we are trying to add some trivial info */
   if (a_int1 == a_int2 || TBE_REL_SET_ISFILL(a_relset))
     return TBE_OK;
+
+  /* we then figure out what relset to store. the relset itself will be
+   * stored in the smaller interval. if the intervals were given in the
+   * right order (ie int1 <= int2) then we store the relset as it is. if given
+   * in reverse order, we have to store the inverse of the relset */
+  if (TBE_INT_MIN(a_int1, a_int2) == a_int1)
+    relset = a_relset;
+  else
+    relset = tbe_rel_set_inverse(a_relset);
 
   /* get a reference of the node containing the smaller of the 2 intervals */
   nnode.interval = TBE_INT_MIN(a_int1, a_int2);
@@ -172,10 +182,10 @@ int tbe_net_rel_add(tbe_net *a_net,
   switch (retval) {
     case TBE_NOTFOUND :
       /* interval2 not in the list yet, so we have to add it */
-      return tbe_net_rlist_add(nptr->rlist, a_int2, a_relset);
+      return tbe_net_rlist_add(nptr->rlist, a_int2, relset);
     case TBE_OK :
-      /* interval2 already in the list. */
-      rptr->relset = TBE_REL_SET_UNION(rptr->relset, a_relset);
+      /* interval2 already in the list. at this state, we just replace relset */
+      rptr->relset = relset;
       return TBE_OK;
     default :
       return retval;

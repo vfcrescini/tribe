@@ -304,3 +304,53 @@ unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2)
 
   return retval;
 }
+
+/* returns a rel set that is the inverse of the given rel set */
+unsigned int tbe_rel_set_inverse(unsigned int a_rs)
+{
+  unsigned int rs;
+
+  TBE_REL_SET_CLEAR(rs);
+
+  /* equals: always reflexive */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_EQL))
+    TBE_REL_SET_ADD(rs, TBE_REL_EQL);
+
+  /* before and after */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_BEF))
+    TBE_REL_SET_ADD(rs, TBE_REL_BEI);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_BEI))
+    TBE_REL_SET_ADD(rs, TBE_REL_BEF);
+
+  /* during and contains */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_DUR))
+    TBE_REL_SET_ADD(rs, TBE_REL_DUI);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_DUI))
+    TBE_REL_SET_ADD(rs, TBE_REL_DUR);
+
+  /* overlaps and overlapped-by */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_OVR))
+    TBE_REL_SET_ADD(rs, TBE_REL_OVI);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_OVI))
+    TBE_REL_SET_ADD(rs, TBE_REL_OVR);
+
+  /* meets and met-by */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_MET))
+    TBE_REL_SET_ADD(rs, TBE_REL_MEI);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_MEI))
+    TBE_REL_SET_ADD(rs, TBE_REL_MET);
+
+  /* starts and started-by */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_STA))
+    TBE_REL_SET_ADD(rs, TBE_REL_STI);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_STI))
+    TBE_REL_SET_ADD(rs, TBE_REL_STA);
+
+  /* finishes and finished-by */
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_FIN))
+    TBE_REL_SET_ADD(rs, TBE_REL_FII);
+  if (TBE_REL_SET_ISIN(a_rs, TBE_REL_FII))
+    TBE_REL_SET_ADD(rs, TBE_REL_FIN);
+
+  return rs;
+}
