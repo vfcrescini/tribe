@@ -220,6 +220,12 @@ void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
     if (!nnode)
       continue;
 
+    /* if the interval doesn't have any rels, just dump the interval */
+    if (tbe_list_length(*(nnode->rlist)) == 0) {
+      fprintf(a_stream, "%03u\n", nnode->interval);
+      continue;
+    }
+
     /* now get this interval's rel list */
     for (j = 0; j < tbe_list_length(*(nnode->rlist)); j++) {
       tbe_net_rlist_node *rnode = NULL;
