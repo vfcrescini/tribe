@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O3 -ansi -pedantic -Wall -Wshadow -Wcast-align -Wstrict-prototypes
 PROGS =
-OBJS = list.o rel.o
+OBJS = list.o rel.o network.o
 
 DEBUG=1
 
@@ -26,6 +26,9 @@ rel.o : tribe.h rel.h rel.c
 
 list.o : tribe.h list.h list.c
 	$(CC) $(CFLAGS) -o $(@) -c list.c
+
+network.o : tribe.h list.h network.h network.c
+	$(CC) $(CFLAGS) -o $(@) -c network.c
 
 clean :
 	$(RM) $(OBJS)
