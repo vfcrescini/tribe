@@ -173,7 +173,6 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
   switch ((retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr))) {
     case TBE_NOTFOUND : {
       /* larger interval  not in the list yet, so we have to add it */
-
       if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
         return TBE_MALLOCFAILED;
 
@@ -318,7 +317,8 @@ int tbe_net_add_rel(tbe_net *a_net,
         }
 
         if (rs2 != rs3) {
-          if ((retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2q, rs3)) != TBE_OK)
+          retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2q, rs3);
+          if (retval != TBE_OK)
             break;
         }
       }
@@ -336,7 +336,8 @@ int tbe_net_add_rel(tbe_net *a_net,
         }
 
         if (rs2 != rs3) {
-          if ((retval = tbe_net_rqueue_enq(&rqueue, int1q, nnode->interval, rs3)) != TBE_OK)
+          retval = tbe_net_rqueue_enq(&rqueue, int1q, nnode->interval, rs3);
+          if (retval != TBE_OK)
             break;
         }
       }
