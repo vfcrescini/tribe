@@ -41,7 +41,7 @@ static int tbe_rel_table[13][13] = {
   {
     TBE_REL_MSK_BEF,
     TBE_REL_MSK_BEF,
-    TBE_REL_MSK_NUL,
+    TBE_REL_MSK_ALL,
     TBE_REL_MSK_BEF | TBE_REL_MSK_OVR | TBE_REL_MSK_MET | TBE_REL_MSK_DUR | TBE_REL_MSK_STA,
     TBE_REL_MSK_BEF,
     TBE_REL_MSK_BEF,
@@ -56,7 +56,7 @@ static int tbe_rel_table[13][13] = {
   /* inverse before (after) */
   {
     TBE_REL_MSK_BEI,
-    TBE_REL_MSK_NUL,
+    TBE_REL_MSK_ALL,
     TBE_REL_MSK_BEI,
     TBE_REL_MSK_BEI | TBE_REL_MSK_OVI | TBE_REL_MSK_MEI | TBE_REL_MSK_DUR | TBE_REL_MSK_FIN,
     TBE_REL_MSK_BEI,
@@ -75,7 +75,7 @@ static int tbe_rel_table[13][13] = {
     TBE_REL_MSK_BEF,
     TBE_REL_MSK_BEI,
     TBE_REL_MSK_DUR,
-    TBE_REL_MSK_NUL,
+    TBE_REL_MSK_ALL,
     TBE_REL_MSK_BEF | TBE_REL_MSK_OVR | TBE_REL_MSK_MET | TBE_REL_MSK_DUR | TBE_REL_MSK_STA,
     TBE_REL_MSK_BEI | TBE_REL_MSK_OVI | TBE_REL_MSK_MEI | TBE_REL_MSK_DUR | TBE_REL_MSK_FIN,
     TBE_REL_MSK_BEF,
@@ -254,11 +254,11 @@ unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2)
 
   for (i = TBE_REL_EQL; i <= TBE_REL_FII; i++) {
     /* if this bit is not set, move on to the next one */
-    if ((a_rs1 & (1 << i)) == TBE_REL_MSK_NUL)
+    if (!(a_rs1 & (1 << i)))
       continue;
     for (j = TBE_REL_EQL; j <= TBE_REL_FII; j++) {
       /* if this bit is not set, move on to the next one */
-      if ((a_rs2 & (1 << j)) == TBE_REL_MSK_NUL)
+      if (!(a_rs2 & (1 << j)))
         continue;
       /* ok. so at this point both bit i and bit j are set */
       retval = TBE_REL_SET_UNION(retval, tbe_rel_lookup(i, j));
