@@ -1,5 +1,9 @@
 2005-03-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/network.c :
+
+	  - Some minor cleanup.
+
 	* lib/list.c :
 
 	  - Fixed bug that required initialisation of pointers to null before

@@ -94,14 +94,14 @@ static tbe_net_rlist_node *tbe_net_get_rlist_noderef(tbe_net_rlist a_rlist,
                                                      unsigned int a_int)
 {
   tbe_net_rlist_node node;
-  tbe_net_rlist_node *nptr = NULL;
+  tbe_net_rlist_node *nptr;
   int retval;
 
   node.interval = a_int;
   retval = tbe_list_get_data_one(a_rlist,
                                  (void *) &node,
                                  tbe_net_rlist_cmp,
-                                 (void *) &nptr);
+                                 (void **) &nptr);
   if (retval == TBE_OK)
     return nptr;
 
@@ -131,7 +131,7 @@ static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
                                unsigned int a_int2,
                                unsigned int a_rs)
 {
-  tbe_net_rqueue_node *node = NULL;
+  tbe_net_rqueue_node *qptr;
   int retval;
 
   if (!a_q)
@@ -146,14 +146,14 @@ static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
     return TBE_OK;
 
   /* create a new node */
-  if (!(node = TBE_PTR_MALLOC(tbe_net_rqueue_node, 1)))
+  if (!(qptr = TBE_PTR_MALLOC(tbe_net_rqueue_node, 1)))
     return TBE_MALLOCFAILED;
 
-  node->interval1 = a_int1;
-  node->interval2 = a_int2;
-  node->relset = a_rs;
+  qptr->interval1 = a_int1;
+  qptr->interval2 = a_int2;
+  qptr->relset = a_rs;
 
-  return tbe_list_add_tail(a_q, (void *) node);
+  return tbe_list_add_tail(a_q, (void *) qptr);
 }
 
 /* dequeues a node from the queue */
@@ -162,21 +162,21 @@ static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
                               unsigned int *a_int2,
                               unsigned int *a_rs)
 {
-  tbe_net_rqueue_node *node = NULL;
+  tbe_net_rqueue_node *qptr;
   int retval;
 
   if (!a_q || !a_int1 || !a_int2 || !a_rs)
     return TBE_NULLPTR;
 
-  if ((retval = tbe_list_get_head(*a_q, (void *) &node)) != TBE_OK)
+  if ((retval = tbe_list_get_head(*a_q, (void **) &qptr)) != TBE_OK)
     return retval;
 
-  if (!node)
+  if (!qptr)
     return TBE_FAILURE;
 
-  *a_int1 = node->interval1;
-  *a_int2 = node->interval2;
-  *a_rs = node->relset;
+  *a_int1 = qptr->interval1;
+  *a_int2 = qptr->interval2;
+  *a_rs = qptr->relset;
 
   return tbe_list_del_head(a_q, NULL);
 }
@@ -188,7 +188,7 @@ static tbe_net_rqueue_node *tbe_net_get_rqueue_noderef(tbe_net_rqueue a_q,
                                                        unsigned int a_rs)
 {
   tbe_net_rqueue_node node;
-  tbe_net_rqueue_node *nptr = NULL;
+  tbe_net_rqueue_node *rptr;
   unsigned int retval;
 
   node.interval1 = a_int1;
@@ -198,10 +198,10 @@ static tbe_net_rqueue_node *tbe_net_get_rqueue_noderef(tbe_net_rqueue a_q,
   retval = tbe_list_get_data_one(a_q,
                                  (void *) &node,
                                  tbe_net_rqueue_cmp,
-                                 (void *) &nptr);
+                                 (void **) &rptr);
 
   if (retval == TBE_OK)
-    return nptr;
+    return rptr;
 
   return NULL;
 }
@@ -222,14 +222,14 @@ static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
 static tbe_net_node *tbe_net_get_noderef(tbe_net a_net, unsigned int a_int)
 {
   tbe_net_node node;
-  tbe_net_node *nptr = NULL;
+  tbe_net_node *nptr;
   int retval;
 
   node.interval = a_int;
   retval = tbe_list_get_data_one(a_net,
                                  (void *) &node,
                                  tbe_net_cmp,
-                                 (void *) &nptr);
+                                 (void **) &nptr);
 
   if (retval == TBE_OK)
     return nptr;
@@ -238,13 +238,13 @@ static tbe_net_node *tbe_net_get_noderef(tbe_net a_net, unsigned int a_int)
 }
 
 /* destroy contents of a tbe_net_node */
-static void tbe_net_free(void *a_node)
+static void tbe_net_free(void *a_nptr)
 {
-  tbe_net_node *node = (tbe_net_node *) a_node;
+  tbe_net_node *nptr = (tbe_net_node *) a_nptr;
 
-  if (node && node->rlist) {
-    tbe_list_purge(node->rlist, NULL);
-    TBE_PTR_FREE(node->rlist);
+  if (nptr && nptr->rlist) {
+    tbe_list_purge(nptr->rlist, NULL);
+    TBE_PTR_FREE(nptr->rlist);
   }
 }
 
@@ -254,8 +254,8 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
                                   unsigned int a_int2,
                                   unsigned int a_relset)
 {
-  tbe_net_node *nptr = NULL;
-  tbe_net_rlist_node *rptr = NULL;
+  tbe_net_node *nptr;
+  tbe_net_rlist_node *rptr;
 
   if (!a_net)
     return TBE_NULLPTR;
@@ -269,20 +269,19 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
     return TBE_INVALIDINPUT;
 
   /* get a reference of the node containing the first interval */
-  if ((nptr = tbe_net_get_noderef(*a_net, a_int1)) == NULL)
+  if (!(nptr = tbe_net_get_noderef(*a_net, a_int1)))
     return TBE_INVALIDINPUT;
 
   /* check if the second interval exists */
-  if (tbe_net_get_noderef(*a_net, a_int2) == NULL)
+  if (!tbe_net_get_noderef(*a_net, a_int2))
     return TBE_INVALIDINPUT;
 
-  /* now check if the second interval is in the relation list of the first */
-  if ((rptr = tbe_net_get_rlist_noderef(*(nptr->rlist), a_int2)) != NULL) {
-    /* second interval already in the list */
-    if (TBE_REL_SET_ISFILL(a_relset)) {
-      /* new relation contains all possible relations! remove it */
+  /* now check if the second interval is in the rlist of the first */
+  if ((rptr = tbe_net_get_rlist_noderef(*(nptr->rlist), a_int2))) {
+    /* second interval already in the rlist, now check if the new rel contains
+     * all possible rels. if so, we simply remove it */
+    if (TBE_REL_SET_ISFILL(a_relset))
       return tbe_net_rlist_del(nptr->rlist, a_int2);
-    }
 
     /* replace the relset with the new one */
     rptr->relset = a_relset;
@@ -290,13 +289,11 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
     return TBE_OK;
   }
   else {
-    /* second interval  not in the rlist yet, so we have to add it */
-
-    if (TBE_REL_SET_ISFILL(a_relset)) {
-      /* if the relation is everything, do nothing */
+    /* second interval  not in the rlist yet */
+    if (TBE_REL_SET_ISFILL(a_relset))
       return TBE_OK;
-    }
     
+    /* we only add if the relset is not all relations */
     if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
       return TBE_MALLOCFAILED;
 
@@ -345,8 +342,8 @@ int tbe_net_normalise(unsigned int *a_int1,
 /* add a new interval into the network */
 int tbe_net_add_int(tbe_net *a_net, unsigned int a_int)
 {
-  tbe_net_node *nptr = NULL;
-  tbe_net_rlist *rptr = NULL;
+  tbe_net_node *nptr;
+  tbe_net_rlist *rptr;
   int retval;
 
   if (!a_net)
@@ -423,7 +420,7 @@ int tbe_net_add_rel(tbe_net *a_net,
     if ((retval = tbe_net_rqueue_deq(&rqueue, &int1q, &int2q, &rsq)) != TBE_OK)
       break;
 
-    /* now we add this new relation in the network */
+    /* now we add this new relation to the network */
     if ((retval = tbe_net_add_rel_noprop(a_net, int1q, int2q, rsq)) != TBE_OK)
       break;
  
@@ -432,52 +429,59 @@ int tbe_net_add_rel(tbe_net *a_net,
       unsigned int rs1;
       unsigned int rs2;
       unsigned int rs3;
-      tbe_net_node *nnode = NULL;
+      tbe_net_node *nptr;
  
-      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
+      if ((retval = tbe_list_get_index(*a_net, i, (void **) &nptr)) != TBE_OK)
         break;
  
-      if (nnode->interval == int1q || nnode->interval == int2q)
+      if (nptr->interval == int1q || nptr->interval == int2q)
         continue;
 
       /* find rs(k,j), given rs(k,i) and rs(i,j) */
-      rs1 = tbe_net_rel(*a_net, nnode->interval, int1q);
+      rs1 = tbe_net_rel(*a_net, nptr->interval, int1q);
 
       if (!TBE_NET_SKIP(rs1, rsq)) {
-        rs2 = tbe_net_rel(*a_net, nnode->interval, int2q);
+        rs2 = tbe_net_rel(*a_net, nptr->interval, int2q);
         rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, rsq));
 
+        /* if the intersection of "what is in the network" and "what we
+         * have concluded is the empty set, something is wrong */
         if (TBE_REL_SET_ISCLEAR(rs3)) {
           retval = TBE_FAILURE;
           break;
         }
 
         if (rs2 != rs3) {
-          retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2q, rs3);
+          retval = tbe_net_rqueue_enq(&rqueue, nptr->interval, int2q, rs3);
           if (retval != TBE_OK)
             break;
         }
       }
- 
+
       /* find rs(i,k), given rs(i,j), rs(j,k) */
-      rs1 = tbe_net_rel(*a_net, int2q, nnode->interval);
+      rs1 = tbe_net_rel(*a_net, int2q, nptr->interval);
 
       if (!TBE_NET_SKIP(rsq, rs1)) {
-        rs2 = tbe_net_rel(*a_net, int1q, nnode->interval);
+        rs2 = tbe_net_rel(*a_net, int1q, nptr->interval);
         rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rsq, rs1));
 
+        /* if the intersection of "what is in the network" and "what we
+         * have concluded is the empty set, something is wrong */
         if (TBE_REL_SET_ISCLEAR(rs3)) {
           retval = TBE_FAILURE;
           break;
         }
 
         if (rs2 != rs3) {
-          retval = tbe_net_rqueue_enq(&rqueue, int1q, nnode->interval, rs3);
+          retval = tbe_net_rqueue_enq(&rqueue, int1q, nptr->interval, rs3);
           if (retval != TBE_OK)
             break;
         }
       }
     }
+
+    if (retval != TBE_OK)
+      break;
   }
 
   tbe_list_purge(&rqueue, NULL);
@@ -489,8 +493,8 @@ unsigned int tbe_net_rel(tbe_net a_net,
                          unsigned int a_int1,
                          unsigned int a_int2)
 {
-  tbe_net_node *nptr = NULL;
-  tbe_net_rlist_node *rptr = NULL;
+  tbe_net_node *nptr;
+  tbe_net_rlist_node *rptr;
   unsigned int int1 = TBE_INT_MIN(a_int1, a_int2);
   unsigned int int2 = TBE_INT_MAX(a_int1, a_int2);
   unsigned int relset;
@@ -538,36 +542,36 @@ void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
 
   for (i = 0; i < tbe_list_length(a_net); i++) {
     unsigned int j;
-    tbe_net_node *nnode = NULL;
+    tbe_net_node *nptr;
 
     /* retrieve i'th net node */
-    tbe_list_get_index(a_net, i, (void *) &nnode);
+    tbe_list_get_index(a_net, i, (void **) &nptr);
 
-    if (!nnode)
+    if (!nptr)
       continue;
 
     /* if the interval doesn't have any rels, just dump the interval */
-    if (tbe_list_length(*(nnode->rlist)) == 0) {
-      fprintf(a_stream, "%03u\n", nnode->interval);
+    if (tbe_list_length(*(nptr->rlist)) == 0) {
+      fprintf(a_stream, "%03u\n", nptr->interval);
       continue;
     }
 
     /* now get this interval's rel list */
-    for (j = 0; j < tbe_list_length(*(nnode->rlist)); j++) {
-      tbe_net_rlist_node *rnode = NULL;
+    for (j = 0; j < tbe_list_length(*(nptr->rlist)); j++) {
+      tbe_net_rlist_node *rptr;
 
       /* print interval 1 */
-      fprintf(a_stream, "%03u ", nnode->interval);
+      fprintf(a_stream, "%03u ", nptr->interval);
 
       /* get j'th rel node */
-      tbe_list_get_index(*(nnode->rlist), j, (void *) &rnode);
+      tbe_list_get_index(*(nptr->rlist), j, (void **) &rptr);
 
       /* dump the relset of these nodes */
-      if (rnode)
-        tbe_rel_set_dump(rnode->relset, a_stream);
+      if (rptr)
+        tbe_rel_set_dump(rptr->relset, a_stream);
 
       /* print interval 2 */
-      fprintf(a_stream, "%03u\n", rnode->interval);
+      fprintf(a_stream, "%03u\n", rptr->interval);
     }
   }
 }
@@ -579,20 +583,20 @@ void tbe_net_dump2(tbe_net a_net, FILE *a_stream)
   unsigned int j;
   unsigned int int1;
   unsigned int int2;
-  tbe_net_node *nnode = NULL;
+  tbe_net_node *nptr;
 
   if (!a_stream)
     return;
 
   for (i = 0; i < tbe_list_length(a_net); i++) {
     /* first interval */
-    tbe_list_get_index(a_net, i, (void *) &nnode);
-    int1 = nnode->interval;
+    tbe_list_get_index(a_net, i, (void **) &nptr);
+    int1 = nptr->interval;
 
     for (j = 0; j < tbe_list_length(a_net); j++) {
       /* second interval */
-      tbe_list_get_index(a_net, j, (void *) &nnode);
-      int2 = nnode->interval;
+      tbe_list_get_index(a_net, j, (void **) &nptr);
+      int2 = nptr->interval;
 
       /* print interval 1 */
       fprintf(a_stream, "%03u ", int1);
