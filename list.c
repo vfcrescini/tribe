@@ -224,7 +224,30 @@ int tbe_list_get_data_one(tbe_list a_list,
   curr = a_list.head;
 
   while (curr) {
-    if (a_cmp(curr->data, a_data) == TBE_OK) {
+    if (a_cmp(a_data, curr->data) == TBE_OK) {
+      *a_ref = curr->data;
+      break;
+    }
+    curr = curr->next;
+  }
+  return ((*a_ref) ? TBE_OK : TBE_NOTFOUND);
+}
+
+/* gives a reference to the FIRST node whose hash value matches */
+int tbe_list_get_data_hash(tbe_list a_list,
+                           unsigned int a_hval,
+                           int (a_hfn)(unsigned int, void *),
+                           void **a_ref)
+{
+  tbe_list_node *curr;
+
+  if (!a_hfn || !a_ref)
+    return TBE_NULLPTR;
+
+  curr = a_list.head;
+
+  while (curr) {
+    if (a_hfn(a_hval, curr->data) == TBE_OK) {
       *a_ref = curr->data;
       break;
     }
