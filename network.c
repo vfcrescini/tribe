@@ -67,7 +67,7 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
     return TBE_NULLPTR;
 
   /* firstly, we check whether we are trying to add some trivial info */
-  if (a_int1 == a_int2 || TBE_REL_SET_ISFILL(a_relset))
+  if (a_int1 == a_int2)
     return TBE_OK;
 
   /* we then figure out what relset to store. the relset itself will be
@@ -102,7 +102,15 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
       return tbe_list_add(nptr->rlist, (void *) rptr);
     }
     case TBE_OK :
-      /* larger interval already in the list. for now, we just replace relset */
+      /* larger interval already in the list */
+      if (TBE_REL_SET_ISFILL(relset)) {
+        /* new relation contains all possible relations! remove it */
+        return tbe_list_del_data(nptr->rlist,
+                                 (void *) &rnode,
+                                 tbe_net_rlist_cmp,
+                                 NULL);
+      }
+      /* replace the relset with the new one */
       rptr->relset = relset;
       return TBE_OK;
     default :
