@@ -3,31 +3,55 @@
 #include "rel.h"
 #include "network.h"
 
-static void tbe_net_list_free(void *a_node)
-{
-  tbe_net_list_node *node = (tbe_net_list_node *) a_node;
+static int tbe_net_rlist_add(tbe_net_rlist *a_list,
+                             unsigned int a_interval,
+                             unsigned int a_relset);
+static void tbe_net_rlist_dump(tbe_net_rlist a_list, FILE *a_stream);
+static void tbe_net_free(void *a_node);
 
-  if (node)
-    tbe_net_rel_list_purge(node->rellist);
+/* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
+static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
+{
+  tbe_net_rlist_node *ptr1 = (tbe_net_rlist_node *) a_ptr1;
+  tbe_net_rlist_node *ptr2 = (tbe_net_rlist_node *) a_ptr2;
+
+  if (!ptr1 || !ptr2)
+    return TBE_NULLPTR;
+
+  return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE); 
 }
 
-int tbe_net_rel_list_init(tbe_net_rel_list *a_list)
+/* destroy contents of a tbe_net_node */
+static void tbe_net_free(void *a_node)
 {
-  return tbe_list_init(a_list);
+  tbe_net_node *node = (tbe_net_node *) a_node;
+
+  if (node && node->rlist) {
+    tbe_list_purge(node->rlist, NULL);
+    free(node->rlist);
+  }
 }
 
-void tbe_net_rel_list_purge(tbe_net_rel_list *a_list)
+/* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
+static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
 {
-  tbe_list_purge(a_list, NULL);
+  tbe_net_node *ptr1 = (tbe_net_node *) a_ptr1;
+  tbe_net_node *ptr2 = (tbe_net_node *) a_ptr2;
+
+  if (!ptr1 || !ptr2)
+    return TBE_NULLPTR;
+
+  return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE);
 }
 
-int tbe_net_rel_list_add(tbe_net_rel_list *a_list,
-                         unsigned int a_interval,
-                         unsigned int a_relset)
+/* add interval and relset into the relation list */
+static int tbe_net_rlist_add(tbe_net_rlist *a_list,
+                             unsigned int a_interval,
+                             unsigned int a_relset)
 {
-  tbe_net_rel_list_node *node;
+  tbe_net_rlist_node *node;
 
-  if (!(node = TBE_PTR_MALLOC(tbe_net_rel_list_node, 1)))
+  if (!(node = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
     return TBE_MALLOCFAILED;
 
   node->interval = a_interval;
@@ -36,7 +60,8 @@ int tbe_net_rel_list_add(tbe_net_rel_list *a_list,
   return tbe_list_add(a_list, (void *) node);
 }
 
-void tbe_net_rel_list_dump(tbe_net_rel_list a_list, FILE *a_stream)
+/* dump contents of the relation list */
+static void tbe_net_rlist_dump(tbe_net_rlist a_list, FILE *a_stream)
 {
   unsigned int i;
 
@@ -47,54 +72,135 @@ void tbe_net_rel_list_dump(tbe_net_rel_list a_list, FILE *a_stream)
       if (!node)
         continue;
       fprintf(a_stream, "  ");
-      tbe_rel_set_dump(((tbe_net_rel_list_node *) node)->relset, a_stream);
-      fprintf(a_stream, "%03u\n", ((tbe_net_rel_list_node *) node)->interval);
+      tbe_rel_set_dump(((tbe_net_rlist_node *) node)->relset, a_stream);
+      fprintf(a_stream, "%03u\n", ((tbe_net_rlist_node *) node)->interval);
     }
   }
 }
 
-int tbe_net_list_init(tbe_net_list *a_list)
+/* initialise a new net */
+int tbe_net_init(tbe_net *a_net)
 {
-  return tbe_list_init(a_list);
+  return tbe_list_init(a_net);
 }
 
-void tbe_net_list_purge(tbe_net_list *a_list)
+/* destroy the given net */
+void tbe_net_purge(tbe_net *a_net)
 {
-  tbe_list_purge(a_list, tbe_net_list_free);
+  tbe_list_purge(a_net, tbe_net_free);
 }
 
-int tbe_net_list_add(tbe_net_list *a_list,
-                     unsigned int a_interval,
-                     tbe_net_rel_list *a_rellist)
+/* add a new interval into the network */
+int tbe_net_int_add(tbe_net *a_net, unsigned int a_int)
 {
-  tbe_net_list_node *node;
+  tbe_net_node tmp;
+  tbe_net_node *node;
+  tbe_net_rlist *rlist;
+  int retval;
 
-  if (!a_rellist)
+  if (!a_net)
     return TBE_NULLPTR;
 
-  if (!(node = TBE_PTR_MALLOC(tbe_net_list_node, 1)))
+  /* check if interval is not in list yet */
+  tmp.interval = a_int;
+  if ((retval = tbe_list_find_data(*a_net, &tmp, tbe_net_cmp)) != TBE_NOTFOUND)
+    return ((retval == TBE_OK) ? TBE_DUPLICATE : retval);
+
+  /* allocate mem for new node */
+  if (!(node = TBE_PTR_MALLOC(tbe_net_node, 1)))
     return TBE_MALLOCFAILED;
 
-  node->interval = a_interval;
-  node->rellist = a_rellist;
+  if (!(rlist = TBE_PTR_MALLOC(tbe_net_rlist, 1))) {
+    free(node);
+    return TBE_MALLOCFAILED;
+  }
 
-  return tbe_list_add(a_list, (void *) node);
+  /* create a new, empty relation list */
+  if ((retval = tbe_list_init(rlist)) != TBE_OK) {
+    free(node);
+    free(rlist);
+    return retval;
+  }
+
+  /* populate the new node */
+  node->interval = a_int;
+  node->rlist = rlist;
+
+  return tbe_list_add(a_net, (void *) node);
 }
 
-void tbe_net_list_dump(tbe_net_list a_list, FILE *a_stream)
+/* add a new relation to an existing interval */
+int tbe_net_rel_add(tbe_net *a_net,
+                    unsigned int a_int1,
+                    unsigned int a_int2,
+                    unsigned int a_relset)
+{
+  tbe_net_node nnode;
+  tbe_net_node *nnodeptr;
+  tbe_net_rlist_node rlnode;
+  tbe_net_rlist_node *rlnodeptr;
+  void **array;
+  unsigned int size;
+  int retval;
+
+  if (!a_net)
+    return TBE_NULLPTR;
+
+  /* get a reference to the node containing interval 1 */
+  nnode.interval = a_int1;
+  if ((retval = tbe_list_get_data(*a_net, (void *) &nnode, tbe_net_cmp, &array, &size)) != TBE_OK)
+    return retval;
+
+  /* paranoia check */
+  if (size != 1 || !array)
+    return TBE_FAILURE;
+
+  /* cleanup */
+  nnodeptr = *array;
+  free(array);
+
+  /* now that we have a reference to the node containing interval 1,
+   * we then check its relation list to see if interval 2 is already in it.
+   */
+
+  rlnode.interval = a_int2;
+  retval = tbe_list_get_data(*(nnodeptr->rlist), (void *) &rlnode, tbe_net_rlist_cmp, &array, &size);
+
+  switch (retval) {
+    case TBE_NOTFOUND :
+      /* interval2 not in list yet, so we have to add it */
+      return tbe_net_rlist_add(nnodeptr->rlist, a_int2, a_relset);
+    case TBE_OK :
+      /* paranoia check */
+      if (size != 1 || !array)
+        return TBE_FAILURE;
+
+      /* cleanup */
+      rlnodeptr = *array;
+      free(array);
+
+      /* interval2 already in list. for now we just replace the relset */
+      rlnodeptr->relset = a_relset;
+      return TBE_OK;
+    default :
+      return retval;
+  }
+}
+
+/* print the network */
+void tbe_net_dump(tbe_net a_net, FILE *a_stream)
 {
   unsigned int i;
 
   if (a_stream) {
-    for (i = 0; i < tbe_list_length(a_list); i++) {
+    for (i = 0; i < tbe_list_length(a_net); i++) {
       void *node;
-      tbe_list_get_index(a_list, i, &node);
+      tbe_list_get_index(a_net, i, &node);
       if (!node)
         continue;
-      fprintf(a_stream, "%03u\n", ((tbe_net_list_node *) node)->interval);
-      tbe_net_rel_list_dump(*(((tbe_net_list_node *) node)->rellist), a_stream);
+      fprintf(a_stream, "%03u\n", ((tbe_net_node *) node)->interval);
+      tbe_net_rlist_dump(*(((tbe_net_node *) node)->rlist), a_stream);
       fprintf(a_stream, "\n");
-
     }
   } 
 }

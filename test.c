@@ -7,8 +7,7 @@ int main(int argc, char *argv[])
   unsigned int rs1;
   unsigned int rs2;
 
-  tbe_net_list netlist;
-  tbe_net_rel_list netrellist;
+  tbe_net net;
 
   TBE_REL_SET_CLR(rs1);
   TBE_REL_SET_CLR(rs2);
@@ -48,16 +47,16 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs2, TBE_REL_MET);
   TBE_REL_SET_ADD(rs2, TBE_REL_MEI);
 
-  tbe_net_rel_list_init(&netrellist);
-  tbe_net_rel_list_add(&netrellist, 2, rs1);
-  tbe_net_rel_list_add(&netrellist, 3, rs2);
+  tbe_net_init(&net);
+  tbe_net_int_add(&net, 1);
+  tbe_net_int_add(&net, 2);
+  tbe_net_int_add(&net, 3);
+  tbe_net_rel_add(&net, 2, 1, rs1);
+  tbe_net_rel_add(&net, 2, 3, rs2);
 
-  tbe_net_list_init(&netlist);
-  tbe_net_list_add(&netlist, 1, &netrellist);
+  tbe_net_dump(net, stdout);
 
-  tbe_net_list_dump(netlist, stdout);
-
-  tbe_net_list_purge(&netlist);
+  tbe_net_purge(&net);
 
   return 0;
 }
