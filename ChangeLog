@@ -1,5 +1,18 @@
 2005-02-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Now uses an efficient queue instead of making recursive calls to
+	    add().
+
+	  - Fixed logic error in adding to queue / network (the second for
+	    loop).
+
+	* test/test.c :
+
+	  - Added another node in test network.
+
 	* lib/list.c :
 	* lib/list.h :
 	* lib/network.c :

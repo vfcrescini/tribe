@@ -5,6 +5,16 @@
 
 /* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
 static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);
+/* enqueues a new node to the queue */
+static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
+                               unsigned int a_int1,
+                               unsigned int a_int2,
+                               unsigned int a_rs);
+/* dequeues a node from the queue */
+static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
+                              unsigned int *a_int1,
+                              unsigned int *a_int2,
+                              unsigned int *a_rs);
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
 static int tbe_net_cmp(void *a_ptr1, void *a_ptr2);
 /* destroy contents of a tbe_net_node */
@@ -25,6 +35,52 @@ static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
     return TBE_NULLPTR;
 
   return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE); 
+}
+
+/* enqueues a new node to the queue */
+static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
+                               unsigned int a_int1,
+                               unsigned int a_int2,
+                               unsigned int a_rs)
+{
+  tbe_net_rqueue_node *node = NULL;
+
+  if (!a_q)
+    return TBE_NULLPTR;
+
+  if (!(node = TBE_PTR_MALLOC(tbe_net_rqueue_node, 1)))
+    return TBE_MALLOCFAILED;
+
+  node->interval1 = a_int1;
+  node->interval2 = a_int2;
+  node->relset = a_rs;
+
+  return tbe_list_add_tail(a_q, (void *) node);
+}
+
+/* dequeues a node from the queue */
+static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
+                              unsigned int *a_int1,
+                              unsigned int *a_int2,
+                              unsigned int *a_rs)
+{
+  tbe_net_rqueue_node *node = NULL;
+  int retval;
+
+  if (!a_q || !a_int1 || !a_int2 || !a_rs)
+    return TBE_NULLPTR;
+
+  if ((retval = tbe_list_get_head(*a_q, (void *) &node)) != TBE_OK)
+    return retval;
+
+  if (!node)
+    return TBE_FAILURE;
+
+  *a_int1 = node->interval1;
+  *a_int2 = node->interval2;
+  *a_rs = node->relset;
+
+  return tbe_list_del_head(a_q, NULL);
 }
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
@@ -176,93 +232,106 @@ int tbe_net_add_rel(tbe_net *a_net,
                     unsigned int a_relset)
 {
   int retval;
-  unsigned int i;
-  unsigned int rel;
+  tbe_net_rqueue rqueue;
 
   if (!a_net)
     return TBE_NULLPTR;
 
-  /* first, we check what we already know about the relationship between
-   * a_int1 and a_int2: this should not be zero */
-  if (TBE_REL_SET_ISCLEAR(rel = tbe_net_rel(*a_net, a_int1, a_int2)))
-    return TBE_FAILURE;
-
-  /* we then take the intersection of the new relation and what is already
-   * in the network: again, should not be zero */
-  if (TBE_REL_SET_ISCLEAR(rel = TBE_REL_SET_INTERSECT(rel, a_relset)))
-    return TBE_FAILURE;
-
-  /* now we add this new relation in the network */
-  if ((retval = tbe_net_add_rel_noprop(a_net, a_int1, a_int2, rel)) != TBE_OK)
+  if ((retval = tbe_list_init(&rqueue)) != TBE_OK)
     return retval;
 
-  /* go through all intervals k to find r(k,j), given r1(k,i), r2(i,j) */
-  for (i = 0; i < tbe_list_length(*a_net); i++) {
-    unsigned int r1;
-    unsigned int r2;
-    unsigned int r3;
-    unsigned int r4;
-    tbe_net_node *nnode = NULL;
+  if ((retval = tbe_net_rqueue_enq(&rqueue, a_int1, a_int2, a_relset)) != TBE_OK)
+    return retval;
 
-    if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
+  while (tbe_list_length(rqueue)) {
+    unsigned int i;
+    unsigned int int1;
+    unsigned int int2;
+    unsigned int new_rs;
+    unsigned int old_rs;
+
+    /* get relation from queue */
+    if ((retval = tbe_net_rqueue_deq(&rqueue, &int1, &int2, &new_rs)) != TBE_OK)
       return retval;
 
-    if (nnode->interval == a_int1 || nnode->interval == a_int2)
-      continue;
-
-    /* get relations between nnode->interval and a_int1 */
-    r1 = tbe_net_rel(*a_net, nnode->interval, a_int1);
-    /* get the relations between a_int1 and a_int2 */
-    r2 = tbe_net_rel(*a_net, a_int1, a_int2);
-    /* get the relations between nnode->interval and a_int2 */
-    r3 = tbe_net_rel(*a_net, nnode->interval, a_int2);
-    /* given r1(nnode->interval, a_int1) and r2(a_int1, a_int2), and that
-     * r3(nnode->interval, a_int2), try to narrow down r3 */
-    r4 = TBE_REL_SET_INTERSECT(r3, tbe_rel_set_lookup(r1, r2));
-
-    /* paranoid check: none of these relations should be zero */
-    if (TBE_REL_SET_ISCLEAR(r1) || TBE_REL_SET_ISCLEAR(r2) || TBE_REL_SET_ISCLEAR(r3) || TBE_REL_SET_ISCLEAR(r4))
+    /* first, we check what we already know about the relationship between
+     * a_int1 and a_int2: this should not be zero */
+    if (TBE_REL_SET_ISCLEAR(old_rs = tbe_net_rel(*a_net, int1, int2)))
+      return TBE_FAILURE;
+ 
+    /* we then take the intersection of the new relation and what is already
+     * in the network: again, should not be zero */
+    if (TBE_REL_SET_ISCLEAR(TBE_REL_SET_INTERSECT(new_rs, old_rs)))
       return TBE_FAILURE;
 
-    /* now check if r4 is more specific that what is already in the network. in
-     * other words, check if r4 is a proper subset of r3 */
-    if (r3 != r4 && TBE_REL_SET_UNION(r3, r4) == r3)
-      if ((retval = tbe_net_add_rel(a_net, nnode->interval, a_int2, r4)) != TBE_OK)
-        return retval;
-  }
-
-  /* go through all intervals k to find r(i,k), given r1(i,j), r2(j,k) */
-  for (i = 0; i < tbe_list_length(*a_net); i++) {
-    unsigned int r1;
-    unsigned int r2;
-    unsigned int r3;
-    unsigned int r4;
-    tbe_net_node *nnode = NULL;
-
-    if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
+    /* now we add this new relation in the network */
+    if ((retval = tbe_net_add_rel_noprop(a_net, int1, int2, new_rs)) != TBE_OK)
       return retval;
-
-    if (nnode->interval == a_int1 || nnode->interval == a_int2)
-      continue;
-
-    /* get the relations between a_int1 and a_int2 */
-    r1 = tbe_net_rel(*a_net, a_int1, a_int2);
-    /* get relations between a_int2 and nnode->interval */
-    r2 = tbe_net_rel(*a_net, a_int2, nnode->interval);
-    /* get the relations between a_int1 and nnode->interval */
-    r3 = tbe_net_rel(*a_net, a_int1, nnode->interval);
-
-    /* given r1(a_int1, a_int2) and r2(a_int2, nnode->interval), and that
-     * r3(a_int2, nnode->interval), try to narrow down r3 */
-    r4 = TBE_REL_SET_INTERSECT(r3, tbe_rel_set_lookup(r1, r2));
-
-    /* now check if r4 is more specific that what is already in the network. in
-     * other words, check if r4 is a proper subset of r3 */
-    if (r3 != r4 && TBE_REL_SET_UNION(r3, r4) == r3)
-      if ((retval = tbe_net_add_rel(a_net, nnode->interval, a_int2, r4)) != TBE_OK)
+ 
+    /* go through all intervals k to find r(k,j), given r1(k,i), r2(i,j) */
+    for (i = 0; i < tbe_list_length(*a_net); i++) {
+      unsigned int rs1;
+      unsigned int rs2;
+      unsigned int rs3;
+      unsigned int rs4;
+      tbe_net_node *nnode = NULL;
+ 
+      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
         return retval;
+ 
+      if (nnode->interval == int1 || nnode->interval == int2)
+        continue;
+ 
+      rs1 = tbe_net_rel(*a_net, nnode->interval, int1);
+      rs2 = tbe_net_rel(*a_net, int1, int2);
+      rs3 = tbe_net_rel(*a_net, nnode->interval, int2);
+      rs4 = TBE_REL_SET_INTERSECT(rs3, tbe_rel_set_lookup(rs1, rs2));
+
+      /* paranoid check: none of these relations should be zero */
+      if (TBE_REL_SET_ISCLEAR(rs1) || TBE_REL_SET_ISCLEAR(rs2) || TBE_REL_SET_ISCLEAR(rs3) || TBE_REL_SET_ISCLEAR(rs4))
+        return TBE_FAILURE;
+
+      /* now check if rs4 is more specific that what is already in the network. in
+       * other words, check if rs4 is a proper subset of rs3 */
+      if (rs3 != rs4 && !TBE_REL_SET_ISCLEAR(rs4) && TBE_REL_SET_UNION(rs3, rs4) == rs3) {
+        if ((retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2, rs4)) != TBE_OK)
+          return retval;
+      }
+    }
+ 
+    /* go through all intervals k to find r(i,k), given r1(i,j), r2(j,k) */
+    for (i = 0; i < tbe_list_length(*a_net); i++) {
+      unsigned int rs1;
+      unsigned int rs2;
+      unsigned int rs3;
+      unsigned int rs4;
+      tbe_net_node *nnode = NULL;
+ 
+      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
+        return retval;
+ 
+      if (nnode->interval == int1 || nnode->interval == int2)
+        continue;
+ 
+      rs1 = tbe_net_rel(*a_net, int1, int2);
+      rs2 = tbe_net_rel(*a_net, int2, nnode->interval);
+      rs3 = tbe_net_rel(*a_net, int1, nnode->interval);
+      rs4 = TBE_REL_SET_INTERSECT(rs3, tbe_rel_set_lookup(rs1, rs2));
+
+      /* paranoid check: none of these relations should be zero */
+      if (TBE_REL_SET_ISCLEAR(rs1) || TBE_REL_SET_ISCLEAR(rs2) || TBE_REL_SET_ISCLEAR(rs3) || TBE_REL_SET_ISCLEAR(rs4))
+        return TBE_FAILURE;
+ 
+      /* now check if rs4 is more specific that what is already in the network. in
+       * other words, check if rs4 is a proper subset of rs3 */
+      if (rs3 != rs4 && !TBE_REL_SET_ISCLEAR(rs4) && TBE_REL_SET_UNION(rs3, rs4) == rs3) {
+        if ((retval = tbe_net_rqueue_enq(&rqueue, int1, nnode->interval, rs4)) != TBE_OK)
+          return retval;
+      }
+    }
   }
 
+  tbe_list_purge(&rqueue, NULL);
   return TBE_OK;
 }
 
