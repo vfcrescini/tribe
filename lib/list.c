@@ -46,8 +46,31 @@ unsigned int tbe_list_length(tbe_list a_list)
   return a_list.length;
 }
 
-/* add pointer to list, assumes memory has been pre-allocated */
-int tbe_list_add(tbe_list *a_list, void *a_data)
+/* add node to the head of the list, assumes memory has been pre-allocated */
+int tbe_list_add_head(tbe_list *a_list, void *a_data)
+{
+  tbe_list_node *node;
+
+  if (!a_list || !a_data)
+    return TBE_NULLPTR;
+
+  if (!(node = TBE_PTR_MALLOC(tbe_list_node, 1)))
+    return TBE_MALLOCFAILED;
+
+  node->data = a_data;
+  node->next = a_list->head;
+
+  if (!a_list->tail)
+    a_list->tail = node;
+
+  a_list->head = node;
+  (a_list->length)++;
+
+  return TBE_OK;
+}
+
+/* add node to the tail of the list, assumes memory has been pre-allocated */
+int tbe_list_add_tail(tbe_list *a_list, void *a_data)
 {
   tbe_list_node *node;
 
@@ -68,6 +91,47 @@ int tbe_list_add(tbe_list *a_list, void *a_data)
   (a_list->length)++;
 
   return TBE_OK;
+}
+
+/* deletes first node, give fr to free the pointer or NULL to not free it */
+int tbe_list_del_head(tbe_list *a_list, void (*a_fr)(void *))
+{
+  tbe_list_node *node;
+
+  if (!a_list)
+    return TBE_NULLPTR;
+
+  if (a_list->length <= 0)
+    return TBE_OUTOFBOUNDS;
+ 
+  node = a_list->head;
+  a_list->head = a_list->head->next;
+
+  if (!a_list->head)
+    a_list->tail = NULL;
+
+  if (a_fr)
+    a_fr(node->data);
+
+  TBE_PTR_FREE(node);
+
+  (a_list->length)--;
+
+  return TBE_OK;
+}
+
+/* deletes last node, give fr to free the pointer or NULL to not free it */
+int tbe_list_del_tail(tbe_list *a_list, void (*a_fr)(void *))
+{
+  if (!a_list)
+    return TBE_NULLPTR;
+
+  if (a_list->length <= 0)
+    return TBE_OUTOFBOUNDS;
+
+  /* unfortunately, the only way to get the prev ptr is to go through all the
+   * nodes */
+  return tbe_list_del_index(a_list, a_list->length - 1, a_fr);
 }
 
 /* deletes index'th data, give fr to free the pointer or NULL to not free it */
@@ -164,6 +228,34 @@ int tbe_list_del_data(tbe_list *a_list,
   }
 
   return (found ? TBE_OK : TBE_NOTFOUND);
+}
+
+/* gives a reference to the FIRST node in the list */
+int tbe_list_get_data_head(tbe_list a_list, void **a_ref)
+{
+  if (!a_ref)
+    return TBE_NULLPTR;
+
+  if (a_list.length <= 0)
+    return TBE_NOTFOUND;
+
+  *a_ref = a_list.head;
+
+  return TBE_OK;
+}
+
+/* gives a reference to the LAST node in the list */
+int tbe_list_get_data_tail(tbe_list a_list, void **a_ref)
+{
+  if (!a_ref)
+    return TBE_NULLPTR;
+
+  if (a_list.length <= 0)
+    return TBE_NOTFOUND;
+
+  *a_ref = a_list.tail;
+
+  return TBE_OK;
 }
 
 /* gives a reference to the index'th data */

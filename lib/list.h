@@ -20,8 +20,14 @@ int tbe_list_init(tbe_list *a_list);
 void tbe_list_purge(tbe_list *a_list, void (*a_fr)(void *));
 /* return length */
 unsigned int tbe_list_length(tbe_list a_list);
-/* add pointer to list, assumes memory has been pre-allocated */
-int tbe_list_add(tbe_list *a_list, void *a_data);
+/* add node to the head of the list, assumes memory has been pre-allocated */
+int tbe_list_add_head(tbe_list *a_list, void *a_data);
+/* add node to the tail of the list, assumes memory has been pre-allocated */
+int tbe_list_add_tail(tbe_list *a_list, void *a_data);
+/* deletes first node, give fr to free the pointer or NULL to not free it */
+int tbe_list_del_head(tbe_list *a_list, void (*a_fr)(void *));
+/* deletes last node, give fr to free the pointer or NULL to not free it */
+int tbe_list_del_tail(tbe_list *a_list, void (*a_fr)(void *));
 /* deletes index'th data, give fr to free the pointer or NULL to not free it */
 int tbe_list_del_index(tbe_list *a_list,
                        unsigned int a_index,
@@ -32,6 +38,10 @@ int tbe_list_del_data(tbe_list *a_list,
                       void *a_data,
                       int (*a_cmp)(void *, void *),
                       void (*a_fr)(void *));
+/* gives a reference to the FIRST node in the list */
+int tbe_list_get_data_head(tbe_list a_list, void **a_ref);
+/* gives a reference to the LAST node in the list */
+int tbe_list_get_data_tail(tbe_list a_list, void **a_ref);
 /* gives a reference to the index'th data */
 int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref);
 /* gives a reference to all the nodes that matches data. array + size */

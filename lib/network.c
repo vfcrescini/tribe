@@ -99,7 +99,7 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
       rptr->interval = TBE_INT_MAX(a_int1, a_int2);
       rptr->relset = relset;
 
-      return tbe_list_add(nptr->rlist, (void *) rptr);
+      return tbe_list_add_tail(nptr->rlist, (void *) rptr);
     }
     case TBE_OK :
       /* larger interval already in the list */
@@ -166,7 +166,7 @@ int tbe_net_add_int(tbe_net *a_net, unsigned int a_int)
   node->interval = a_int;
   node->rlist = rlist;
 
-  return tbe_list_add(a_net, (void *) node);
+  return tbe_list_add_tail(a_net, (void *) node);
 }
 
 /* add a new relation to an existing interval, also propagate the relation */

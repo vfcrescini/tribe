@@ -1,5 +1,12 @@
 2005-02-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/list.c :
+	* lib/list.h :
+	* lib/network.c :
+
+	  - Added head and tail list operations (add, get, del) for
+	    efficiency.
+
 	* configure.ac :
 	* test/Makefile.in :
 
