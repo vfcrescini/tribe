@@ -149,29 +149,33 @@ int tbe_net_rel_add(tbe_net *a_net,
   if (!a_net)
     return TBE_NULLPTR;
 
-  /* get a reference to the node containing interval 1 */
-  nnode.interval = a_int1;
+  /* firstly, we check whether we are trying to add some trivial info */
+  if (a_int1 == a_int2 || TBE_REL_SET_ISFILL(a_relset))
+    return TBE_OK;
+
+  /* get a reference of the node containing the smaller of the 2 intervals */
+  nnode.interval = TBE_INT_MIN(a_int1, a_int2);
   retval = tbe_list_get_data_one(*a_net, (void *) &nnode, tbe_net_cmp, &ntmp);
   nptr = (tbe_net_node *) ntmp;
 
   if (retval != TBE_OK)
     return retval;
 
-  /* now that we have a reference to the node containing interval 1,
-   * we then check its relation list to see if interval 2 is already in it.
-   */
+  /* now that we have a reference to the node containing the smaller
+   * interval, we then check its relation list to see if the other interval
+   * is already in it. */
 
-  rnode.interval = a_int2;
+  rnode.interval = TBE_INT_MAX(a_int1, a_int2);
   retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, &rtmp);
   rptr = (tbe_net_rlist_node *) rtmp;
 
   switch (retval) {
     case TBE_NOTFOUND :
-      /* interval2 not in list yet, so we have to add it */
+      /* interval2 not in the list yet, so we have to add it */
       return tbe_net_rlist_add(nptr->rlist, a_int2, a_relset);
     case TBE_OK :
-      /* interval2 already in list. for now we just replace the relset */
-      rptr->relset = a_relset;
+      /* interval2 already in the list. */
+      rptr->relset = TBE_REL_SET_UNION(rptr->relset, a_relset);
       return TBE_OK;
     default :
       return retval;
