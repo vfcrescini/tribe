@@ -1,5 +1,6 @@
 TOPSRCDIR = @top_srcdir@
 DISTDIR = @DISTDIR@
+LIBDIR = @LIBDIR@
 CURDIR = test
 CC = @CC@
 CFLAGS = @CFLAGS@
@@ -31,7 +32,7 @@ includedir = @includedir@
 
 include $(TOPSRCDIR)/rules.mk
 
-test : $(OBJECTS)
+test : $(OBJECTS) $(LIBDIR)/libtribe.so.*
 ifdef STATIC
 	$(CC) $(LDFLAGS) -static -o $(@) $(OBJECTS) -ltribe
 else
@@ -43,5 +44,5 @@ ifndef DEBUG
   endif
 endif
 
-test.o : ../lib/rel.h ../lib/network.h test.c
+test.o : $(LIBDIR)/rel.h $(LIBDIR)/network.h test.c
 	$(CC) $(CFLAGS) -o $(@) -c test.c

@@ -1,3 +1,11 @@
+2005-02-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* configure.ac :
+	* test/Makefile.in :
+
+	  - Added a LIBDIR variable to allow libtribe and its headers to be
+	    the dependencies of the test program.
+
 2005-02-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* test/Makefile.in :
