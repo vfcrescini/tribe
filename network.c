@@ -177,12 +177,23 @@ int tbe_net_add_rel(tbe_net *a_net,
 {
   int retval;
   unsigned int i;
+  unsigned int rel;
 
   if (!a_net)
     return TBE_NULLPTR;
 
-  /* first, we add the relation into the network */
-  if ((retval = tbe_net_add_rel_noprop(a_net, a_int1, a_int2, a_relset)) != TBE_OK)
+  /* first, we check what we already know about the relationship between
+   * a_int1 and a_int2: this should not be zero */
+  if (TBE_REL_SET_ISCLEAR(rel = tbe_net_rel(*a_net, a_int1, a_int2)))
+    return TBE_FAILURE;
+
+  /* we then take the intersection of the new relation and what is already
+   * in the network: again, should not be zero */
+  if (TBE_REL_SET_ISCLEAR(rel = TBE_REL_SET_INTERSECT(rel, a_relset)))
+    return TBE_FAILURE;
+
+  /* now we add this new relation in the network */
+  if ((retval = tbe_net_add_rel_noprop(a_net, a_int1, a_int2, rel)) != TBE_OK)
     return retval;
 
   /* go through all intervals k to find r(k,j), given r1(k,i), r2(i,j) */
@@ -209,10 +220,15 @@ int tbe_net_add_rel(tbe_net *a_net,
      * r3(nnode->interval, a_int2), try to narrow down r3 */
     r4 = TBE_REL_SET_INTERSECT(r3, tbe_rel_set_lookup(r1, r2));
 
+    /* paranoid check: none of these relations should be zero */
+    if (TBE_REL_SET_ISCLEAR(r1) || TBE_REL_SET_ISCLEAR(r2) || TBE_REL_SET_ISCLEAR(r3) || TBE_REL_SET_ISCLEAR(r4))
+      return TBE_FAILURE;
+
     /* now check if r4 is more specific that what is already in the network. in
      * other words, check if r4 is a proper subset of r3 */
     if (r3 != r4 && TBE_REL_SET_UNION(r3, r4) == r3)
-      tbe_net_add_rel(a_net, nnode->interval, a_int2, r4);
+      if ((retval = tbe_net_add_rel(a_net, nnode->interval, a_int2, r4)) != TBE_OK)
+        return retval;
   }
 
   /* go through all intervals k to find r(i,k), given r1(i,j), r2(j,k) */
@@ -243,7 +259,8 @@ int tbe_net_add_rel(tbe_net *a_net,
     /* now check if r4 is more specific that what is already in the network. in
      * other words, check if r4 is a proper subset of r3 */
     if (r3 != r4 && TBE_REL_SET_UNION(r3, r4) == r3)
-      tbe_net_add_rel(a_net, nnode->interval, a_int2, r4);
+      if ((retval = tbe_net_add_rel(a_net, nnode->interval, a_int2, r4)) != TBE_OK)
+        return retval;
   }
 
   return TBE_OK;
