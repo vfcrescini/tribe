@@ -32,7 +32,7 @@ void tbe_list_purge(tbe_list *a_list, void (*a_fr)(void *))
       if (a_fr != NULL)
         a_fr(prev->data);
 
-      free(prev);
+      TBE_PTR_FREE(prev);
     }
 
     a_list->head = NULL;

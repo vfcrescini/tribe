@@ -28,7 +28,7 @@ static void tbe_net_free(void *a_node)
 
   if (node && node->rlist) {
     tbe_list_purge(node->rlist, NULL);
-    free(node->rlist);
+    TBE_PTR_FREE(node->rlist);
   }
 }
 
@@ -111,14 +111,14 @@ int tbe_net_int_add(tbe_net *a_net, unsigned int a_int)
     return TBE_MALLOCFAILED;
 
   if (!(rlist = TBE_PTR_MALLOC(tbe_net_rlist, 1))) {
-    free(node);
+    TBE_PTR_FREE(node);
     return TBE_MALLOCFAILED;
   }
 
   /* create a new, empty relation list */
   if ((retval = tbe_list_init(rlist)) != TBE_OK) {
-    free(node);
-    free(rlist);
+    TBE_PTR_FREE(node);
+    TBE_PTR_FREE(rlist);
     return retval;
   }
 
