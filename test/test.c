@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
   tbe_net_add_int(&net, 1);
   tbe_net_add_int(&net, 2);
   tbe_net_add_int(&net, 3);
+  tbe_net_add_int(&net, 4);
 
   TBE_REL_SET_CLEAR(rs);
   TBE_REL_SET_ADD(rs, TBE_REL_BEF);
@@ -33,6 +34,11 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs, TBE_REL_DUR);
 
   printf("adding: %d\n", tbe_net_add_rel(&net, 3, 1, rs));
+
+  TBE_REL_SET_CLEAR(rs);
+  TBE_REL_SET_ADD(rs, TBE_REL_DUR);
+
+  printf("adding: %d\n", tbe_net_add_rel(&net, 4, 2, rs));
 
   TBE_REL_SET_FILL(rs);
 
