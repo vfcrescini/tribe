@@ -65,13 +65,13 @@
 /* returns non-zero if set X contains all possible relations */
 #define TBE_REL_SET_ISFILL(X) ((X) == (1 << (TBE_REL_FII + 1)) - 1)
 
-/* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
 /* returns a rel set that is the inverse of the given rel set */
 unsigned int tbe_rel_set_inverse(unsigned int a_rs);
+/* print all relations in rel set a_rs into stream a_stream */
+int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 
 #endif
