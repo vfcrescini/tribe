@@ -233,10 +233,10 @@ static int rel_table[13][13] = {
 int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs)
 {
   if (a_rs > TBE_REL_BALL)
-    return -1;
+    return TBE_INVALIDINPUT;
 
   if (!a_stream)
-    return -2;
+    return TBE_NULLPTR;
 
   if (TBE_REL_SET_IN(a_rs, TBE_REL_EQL))
     fprintf(a_stream, "%s\n", TBE_STR_EQL);
@@ -265,7 +265,7 @@ int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs)
   if (TBE_REL_SET_IN(a_rs, TBE_REL_FII))
     fprintf(a_stream, "%s\n", TBE_STR_FII);
 
-  return 0;
+  return TBE_OK;
 }
 
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */

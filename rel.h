@@ -1,6 +1,8 @@
 #ifndef __TBE_REL_H
 #define __TBE_REL_H
 
+#include "tribe.h"
+
 /* equal */
 #define TBE_REL_EQL 0
 /* before */
