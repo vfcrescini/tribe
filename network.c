@@ -136,11 +136,11 @@ int tbe_net_rel_add(tbe_net *a_net,
                     unsigned int a_relset)
 {
   tbe_net_node nnode;
-  tbe_net_node *nnodeptr;
-  tbe_net_rlist_node rlnode;
-  tbe_net_rlist_node *rlnodeptr;
-  void **array;
-  unsigned int size;
+  tbe_net_node *nptr;
+  tbe_net_rlist_node rnode;
+  tbe_net_rlist_node *rptr;
+  void *ntmp = NULL;
+  void *rtmp = NULL;
   int retval;
 
   if (!a_net)
@@ -148,39 +148,27 @@ int tbe_net_rel_add(tbe_net *a_net,
 
   /* get a reference to the node containing interval 1 */
   nnode.interval = a_int1;
-  if ((retval = tbe_list_get_data(*a_net, (void *) &nnode, tbe_net_cmp, &array, &size)) != TBE_OK)
+  retval = tbe_list_get_data_one(*a_net, (void *) &nnode, tbe_net_cmp, &ntmp);
+  nptr = (tbe_net_node *) ntmp;
+
+  if (retval != TBE_OK)
     return retval;
-
-  /* paranoia check */
-  if (size != 1 || !array)
-    return TBE_FAILURE;
-
-  /* cleanup */
-  nnodeptr = *array;
-  free(array);
 
   /* now that we have a reference to the node containing interval 1,
    * we then check its relation list to see if interval 2 is already in it.
    */
 
-  rlnode.interval = a_int2;
-  retval = tbe_list_get_data(*(nnodeptr->rlist), (void *) &rlnode, tbe_net_rlist_cmp, &array, &size);
+  rnode.interval = a_int2;
+  retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, &rtmp);
+  rptr = (tbe_net_rlist_node *) rtmp;
 
   switch (retval) {
     case TBE_NOTFOUND :
       /* interval2 not in list yet, so we have to add it */
-      return tbe_net_rlist_add(nnodeptr->rlist, a_int2, a_relset);
+      return tbe_net_rlist_add(nptr->rlist, a_int2, a_relset);
     case TBE_OK :
-      /* paranoia check */
-      if (size != 1 || !array)
-        return TBE_FAILURE;
-
-      /* cleanup */
-      rlnodeptr = *array;
-      free(array);
-
       /* interval2 already in list. for now we just replace the relset */
-      rlnodeptr->relset = a_relset;
+      rptr->relset = a_relset;
       return TBE_OK;
     default :
       return retval;

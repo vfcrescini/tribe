@@ -182,11 +182,11 @@ int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref)
   return TBE_OK;
 }
 /* gives a reference to all the nodes that matches data. array + size */
-int tbe_list_get_data(tbe_list a_list,
-                      void *a_data,
-                      int (*a_cmp)(void *, void*),
-                      void ***a_array,
-                      unsigned int *a_size)
+int tbe_list_get_data_all(tbe_list a_list,
+                          void *a_data,
+                          int (*a_cmp)(void *, void*),
+                          void ***a_array,
+                          unsigned int *a_size)
 {
   tbe_list_node *curr;
 
@@ -195,7 +195,6 @@ int tbe_list_get_data(tbe_list a_list,
 
   curr = a_list.head;
   *a_size = 0;
-  *a_array = NULL;
 
   while (curr) {
     if (a_cmp(curr->data, a_data) == TBE_OK) {
@@ -209,6 +208,29 @@ int tbe_list_get_data(tbe_list a_list,
     curr = curr->next;
   }
   return ((*a_size > 0) ? TBE_OK : TBE_NOTFOUND);
+}
+
+/* gives a reference to the FIRST node that matches data */
+int tbe_list_get_data_one(tbe_list a_list,
+                          void *a_data,
+                          int (*a_cmp)(void *, void*),
+                          void **a_ref)
+{
+  tbe_list_node *curr;
+
+  if (!a_data || !a_cmp || !a_ref)
+    return TBE_NULLPTR;
+
+  curr = a_list.head;
+
+  while (curr) {
+    if (a_cmp(curr->data, a_data) == TBE_OK) {
+      *a_ref = curr->data;
+      break;
+    }
+    curr = curr->next;
+  }
+  return ((*a_ref) ? TBE_OK : TBE_NOTFOUND);
 }
 
 /* returns 0 if data is in the list, uses cmp to compare pointers */

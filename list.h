@@ -35,11 +35,16 @@ int tbe_list_del_data(tbe_list *a_list,
 /* gives a reference to the index'th data */
 int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref);
 /* gives a reference to all the nodes that matches data. array + size */
-int tbe_list_get_data(tbe_list a_list,
-                      void *a_data,
-                      int (*a_cmp)(void *, void*),
-                      void ***a_array,
-                      unsigned int *a_size);
+int tbe_list_get_data_all(tbe_list a_list,
+                          void *a_data,
+                          int (*a_cmp)(void *, void*),
+                          void ***a_array,
+                          unsigned int *a_size);
+/* gives a reference to the FIRST node that matches data */
+int tbe_list_get_data_one(tbe_list a_list,
+                          void *a_data,
+                          int (*a_cmp)(void *, void*),
+                          void **a_ref);
 /* returns 0 if data is in the list, uses cmp to compare pointers */
 int tbe_list_find_data(tbe_list a_list,
                        void *a_data,
