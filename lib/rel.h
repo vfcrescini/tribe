@@ -7,26 +7,26 @@
 #define TBE_REL_EQL 0
 /* before */
 #define TBE_REL_BEF 1
-/* inverse before (after) */
-#define TBE_REL_BEI 2
 /* during */
-#define TBE_REL_DUR 3
-/* inverse during (contains) */
-#define TBE_REL_DUI 4
+#define TBE_REL_DUR 2
 /* overlaps */
-#define TBE_REL_OVR 5
-/* inverse overlaps (overlapped by) */
-#define TBE_REL_OVI 6
+#define TBE_REL_OVR 3
 /* meets */
-#define TBE_REL_MET 7
-/* inverse meets (met by) */
-#define TBE_REL_MEI 8
+#define TBE_REL_MET 4
 /* starts */
-#define TBE_REL_STA 9
-/* inverse starts (started by) */
-#define TBE_REL_STI 10
+#define TBE_REL_STA 5
 /* finishes */
-#define TBE_REL_FIN 11
+#define TBE_REL_FIN 6
+/* inverse before (after) */
+#define TBE_REL_BEI 7
+/* inverse during (contains) */
+#define TBE_REL_DUI 8
+/* inverse overlaps (overlapped by) */
+#define TBE_REL_OVI 9
+/* inverse meets (met by) */
+#define TBE_REL_MEI 10
+/* inverse starts (started by) */
+#define TBE_REL_STI 11
 /* inverse finishes (finished by) */
 #define TBE_REL_FII 12
 
@@ -34,16 +34,16 @@
 #define TBE_STR_NUL "no-relation"
 #define TBE_STR_EQL "equals"
 #define TBE_STR_BEF "before"
-#define TBE_STR_BEI "after"
 #define TBE_STR_DUR "during"
-#define TBE_STR_DUI "contains"
 #define TBE_STR_OVR "overlaps"
-#define TBE_STR_OVI "overlapped-by"
 #define TBE_STR_MET "meets"
-#define TBE_STR_MEI "met-by"
 #define TBE_STR_STA "starts"
-#define TBE_STR_STI "started-by"
 #define TBE_STR_FIN "finishes"
+#define TBE_STR_BEI "after"
+#define TBE_STR_DUI "contains"
+#define TBE_STR_OVI "overlapped-by"
+#define TBE_STR_MEI "met-by"
+#define TBE_STR_STI "started-by"
 #define TBE_STR_FII "finished-by"
 
 /* clear set X */
