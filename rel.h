@@ -30,19 +30,6 @@
 /* inverse finishes (finished by) */
 #define TBE_REL_FII 12
 
-/* clear set X */
-#define TBE_REL_SET_CLR(X) ((X) = 0)
-/* add relation Y to set X */
-#define TBE_REL_SET_ADD(X,Y) (X) = (X) | (1 << (Y))
-/* remove relation Y from set X */
-#define TBE_REL_SET_DEL(X,Y) (X) = (X) & ~(1 << (Y))
-/* returns union of set X and set Y */
-#define TBE_REL_SET_UNI(X,Y) ((X) | (Y))
-/* returns intersection of set X and set Y */
-#define TBE_REL_SET_INT(X,Y) ((X) & (Y))
-/* returns non-zero if relation Y is in set X */
-#define TBE_REL_SET_IN(X,Y) ((X) & (1 << (Y)))
-
 /* strings */
 #define TBE_STR_NUL "no-relation"
 #define TBE_STR_EQL "equals"
@@ -58,6 +45,25 @@
 #define TBE_STR_STI "started-by"
 #define TBE_STR_FIN "finishes"
 #define TBE_STR_FII "finished-by"
+
+/* clear set X */
+#define TBE_REL_SET_CLEAR(X) ((X) = 0)
+/* fill set X with all possible relations */
+#define TBE_REL_SET_FILL(X) ((X) = ((1 << (TBE_REL_FII + 1)) - 1))
+/* add relation Y to set X */
+#define TBE_REL_SET_ADD(X,Y) (X) = (X) | (1 << (Y))
+/* remove relation Y from set X */
+#define TBE_REL_SET_DEL(X,Y) (X) = (X) & ~(1 << (Y))
+/* returns union of set X and set Y */
+#define TBE_REL_SET_UNION(X,Y) ((X) | (Y))
+/* returns intersection of set X and set Y */
+#define TBE_REL_SET_INTERSECT(X,Y) ((X) & (Y))
+/* returns non-zero if relation Y is in set X */
+#define TBE_REL_SET_ISIN(X,Y) ((X) & (1 << (Y)))
+/* returns non-zero if set X is empty */
+#define TBE_REL_SET_ISCLEAR(X) ((X) == 0)
+/* returns non-zero if set X contains all possible relations */
+#define TBE_REL_SET_ISFILL(X) ((X) == (1 << (TBE_REL_FII + 1)) - 1)
 
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);

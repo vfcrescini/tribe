@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
 
   tbe_net net;
 
-  TBE_REL_SET_CLR(rs1);
-  TBE_REL_SET_CLR(rs2);
+  TBE_REL_SET_CLEAR(rs1);
+  TBE_REL_SET_CLEAR(rs2);
 
   TBE_REL_SET_ADD(rs1, TBE_REL_OVI);
   TBE_REL_SET_ADD(rs1, TBE_REL_MEI);
@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 
   printf("\n");
 
-  TBE_REL_SET_CLR(rs1);
-  TBE_REL_SET_CLR(rs2);
+  TBE_REL_SET_CLEAR(rs1);
+  TBE_REL_SET_CLEAR(rs2);
 
   TBE_REL_SET_ADD(rs1, TBE_REL_OVR);
   TBE_REL_SET_ADD(rs1, TBE_REL_MET);
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 
   printf("\n\n");
 
-  TBE_REL_SET_CLR(rs1);
+  TBE_REL_SET_CLEAR(rs1);
   TBE_REL_SET_ADD(rs1, TBE_REL_BEF);
   TBE_REL_SET_ADD(rs1, TBE_REL_BEI);
 
-  TBE_REL_SET_CLR(rs2);
+  TBE_REL_SET_CLEAR(rs2);
   TBE_REL_SET_ADD(rs2, TBE_REL_OVR);
   TBE_REL_SET_ADD(rs2, TBE_REL_OVI);
   TBE_REL_SET_ADD(rs2, TBE_REL_MET);
