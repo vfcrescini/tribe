@@ -2,8 +2,11 @@
 
 	* lib/network.c :
 
-	  - Cleanup so we dont have to purge the queue everytime we see
-	    an error condition in tbe_net_add_rel().
+	  - More cleanup of tbe_net_add_rel(). Now we only check for the
+	    intersection once.
+
+	  - Cleanup so we dont have to purge the queue everytime we see an
+	    error condition in tbe_net_add_rel().
 
 	  - A little bit of cleanup. no point having 2 for loops in
 	    tbe_net_add_rel().
