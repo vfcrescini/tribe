@@ -3,6 +3,15 @@
 #include <tribe/rel.h>
 #include <tribe/network.h>
 
+#define TBE_NET_SKIP(X,Y) \
+  ( \
+    TBE_REL_SET_ISCLEAR(X) || \
+    TBE_REL_SET_ISCLEAR(Y) || \
+    (TBE_REL_SET_ISIN(X,TBE_REL_BEF) && TBE_REL_SET_ISIN(Y,TBE_REL_BEI)) || \
+    (TBE_REL_SET_ISIN(X,TBE_REL_BEI) && TBE_REL_SET_ISIN(Y,TBE_REL_BEF)) || \
+    (TBE_REL_SET_ISIN(X,TBE_REL_DUR) && TBE_REL_SET_ISIN(Y,TBE_REL_DUI)) \
+  )
+
 /* queue to hold 2 intervals and a relation */
 typedef struct {
   unsigned int interval1;
@@ -254,6 +263,10 @@ int tbe_net_add_rel(tbe_net *a_net,
   if (!a_net)
     return TBE_NULLPTR;
 
+  /* check if the relset to be added contains all possible relations */
+  if (TBE_REL_SET_ISFILL(a_relset))
+    return TBE_OK;
+
   /* get intersection of what is already in the network and what is given */
   rs = TBE_REL_SET_INTERSECT(tbe_net_rel(*a_net, a_int1, a_int2), a_relset);
   if (TBE_REL_SET_ISCLEAR(rs))
@@ -292,31 +305,41 @@ int tbe_net_add_rel(tbe_net *a_net,
       if (nnode->interval == int1q || nnode->interval == int2q)
         continue;
 
-      /* find r(k,j) given r1(k,i) and r2(i,j) */
+      /* find rs(k,j), given rs(k,i) and rs(i,j) */
       rs1 = tbe_net_rel(*a_net, nnode->interval, int1q);
-      rs2 = tbe_net_rel(*a_net, nnode->interval, int2q);
-      if (TBE_REL_SET_ISCLEAR(rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, rsq)))) {
-        retval = TBE_FAILURE;
-        break;
-      }
 
-      /* we only add if rs3 is more specific than rs2 */
-      if (rs2 != rs3)
-        if ((retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2q, rs3)) != TBE_OK)
+      if (!TBE_NET_SKIP(rs1, rsq)) {
+        rs2 = tbe_net_rel(*a_net, nnode->interval, int2q);
+        rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, rsq));
+
+        if (TBE_REL_SET_ISCLEAR(rs3)) {
+          retval = TBE_FAILURE;
           break;
+        }
+
+        if (rs2 != rs3) {
+          if ((retval = tbe_net_rqueue_enq(&rqueue, nnode->interval, int2q, rs3)) != TBE_OK)
+            break;
+        }
+      }
  
-      /* find r(i,k), given r1(i,j), r2(j,k) */
+      /* now find rs(i,k), given rs(i,j), rs(j,k) */
       rs1 = tbe_net_rel(*a_net, int2q, nnode->interval);
-      rs2 = tbe_net_rel(*a_net, int1q, nnode->interval);
-      if (TBE_REL_SET_ISCLEAR(rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rsq, rs1)))) {
-        retval = TBE_FAILURE;
-        break;
-      }
 
-      /* we only add if rs3 is more specific than rs2 */
-      if (rs2 != rs3)
-        if ((retval = tbe_net_rqueue_enq(&rqueue, int1q, nnode->interval, rs3)) != TBE_OK)
+      if (!TBE_NET_SKIP(rsq, rs1)) {
+        rs2 = tbe_net_rel(*a_net, int1q, nnode->interval);
+        rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rsq, rs1));
+
+        if (TBE_REL_SET_ISCLEAR(rs3)) {
+          retval = TBE_FAILURE;
           break;
+        }
+
+        if (rs2 != rs3) {
+          if ((retval = tbe_net_rqueue_enq(&rqueue, int1q, nnode->interval, rs3)) != TBE_OK)
+            break;
+        }
+      }
     }
   }
 

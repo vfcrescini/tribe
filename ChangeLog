@@ -2,6 +2,8 @@
 
 	* lib/network.c :
 
+	  - Added checks for skipping conditions (Van Beek's optimisation).
+
 	  - More cleanup of tbe_net_add_rel(). Now we only check for the
 	    intersection once.
 
