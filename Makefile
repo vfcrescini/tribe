@@ -1,7 +1,9 @@
 CC = gcc
 CFLAGS = -O3 -ansi -pedantic -Wall -Wshadow -Wcast-align -Wstrict-prototypes
 PROGS =
-OBJS = rel.o
+OBJS = list.o rel.o
+
+DEBUG=1
 
 ifdef DEBUG
 PROGS += test
@@ -19,8 +21,11 @@ test : test.c
 	$(CC) $(CFLAGS) -o $(@) $(OBJS) test.c
 endif
 
-rel.o : rel.h rel.c
+rel.o : tribe.h rel.h rel.c
 	$(CC) $(CFLAGS) -o $(@) -c rel.c
+
+list.o : tribe.h list.h list.c
+	$(CC) $(CFLAGS) -o $(@) -c list.c
 
 clean :
 	$(RM) $(OBJS)
