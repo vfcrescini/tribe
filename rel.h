@@ -59,13 +59,6 @@
 #define TBE_STR_FIN "finishes"
 #define TBE_STR_FII "finished by"
 
-/* an arc in the network */
-typedef struct {
-  unsigned int int1;
-  unsigned int int2;
-  unsigned int rel;
-} arc;
-
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs);
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
