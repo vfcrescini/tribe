@@ -315,6 +315,7 @@ int tbe_list_get_data_one(tbe_list a_list,
                           void **a_ref)
 {
   tbe_list_node *curr;
+  char found = 0;
 
   if (!a_data || !a_cmp || !a_ref)
     return TBE_NULLPTR;
@@ -324,11 +325,12 @@ int tbe_list_get_data_one(tbe_list a_list,
   while (curr) {
     if (a_cmp(a_data, curr->data) == TBE_OK) {
       *a_ref = curr->data;
+      found = 1;
       break;
     }
     curr = curr->next;
   }
-  return ((*a_ref) ? TBE_OK : TBE_NOTFOUND);
+  return (found ? TBE_OK : TBE_NOTFOUND);
 }
 
 /* gives a reference to the FIRST node whose hash value matches */
@@ -338,6 +340,7 @@ int tbe_list_get_data_hash(tbe_list a_list,
                            void **a_ref)
 {
   tbe_list_node *curr;
+  char found = 0;
 
   if (!a_hfn || !a_ref)
     return TBE_NULLPTR;
@@ -347,11 +350,12 @@ int tbe_list_get_data_hash(tbe_list a_list,
   while (curr) {
     if (a_hfn(curr->data) == a_hval) {
       *a_ref = curr->data;
+      found = 1;
       break;
     }
     curr = curr->next;
   }
-  return ((*a_ref) ? TBE_OK : TBE_NOTFOUND);
+  return (found ? TBE_OK : TBE_NOTFOUND);
 }
 
 /* returns 0 if data is in the list, uses cmp to compare pointers */
