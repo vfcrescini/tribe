@@ -160,7 +160,6 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
   /* now that we have a reference to the node containing the smaller
    * interval, we then check its relation list to see if the other interval
    * is already in it. */
-
   rnode.interval = TBE_INT_MAX(a_int1, a_int2);
   switch ((retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr))) {
     case TBE_NOTFOUND : {
@@ -335,8 +334,10 @@ int tbe_net_add_rel(tbe_net *a_net,
       unsigned int rs3;
       tbe_net_node *nnode = NULL;
  
-      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK)
+      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nnode)) != TBE_OK) {
+        tbe_list_purge(&rqueue, NULL);
         return retval;
+      }
  
       if (nnode->interval == int1 || nnode->interval == int2)
         continue;
