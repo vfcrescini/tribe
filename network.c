@@ -264,10 +264,6 @@ void tbe_net_dump2(tbe_net a_net, FILE *a_stream)
     int1 = nnode->interval;
 
     for (j = 0; j < tbe_list_length(a_net); j++) {
-      /* omit int1 == int2 */
-      if (i == j)
-        continue;
-
       /* second interval */
       tbe_list_get_index(a_net, j, (void *) &nnode);
       int2 = nnode->interval;
