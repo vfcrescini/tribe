@@ -139,12 +139,10 @@ int tbe_net_rel_add(tbe_net *a_net,
                     unsigned int a_relset)
 {
   tbe_net_node nnode;
-  tbe_net_node *nptr;
+  tbe_net_node *nptr = NULL;
   tbe_net_rlist_node rnode;
-  tbe_net_rlist_node *rptr;
+  tbe_net_rlist_node *rptr = NULL;
   unsigned int relset;
-  void *ntmp = NULL;
-  void *rtmp = NULL;
   int retval;
 
   if (!a_net)
@@ -165,10 +163,7 @@ int tbe_net_rel_add(tbe_net *a_net,
 
   /* get a reference of the node containing the smaller of the 2 intervals */
   nnode.interval = TBE_INT_MIN(a_int1, a_int2);
-  retval = tbe_list_get_data_one(*a_net, (void *) &nnode, tbe_net_cmp, &ntmp);
-  nptr = (tbe_net_node *) ntmp;
-
-  if (retval != TBE_OK)
+  if ((retval = tbe_list_get_data_one(*a_net, (void *) &nnode, tbe_net_cmp, (void *) &nptr)) != TBE_OK)
     return retval;
 
   /* now that we have a reference to the node containing the smaller
@@ -176,10 +171,7 @@ int tbe_net_rel_add(tbe_net *a_net,
    * is already in it. */
 
   rnode.interval = TBE_INT_MAX(a_int1, a_int2);
-  retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, &rtmp);
-  rptr = (tbe_net_rlist_node *) rtmp;
-
-  switch (retval) {
+  switch ((retval = tbe_list_get_data_one(*(nptr->rlist), (void *) &rnode, tbe_net_rlist_cmp, (void *) &rptr))) {
     case TBE_NOTFOUND :
       /* interval2 not in the list yet, so we have to add it */
       return tbe_net_rlist_add(nptr->rlist, a_int2, relset);
