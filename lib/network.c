@@ -261,7 +261,7 @@ int tbe_net_add_rel(tbe_net *a_net,
  
     /* we then take the intersection of the new relation and what is already
      * in the network: again, should not be zero */
-    if (TBE_REL_SET_ISCLEAR(TBE_REL_SET_INTERSECT(new_rs, old_rs)))
+    if (TBE_REL_SET_ISCLEAR(new_rs = TBE_REL_SET_INTERSECT(new_rs, old_rs)))
       return TBE_FAILURE;
 
     /* now we add this new relation in the network */
