@@ -4,26 +4,10 @@
 #include <tribe/tribe.h>
 #include <tribe/list.h>
 
-typedef struct {
-  unsigned int interval1;
-  unsigned int interval2;
-  unsigned int relset;
-} tbe_net_rqueue_node;
-
-typedef tbe_list tbe_net_rqueue;
-
-/* relation list for each interval */
-typedef struct {
-  unsigned int interval;
-  unsigned int relset;
-} tbe_net_rlist_node;
-
-typedef tbe_list tbe_net_rlist;
-
 /* the network */
 typedef struct {
   unsigned int interval;
-  tbe_net_rlist *rlist;
+  tbe_list *rlist;
 } tbe_net_node;
 
 typedef tbe_list tbe_net;

@@ -3,6 +3,23 @@
 #include <tribe/rel.h>
 #include <tribe/network.h>
 
+/* queue to hold 2 intervals and a relation */
+typedef struct {
+  unsigned int interval1;
+  unsigned int interval2;
+  unsigned int relset;
+} tbe_net_rqueue_node;
+
+typedef tbe_list tbe_net_rqueue;
+
+/* relation list for each interval */
+typedef struct {
+  unsigned int interval;
+  unsigned int relset;
+} tbe_net_rlist_node;
+
+typedef tbe_list tbe_net_rlist;
+
 /* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
 static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);
 /* enqueues a new node to the queue */

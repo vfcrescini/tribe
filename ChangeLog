@@ -3,6 +3,8 @@
 	* lib/network.c :
 	* lib/network.h :
 
+	  - Cleanup: removed rlist typedef from header file.
+
 	  - Now uses an efficient queue instead of making recursive calls to
 	    add().
 
