@@ -44,26 +44,26 @@
 #define TBE_REL_SET_IN(X,Y) ((X) & (1 << (Y)))
 
 /* strings */
-#define TBE_STR_NUL "no relation"
+#define TBE_STR_NUL "no-relation"
 #define TBE_STR_EQL "equals"
 #define TBE_STR_BEF "before"
 #define TBE_STR_BEI "after"
 #define TBE_STR_DUR "during"
 #define TBE_STR_DUI "contains"
 #define TBE_STR_OVR "overlaps"
-#define TBE_STR_OVI "overlapped by"
+#define TBE_STR_OVI "overlapped-by"
 #define TBE_STR_MET "meets"
-#define TBE_STR_MEI "met by"
+#define TBE_STR_MEI "met-by"
 #define TBE_STR_STA "starts"
-#define TBE_STR_STI "started by"
+#define TBE_STR_STI "started-by"
 #define TBE_STR_FIN "finishes"
-#define TBE_STR_FII "finished by"
+#define TBE_STR_FII "finished-by"
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs);
+int tbe_rel_set_dump(FILE *a_stream, unsigned int a_rs);
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
-unsigned int tbe_lookup_rel(unsigned int a_r1, unsigned int a_r2);
+unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
-unsigned int tbe_lookup_rel_set(unsigned int a_rs1, unsigned int a_rs2);
+unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
 
 #endif

@@ -18,7 +18,7 @@
 #define TBE_REL_BFII (1 << TBE_REL_FII)
 #define TBE_REL_BALL ((1 << (TBE_REL_FII + 1)) - 1)
 
-static int rel_table[13][13] = {
+static int tbe_rel_table[13][13] = {
   /* equal */
   {
     TBE_REL_BEQL,
@@ -230,7 +230,7 @@ static int rel_table[13][13] = {
 };
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs)
+int tbe_rel_set_dump(FILE *a_stream, unsigned int a_rs)
 {
   if (a_rs > TBE_REL_BALL)
     return TBE_INVALIDINPUT;
@@ -239,46 +239,46 @@ int tbe_print_rel_set(FILE *a_stream, unsigned int a_rs)
     return TBE_NULLPTR;
 
   if (TBE_REL_SET_IN(a_rs, TBE_REL_EQL))
-    fprintf(a_stream, "%s\n", TBE_STR_EQL);
+    fprintf(a_stream, "%s ", TBE_STR_EQL);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_BEF))
-    fprintf(a_stream, "%s\n", TBE_STR_BEF);
+    fprintf(a_stream, "%s ", TBE_STR_BEF);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_BEI))
-    fprintf(a_stream, "%s\n", TBE_STR_BEI);
+    fprintf(a_stream, "%s ", TBE_STR_BEI);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_DUR))
-    fprintf(a_stream, "%s\n", TBE_STR_DUR);
+    fprintf(a_stream, "%s ", TBE_STR_DUR);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_DUI))
-    fprintf(a_stream, "%s\n", TBE_STR_DUI);
+    fprintf(a_stream, "%s ", TBE_STR_DUI);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_OVR))
-    fprintf(a_stream, "%s\n", TBE_STR_OVR);
+    fprintf(a_stream, "%s ", TBE_STR_OVR);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_OVI))
-    fprintf(a_stream, "%s\n", TBE_STR_OVI);
+    fprintf(a_stream, "%s ", TBE_STR_OVI);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_MET))
-    fprintf(a_stream, "%s\n", TBE_STR_MET);
+    fprintf(a_stream, "%s ", TBE_STR_MET);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_MEI))
-    fprintf(a_stream, "%s\n", TBE_STR_MEI);
+    fprintf(a_stream, "%s ", TBE_STR_MEI);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_STA))
-    fprintf(a_stream, "%s\n", TBE_STR_STA);
+    fprintf(a_stream, "%s ", TBE_STR_STA);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_STI))
-    fprintf(a_stream, "%s\n", TBE_STR_STI);
+    fprintf(a_stream, "%s ", TBE_STR_STI);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_FIN))
-    fprintf(a_stream, "%s\n", TBE_STR_FIN);
+    fprintf(a_stream, "%s ", TBE_STR_FIN);
   if (TBE_REL_SET_IN(a_rs, TBE_REL_FII))
-    fprintf(a_stream, "%s\n", TBE_STR_FII);
+    fprintf(a_stream, "%s", TBE_STR_FII);
 
   return TBE_OK;
 }
 
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
-unsigned int tbe_lookup_rel(unsigned int a_r1, unsigned int a_r2)
+unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2)
 {
   if (a_r1 > TBE_REL_FII || a_r2 > TBE_REL_FII)
     return TBE_REL_BNUL;
 
-  return rel_table[a_r1][a_r2];
+  return tbe_rel_table[a_r1][a_r2];
 }
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
-unsigned int tbe_lookup_rel_set(unsigned int a_rs1, unsigned int a_rs2)
+unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2)
 {
   int i;
   int j;
@@ -298,7 +298,7 @@ unsigned int tbe_lookup_rel_set(unsigned int a_rs1, unsigned int a_rs2)
       if ((a_rs2 & (1 << j)) == TBE_REL_BNUL)
         continue;
       /* ok. so at this point both bit i and bit j are set */
-      retval = TBE_REL_SET_UNI(retval, tbe_lookup_rel(i, j));
+      retval = TBE_REL_SET_UNI(retval, tbe_rel_lookup(i, j));
     }
   }
 
