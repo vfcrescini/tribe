@@ -202,39 +202,78 @@ unsigned int tbe_net_rel(tbe_net a_net,
   return relset;
 }
 
-/* print the network */
-void tbe_net_dump(tbe_net a_net, FILE *a_stream)
+/* print the network as it is stored physically */
+void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
 {
   unsigned int i;
 
-  if (a_stream) {
-    for (i = 0; i < tbe_list_length(a_net); i++) {
-      unsigned int j;
-      tbe_net_node *nnode = NULL;
+  if (!a_stream) 
+    return;
 
-      /* retrieve i'th net node */
-      tbe_list_get_index(a_net, i, (void *) &nnode);
+  for (i = 0; i < tbe_list_length(a_net); i++) {
+    unsigned int j;
+    tbe_net_node *nnode = NULL;
 
-      if (!nnode)
+    /* retrieve i'th net node */
+    tbe_list_get_index(a_net, i, (void *) &nnode);
+
+    if (!nnode)
+      continue;
+
+    /* now get this interval's rel list */
+    for (j = 0; j < tbe_list_length(*(nnode->rlist)); j++) {
+      tbe_net_rlist_node *rnode = NULL;
+
+      /* print interval 1 */
+      fprintf(a_stream, "%03u ", nnode->interval);
+
+      /* get j'th rel node */
+      tbe_list_get_index(*(nnode->rlist), j, (void *) &rnode);
+
+      /* dump the relset of these nodes */
+      if (rnode)
+        tbe_rel_set_dump(rnode->relset, a_stream);
+
+      /* print interval 2 */
+      fprintf(a_stream, "%03u\n", rnode->interval);
+    }
+  }
+}
+
+/* print the network as it is conceptually */
+void tbe_net_dump2(tbe_net a_net, FILE *a_stream)
+{
+  unsigned int i;
+  unsigned int j;
+  unsigned int int1;
+  unsigned int int2;
+  tbe_net_node *nnode = NULL;
+
+  if (!a_stream)
+    return;
+
+  for (i = 0; i < tbe_list_length(a_net); i++) {
+    /* first interval */
+    tbe_list_get_index(a_net, i, (void *) &nnode);
+    int1 = nnode->interval;
+
+    for (j = 0; j < tbe_list_length(a_net); j++) {
+      /* omit int1 == int2 */
+      if (i == j)
         continue;
 
-      /* now get this interval's rel list */
-      for (j = 0; j < tbe_list_length(*(nnode->rlist)); j++) {
-        tbe_net_rlist_node *rnode = NULL;
+      /* second interval */
+      tbe_list_get_index(a_net, j, (void *) &nnode);
+      int2 = nnode->interval;
 
-        /* print interval 1 */
-        fprintf(a_stream, "%03u ", nnode->interval);
+      /* print interval 1 */
+      fprintf(a_stream, "%03u ", int1);
 
-        /* get j'th rel node */
-        tbe_list_get_index(*(nnode->rlist), j, (void *) &rnode);
+      /* the relset */
+      tbe_rel_set_dump(tbe_net_rel(a_net, int1, int2), a_stream);
 
-        /* dump the relset of these nodes */
-        if (rnode)
-          tbe_rel_set_dump(rnode->relset, a_stream);
-
-        /* print interval 2 */
-        fprintf(a_stream, "%03u\n", rnode->interval);
-      }
+      /* print interval 2 */
+      fprintf(a_stream, "%03u\n", int2);
     }
-  } 
+  }
 }

@@ -35,7 +35,10 @@ int tbe_net_rel_add(tbe_net *a_net,
 unsigned int tbe_net_rel(tbe_net a_net,
                          unsigned int a_int1,
                          unsigned int a_int2);
-/* print the network */
-void tbe_net_dump(tbe_net a_net, FILE *a_stream);
+/* print the network as it is stored physically */
+void tbe_net_dump1(tbe_net a_net, FILE *a_stream);
+
+/* print the network as it is conceptually */
+void tbe_net_dump2(tbe_net a_net, FILE *a_stream);
 
 #endif

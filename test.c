@@ -54,7 +54,9 @@ int main(int argc, char *argv[])
   tbe_net_rel_add(&net, 2, 1, rs1);
   tbe_net_rel_add(&net, 2, 3, rs2);
 
-  tbe_net_dump(net, stdout);
+  tbe_net_dump1(net, stdout);
+  printf("\n\n");
+  tbe_net_dump2(net, stdout);
 
   tbe_net_purge(&net);
 
