@@ -1,5 +1,9 @@
 2005-02-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* configure.ac :
+
+	  - Removed CXX definitions carried over from vlad.
+
 	* ChangeLog :
 
 	  - Started change log.

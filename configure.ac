@@ -79,10 +79,8 @@ if test "x$enable_debug" != "x" && test "x$enable_debug" != "xno"; then
   AC_DEFINE(TBE_DEBUG,[yes])
   AC_SUBST(DEBUG,[yes])
   TBE_CFLAGS="-g $TBE_CFLAGS"
-  TBE_CXXFLAGS="-g $TBE_CXXFLAGS"
 else
   TBE_CFLAGS="-O3 $TBE_CFLAGS"
-  TBE_CXXFLAGS="-O3 $TBE_CXXFLAGS"
 fi
 
 # --enable-strip
