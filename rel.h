@@ -31,7 +31,7 @@
 #define TBE_REL_FII 12
 
 /* clear set X */
-#define TBE_REL_SET_CLR(X) (X) = 0;
+#define TBE_REL_SET_CLR(X) ((X) = 0)
 /* add relation Y to set X */
 #define TBE_REL_SET_ADD(X,Y) (X) = (X) | (1 << (Y))
 /* remove relation Y from set X */
