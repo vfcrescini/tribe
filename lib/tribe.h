@@ -1,6 +1,8 @@
 #ifndef __TBE_TRIBE_H
 #define __TBE_TRIBE_H
 
+#include <tribe/config.h>
+
 /* error codes */
 
 #define TBE_OK                   0
