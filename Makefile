@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O3 -ansi -pedantic -Wall -Wshadow -Wcast-align -Wstrict-prototypes
+CFLAGS = -ansi -pedantic -Wall -Wshadow -Wcast-align -Wstrict-prototypes
 PROGS =
 OBJS = list.o rel.o network.o
 
@@ -7,6 +7,9 @@ DEBUG=1
 
 ifdef DEBUG
 PROGS += test
+CFLAGS += -g -DDEBUG
+else
+CFLAGS += -O3
 endif
 
 define EXEC
