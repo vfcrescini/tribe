@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs2, TBE_REL_MET);
   TBE_REL_SET_ADD(rs2, TBE_REL_MEI);
 
-  tbe_rel_set_dump(stdout, tbe_rel_set_lookup(rs1, rs2));
+  tbe_rel_set_dump(tbe_rel_set_lookup(rs1, rs2), stdout);
 
   printf("\n");
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs2, TBE_REL_OVR);
   TBE_REL_SET_ADD(rs2, TBE_REL_STA);
 
-  tbe_rel_set_dump(stdout, tbe_rel_set_lookup(rs1, rs2));
+  tbe_rel_set_dump(tbe_rel_set_lookup(rs1, rs2), stdout);
 
   printf("\n");
 

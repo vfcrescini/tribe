@@ -230,7 +230,7 @@ static int tbe_rel_table[13][13] = {
 };
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_set_dump(FILE *a_stream, unsigned int a_rs)
+int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream)
 {
   if (a_rs > TBE_REL_BALL)
     return TBE_INVALIDINPUT;

@@ -60,7 +60,7 @@
 #define TBE_STR_FII "finished-by"
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_set_dump(FILE *a_stream, unsigned int a_rs);
+int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
