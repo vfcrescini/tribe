@@ -3,23 +3,14 @@
 #include "rel.h"
 #include "network.h"
 
+static void tbe_net_free(void *a_node);
+static int tbe_net_cmp(void *a_ptr1, void *a_ptr2);
+
+static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);
 static int tbe_net_rlist_add(tbe_net_rlist *a_list,
                              unsigned int a_interval,
                              unsigned int a_relset);
 static void tbe_net_rlist_dump(tbe_net_rlist a_list, FILE *a_stream);
-static void tbe_net_free(void *a_node);
-
-/* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
-static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
-{
-  tbe_net_rlist_node *ptr1 = (tbe_net_rlist_node *) a_ptr1;
-  tbe_net_rlist_node *ptr2 = (tbe_net_rlist_node *) a_ptr2;
-
-  if (!ptr1 || !ptr2)
-    return TBE_NULLPTR;
-
-  return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE); 
-}
 
 /* destroy contents of a tbe_net_node */
 static void tbe_net_free(void *a_node)
@@ -42,6 +33,18 @@ static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
     return TBE_NULLPTR;
 
   return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE);
+}
+
+/* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
+static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
+{
+  tbe_net_rlist_node *ptr1 = (tbe_net_rlist_node *) a_ptr1;
+  tbe_net_rlist_node *ptr2 = (tbe_net_rlist_node *) a_ptr2;
+
+  if (!ptr1 || !ptr2)
+    return TBE_NULLPTR;
+
+  return ((ptr1->interval == ptr2->interval) ? TBE_OK : TBE_FAILURE); 
 }
 
 /* add interval and relset into the relation list */
