@@ -3,7 +3,7 @@ TRIBE - Temporal Reasoner: Interval-Based Engine
 Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 Started: 2005 Feb 22
-Updated:
+Updated: 2005 Jul 20
 
 REQUIREMENTS:
 
@@ -24,6 +24,10 @@ BUILD INSTRUCTIONS:
       --enable-debug
 
         Compile with -g and enable printing of debug messages.
+
+      --enable-testprog
+
+        Enable building of test program.
 
       --enable-static
 

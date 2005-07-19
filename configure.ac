@@ -83,6 +83,13 @@ else
   TBE_CFLAGS="-O3 $TBE_CFLAGS"
 fi
 
+# --enable-testprog
+AC_ARG_ENABLE(testprog,AC_HELP_STRING([--enable-testprog],[compile test program (default is disabled)]))
+
+if test "x$enable_testprog" != "x" && test "x$enable_testprog" != "xno"; then
+  AC_SUBST(TESTPROG,[yes])
+fi
+
 # --enable-strip
 AC_ARG_ENABLE(strip,AC_HELP_STRING([--enable-strip],[run strip program (default is disabled)]))
 
