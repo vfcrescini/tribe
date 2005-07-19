@@ -1,5 +1,11 @@
 2005-07-20  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/network.c :
+
+	  - Casting to type void ** triggers a "dereferencing type-punned
+	    pointer will break strict-aliasing rules" compiler warning. These
+	    pointers are now cast to void * instead.
+
 	* configure.ac :
 
 	  - Added a new option --enable-testprog.

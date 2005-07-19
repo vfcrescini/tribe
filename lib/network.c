@@ -101,7 +101,7 @@ static tbe_net_rlist_node *tbe_net_get_rlist_noderef(tbe_net_rlist a_rlist,
   retval = tbe_list_get_data_one(a_rlist,
                                  (void *) &node,
                                  tbe_net_rlist_cmp,
-                                 (void **) &nptr);
+                                 (void *) &nptr);
   if (retval == TBE_OK)
     return nptr;
 
@@ -168,7 +168,7 @@ static int tbe_net_rqueue_deq(tbe_net_rqueue *a_q,
   if (!a_q || !a_int1 || !a_int2 || !a_rs)
     return TBE_NULLPTR;
 
-  if ((retval = tbe_list_get_head(*a_q, (void **) &qptr)) != TBE_OK)
+  if ((retval = tbe_list_get_head(*a_q, (void *) &qptr)) != TBE_OK)
     return retval;
 
   if (!qptr)
@@ -198,7 +198,7 @@ static tbe_net_rqueue_node *tbe_net_get_rqueue_noderef(tbe_net_rqueue a_q,
   retval = tbe_list_get_data_one(a_q,
                                  (void *) &node,
                                  tbe_net_rqueue_cmp,
-                                 (void **) &rptr);
+                                 (void *) &rptr);
 
   if (retval == TBE_OK)
     return rptr;
@@ -229,7 +229,7 @@ static tbe_net_node *tbe_net_get_noderef(tbe_net a_net, unsigned int a_int)
   retval = tbe_list_get_data_one(a_net,
                                  (void *) &node,
                                  tbe_net_cmp,
-                                 (void **) &nptr);
+                                 (void *) &nptr);
 
   if (retval == TBE_OK)
     return nptr;
@@ -431,7 +431,7 @@ int tbe_net_add_rel(tbe_net *a_net,
       unsigned int rs3;
       tbe_net_node *nptr;
  
-      if ((retval = tbe_list_get_index(*a_net, i, (void **) &nptr)) != TBE_OK)
+      if ((retval = tbe_list_get_index(*a_net, i, (void *) &nptr)) != TBE_OK)
         break;
  
       if (nptr->interval == int1q || nptr->interval == int2q)
@@ -545,7 +545,7 @@ void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
     tbe_net_node *nptr;
 
     /* retrieve i'th net node */
-    tbe_list_get_index(a_net, i, (void **) &nptr);
+    tbe_list_get_index(a_net, i, (void *) &nptr);
 
     if (!nptr)
       continue;
@@ -564,7 +564,7 @@ void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
       fprintf(a_stream, "%03u ", nptr->interval);
 
       /* get j'th rel node */
-      tbe_list_get_index(*(nptr->rlist), j, (void **) &rptr);
+      tbe_list_get_index(*(nptr->rlist), j, (void *) &rptr);
 
       /* dump the relset of these nodes */
       if (rptr)
@@ -590,12 +590,12 @@ void tbe_net_dump2(tbe_net a_net, FILE *a_stream)
 
   for (i = 0; i < tbe_list_length(a_net); i++) {
     /* first interval */
-    tbe_list_get_index(a_net, i, (void **) &nptr);
+    tbe_list_get_index(a_net, i, (void *) &nptr);
     int1 = nptr->interval;
 
     for (j = 0; j < tbe_list_length(a_net); j++) {
       /* second interval */
-      tbe_list_get_index(a_net, j, (void **) &nptr);
+      tbe_list_get_index(a_net, j, (void *) &nptr);
       int2 = nptr->interval;
 
       /* print interval 1 */
