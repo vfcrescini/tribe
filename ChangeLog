@@ -1,5 +1,10 @@
 2005-07-20  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.0.4.
+
 	* lib/network.c :
 
 	  - Casting to type void ** triggers a "dereferencing type-punned

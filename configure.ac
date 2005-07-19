@@ -1,4 +1,4 @@
-AC_INIT(tribe,0.0.3,jcrescin@cit.uws.edu.au)
+AC_INIT(tribe,0.0.4,jcrescin@cit.uws.edu.au)
 
 AC_CONFIG_HEADERS(lib/config.h)
 
