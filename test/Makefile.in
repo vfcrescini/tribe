@@ -7,6 +7,7 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 LN_S = @LN_S@
 DEBUG = @DEBUG@
+TESTPROG = @TESTPROG@
 STRIP = @STRIP@
 BUILDSHARED = @BUILDSHARED@
 STATIC = @STATIC@
@@ -19,8 +20,8 @@ OBJECTS =
 TEMPS1 =
 TEMPS2 =
 
-ifdef DEBUG
-  BINS += test
+ifdef TESTPROG
+  BINS += tribe_test
   OBJECTS += test.o
 endif
 
@@ -32,7 +33,7 @@ includedir = @includedir@
 
 include $(TOPSRCDIR)/rules.mk
 
-test : $(OBJECTS) $(LIBDIR)/libtribe.so.*
+tribe_test : $(OBJECTS) $(LIBDIR)/libtribe.so.*
 ifdef STATIC
 	$(CC) $(LDFLAGS) -static -o $(@) $(OBJECTS) -ltribe
 else
