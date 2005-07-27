@@ -16,15 +16,15 @@ grep "^TBE_MEM F" ${out} | sort | cut -d" " -f3 > ${f_file}
 # load the log contents into arrays
 i=0
 while read line; do
-  am[${i}]="${line}"
-  i=$[i + 1]
+  eval "am_${i}=\"${line}\""
+  i=$((i + 1))
 done < ${m_file}
 sm=${i}
 
 i=0
 while read line; do
-  af[${i}]="${line}"
-  i=$[i + 1]
+  eval "af_${i}=\"${line}\""
+  i=$((i + 1))
 done < ${f_file}
 sf=${i}
 
@@ -36,20 +36,22 @@ i=0
 while [ ${i} -lt ${sm} ]; do
   j=0
   match=0
+  eval "am_i=\${am_${i}}"
   while [ ${j} -lt ${sf} ]; do
-    if [ -n "${af[${j}]}" ]; then
-      if [ "${am[${i}]}" = "${af[${j}]}" ]; then
-        unset af[${j}]
+    eval "af_j=\${af_${j}}"
+    if [ -n ${af_j} ]; then
+      if [ "${am_i}" = "${af_j}" ]; then
+        eval "af_${j}=\"\""
         match=1
         break
       fi
     fi
-    j=$[${j} + 1]
+    j=$((${j} + 1))
   done
   if [ ${match} -eq 0 ]; then
-    echo "${am[${i}]}"
+    eval "echo \"\${am_${i}}\""
   fi
-  i=$[${i} + 1]
+  i=$((${i} + 1))
 done
 
 exit 0

@@ -1,3 +1,9 @@
+2005-07-28  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* test/mem_test.sh :
+
+	  - Removed BASH extensions like arrays, $[], etc.
+
 2005-07-27  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/mem.h :
