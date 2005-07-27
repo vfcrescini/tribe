@@ -4,6 +4,8 @@
 
 	  - Removed BASH extensions like arrays, $[], etc.
 
+	  - Also show free'd pointers that were unmalloc'd.
+
 2005-07-27  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/mem.h :

@@ -39,7 +39,7 @@ while [ ${i} -lt ${sm} ]; do
   eval "am_i=\${am_${i}}"
   while [ ${j} -lt ${sf} ]; do
     eval "af_j=\${af_${j}}"
-    if [ -n ${af_j} ]; then
+    if [ -n "${af_j}" ]; then
       if [ "${am_i}" = "${af_j}" ]; then
         eval "af_${j}=\"\""
         match=1
@@ -49,7 +49,17 @@ while [ ${i} -lt ${sm} ]; do
     j=$((${j} + 1))
   done
   if [ ${match} -eq 0 ]; then
-    eval "echo \"\${am_${i}}\""
+    echo "M ${am_i}"
+  fi
+  i=$((${i} + 1))
+done
+
+# also show the remaining F's, if any
+i=0
+while [ ${i} -lt ${sf} ]; do
+  eval "af_i=\${af_${i}}"
+  if [ -n "${af_i}" ]; then
+    echo "F ${af_i}"
   fi
   i=$((${i} + 1))
 done
