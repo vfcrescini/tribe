@@ -1,3 +1,28 @@
+2005-07-27  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/Makefile.in :
+
+	  - Compile mem.h and mem.c
+
+	* lib/list.c :
+	* lib/network.c :
+	* lib/tribe.h :
+
+	  - Renamed the memory macros TBE_PTR_* to TBE_MEM_*.
+
+	* lib/mem.h :
+	* lib/mem.c :
+
+	  - When enabled (through --enable-debug), the wrapper functions
+	    for malloc, realloc and free will dump the memory address
+	    involved in the operation. A very crude way of detecting
+	    memory leaks.
+
+	* test/mem_test.sh :
+
+	  - Added a simple script that checks for memory leaks based on the
+	    output of the memory debug mechanism.
+
 2005-07-20  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* VERSION :

@@ -34,11 +34,4 @@
 /* returns the maximum of the two values */
 #define TBE_INT_MAX(X,Y) ((X) >= (Y) ? (X) : (Y))
 
-/* malloc(element type, number of elements) */
-#define TBE_PTR_MALLOC(X,Y) ((X *) malloc(sizeof(X) * (Y)))
-/* realloc(pointer, element type, number of elements) */
-#define TBE_PTR_REALLOC(X,Y,Z) ((Y *) realloc(X, sizeof(Y) * (Z)))
-/* free */
-#define TBE_PTR_FREE(X) (free(X))
-
 #endif

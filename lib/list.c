@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <tribe/mem.h>
 #include <tribe/list.h>
 
 /* create a new list */
@@ -31,7 +32,7 @@ void tbe_list_purge(tbe_list *a_list, void (*a_fr)(void *))
       if (a_fr != NULL)
         a_fr(prev->data);
 
-      TBE_PTR_FREE(prev);
+      TBE_MEM_FREE(prev);
     }
 
     a_list->head = NULL;
@@ -54,7 +55,7 @@ int tbe_list_add_head(tbe_list *a_list, void *a_data)
   if (!a_list || !a_data)
     return TBE_NULLPTR;
 
-  if (!(node = TBE_PTR_MALLOC(tbe_list_node, 1)))
+  if (!(node = TBE_MEM_MALLOC(tbe_list_node, 1)))
     return TBE_MALLOCFAILED;
 
   node->data = a_data;
@@ -77,7 +78,7 @@ int tbe_list_add_tail(tbe_list *a_list, void *a_data)
   if (!a_list || !a_data)
     return TBE_NULLPTR;
 
-  if (!(node = TBE_PTR_MALLOC(tbe_list_node, 1)))
+  if (!(node = TBE_MEM_MALLOC(tbe_list_node, 1)))
     return TBE_MALLOCFAILED;
 
   if (a_list->tail)
@@ -113,7 +114,7 @@ int tbe_list_del_head(tbe_list *a_list, void (*a_fr)(void *))
   if (a_fr)
     a_fr(node->data);
 
-  TBE_PTR_FREE(node);
+  TBE_MEM_FREE(node);
 
   (a_list->length)--;
 
@@ -170,7 +171,7 @@ int tbe_list_del_index(tbe_list *a_list,
 
   if (a_fr)
     a_fr(curr->data);
-  TBE_PTR_FREE(curr);
+  TBE_MEM_FREE(curr);
 
   (a_list->length)--;
 
@@ -217,7 +218,7 @@ int tbe_list_del_data(tbe_list *a_list,
       if (a_fr)
         a_fr(ptmp->data);
 
-      TBE_PTR_FREE(ptmp);
+      TBE_MEM_FREE(ptmp);
 
       (a_list->length)--;
     }
@@ -297,7 +298,7 @@ int tbe_list_get_data_all(tbe_list a_list,
   while (curr) {
     if (a_cmp(curr->data, a_data) == TBE_OK) {
 
-      if (!(*a_array = TBE_PTR_REALLOC(*a_array, void *, *a_size + 1)))
+      if (!(*a_array = TBE_MEM_REALLOC(*a_array, void *, *a_size + 1)))
         return TBE_MALLOCFAILED;
 
       (*a_array)[*a_size] = curr->data;
@@ -402,7 +403,7 @@ int tbe_list_copy(tbe_list a_list1,
     if (a_cpy(curr->data, &data) != TBE_OK)
       return TBE_FAILURE;
 
-    if (!(node = TBE_PTR_MALLOC(tbe_list_node, 1)))
+    if (!(node = TBE_MEM_MALLOC(tbe_list_node, 1)))
       return TBE_MALLOCFAILED;
 
     if (a_list2->tail)

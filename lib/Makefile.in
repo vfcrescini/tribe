@@ -16,11 +16,13 @@ SHARED_LIBS = libtribe.so.$(VERSION)
 INCLUDES = \
   config.h \
   tribe.h \
+  mem.h \
   list.h \
   rel.h \
   network.h \
   $(NULL)
 OBJECTS = \
+  mem.o \
   list.o \
   rel.o \
   network.o \
@@ -53,11 +55,14 @@ ifndef DEBUG
   endif
 endif
 
-list.o : tribe.h list.h list.c
+mem.o : tribe.h mem.h mem.c
+	$(CC) $(CFLAGS) -o $(@) -c mem.c
+
+list.o : tribe.h mem.h list.h list.c
 	$(CC) $(CFLAGS) -o $(@) -c list.c
 
 rel.o : tribe.h rel.h rel.c
 	$(CC) $(CFLAGS) -o $(@) -c rel.c
 
-network.o : tribe.h list.h network.h network.c
+network.o : tribe.h mem.h list.h network.h network.c
 	$(CC) $(CFLAGS) -o $(@) -c network.c

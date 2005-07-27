@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <tribe/rel.h>
+#include <tribe/mem.h>
 #include <tribe/network.h>
 
 #define TBE_NET_SKIP(X,Y) \
@@ -146,7 +147,7 @@ static int tbe_net_rqueue_enq(tbe_net_rqueue *a_q,
     return TBE_OK;
 
   /* create a new node */
-  if (!(qptr = TBE_PTR_MALLOC(tbe_net_rqueue_node, 1)))
+  if (!(qptr = TBE_MEM_MALLOC(tbe_net_rqueue_node, 1)))
     return TBE_MALLOCFAILED;
 
   qptr->interval1 = a_int1;
@@ -244,7 +245,7 @@ static void tbe_net_free(void *a_nptr)
 
   if (nptr && nptr->rlist) {
     tbe_list_purge(nptr->rlist, NULL);
-    TBE_PTR_FREE(nptr->rlist);
+    TBE_MEM_FREE(nptr->rlist);
   }
 }
 
@@ -294,7 +295,7 @@ static int tbe_net_add_rel_noprop(tbe_net *a_net,
       return TBE_OK;
     
     /* we only add if the relset is not all relations */
-    if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist_node, 1)))
+    if (!(rptr = TBE_MEM_MALLOC(tbe_net_rlist_node, 1)))
       return TBE_MALLOCFAILED;
 
     rptr->interval = a_int2;
@@ -354,18 +355,18 @@ int tbe_net_add_int(tbe_net *a_net, unsigned int a_int)
     return TBE_DUPLICATE;
 
   /* allocate mem for new node */
-  if (!(nptr = TBE_PTR_MALLOC(tbe_net_node, 1)))
+  if (!(nptr = TBE_MEM_MALLOC(tbe_net_node, 1)))
     return TBE_MALLOCFAILED;
 
   /* create a new empty rlist */
-  if (!(rptr = TBE_PTR_MALLOC(tbe_net_rlist, 1))) {
-    TBE_PTR_FREE(nptr);
+  if (!(rptr = TBE_MEM_MALLOC(tbe_net_rlist, 1))) {
+    TBE_MEM_FREE(nptr);
     return TBE_MALLOCFAILED;
   }
 
   if ((retval = tbe_list_init(rptr)) != TBE_OK) {
-    TBE_PTR_FREE(nptr);
-    TBE_PTR_FREE(rptr);
+    TBE_MEM_FREE(nptr);
+    TBE_MEM_FREE(rptr);
     return retval;
   }
 
@@ -374,8 +375,8 @@ int tbe_net_add_int(tbe_net *a_net, unsigned int a_int)
   nptr->rlist = rptr;
 
   if ((retval = tbe_list_add_tail(a_net, (void *) nptr)) != TBE_OK) {
-    TBE_PTR_FREE(nptr);
-    TBE_PTR_FREE(rptr);
+    TBE_MEM_FREE(nptr);
+    TBE_MEM_FREE(rptr);
   }
 
   return retval;
