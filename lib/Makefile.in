@@ -69,5 +69,5 @@ iqueue.o : tribe.h mem.h list.h iqueue.h iqueue.c
 rel.o : tribe.h rel.h rel.c
 	$(CC) $(CFLAGS) -o $(@) -c rel.c
 
-network.o : tribe.h mem.h list.h network.h network.c
+network.o : tribe.h mem.h list.h iqueue.h network.h network.c
 	$(CC) $(CFLAGS) -o $(@) -c network.c
