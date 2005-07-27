@@ -1,15 +1,5 @@
 2005-07-27  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
-	* lib/Makefile.in :
-
-	  - Compile mem.h and mem.c
-
-	* lib/list.c :
-	* lib/network.c :
-	* lib/tribe.h :
-
-	  - Renamed the memory macros TBE_PTR_* to TBE_MEM_*.
-
 	* lib/mem.h :
 	* lib/mem.c :
 
@@ -18,10 +8,58 @@
 	    involved in the operation. A very crude way of detecting
 	    memory leaks.
 
+	* lib/tribe.h :
+
+	  - Removed old TBE_PTR_ macros in favour of the new TBE_MEM_ in
+	    mem.h.
+
 	* test/mem_test.sh :
 
 	  - Added a simple script that checks for memory leaks based on the
 	    output of the memory debug mechanism.
+
+	* lib/list.h :
+	* lib/list.c :
+
+	  - Now uses new memory macros.
+
+	  - Encapsulated the list internals into list.c. In the header file,
+	    the list type definition is just void *.
+
+	  - Interal structures renamed with a __tbe prefix.
+
+	  - Added tbe_list_create() and tbe_list_destroy() to manually
+	    allocate and deallocate a list.
+
+	  - Added a generic tbe_list_free function to be used by lists with
+	    standard nodes.
+
+	* lib/network.h :
+	* lib/network.c :
+
+	  - tbe_net_rqueue removed (see iqueue entry below).
+
+	  - Modified to use the new list interface, now has tbe_net_create()
+	    and tbe_net_destroy().
+
+	  - As with tbe_list, net structures are hidden in the .c file.
+
+	  - Fixed some memory leaks found by our crude memory debugger.
+
+	* lib/iqueue.h :
+	* lib/iqueue.c :
+
+	  - What was once rqueue in network.c is moved to iqueue.h/.c.
+
+	* test/test.c :
+
+	  - Modified to use new network.h interface.
+
+	* lib/Makefile.in :
+
+	  - Compile mem.h and mem.c
+
+	  - Compile iqueue.h and iqueue.c
 
 2005-07-20  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
