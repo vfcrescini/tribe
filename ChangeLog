@@ -6,6 +6,11 @@
 	  - Added a traverse list function that will go through each node of a
 	    given list and call a given function.
 
+	* lib/network.c :
+
+	  - Sacrificed readability for efficiency! The network dump functions
+	    now use the traverse list function.
+
 	* test/mem_test.sh :
 
 	  - Removed BASH extensions like arrays, $[], etc.

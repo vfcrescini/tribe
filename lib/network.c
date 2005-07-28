@@ -14,6 +14,13 @@
     (TBE_REL_SET_ISIN(X,TBE_REL_DUR) && TBE_REL_SET_ISIN(Y,TBE_REL_DUI)) \
   )
 
+/* structure for dumping the network */
+typedef struct {
+  tbe_net net;
+  unsigned int interval;
+  FILE *stream;
+} __tbe_net_dump;
+
 /* relation list for each interval */
 typedef struct {
   unsigned int interval;
@@ -34,6 +41,9 @@ static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2);
 /* deletes a_int from the rlist */
 static int tbe_net_rlist_del(__tbe_net_rlist a_rlist, unsigned int a_int);
 
+/* print relations between 2 nodes */
+static int tbe_net_rlist_trav_dump(const void *a_node, void *a_dump);
+
 /* return a reference to the node containing a_int, NULL if it doesn't exist */
 static __tbe_net_rlist_node *tbe_net_get_rlist_ref(__tbe_net_rlist a_rlist,
                                                    unsigned int a_int);
@@ -46,6 +56,15 @@ static __tbe_net_node *tbe_net_get_ref(tbe_net a_net, unsigned int a_int);
 
 /* destroy contents of a tbe_net_node */
 static void tbe_net_free(void *a_node);
+
+/* print relations between 2 nodes, as stored in the network */
+static int tbe_net_trav_dump1(const void *a_node, void *a_stream);
+
+/* print the relations between 2 nodes, as they are conceptually */
+static int tbe_net_trav_dump2(const void *a_node, void *a_dump);
+
+/* print the relations between 2 nodes, as they are conceptually */
+static int tbe_net_trav_dump3(const void *a_node, void *a_dump);
 
 /* add a new relation to existing intervals, but no propagation */
 static int tbe_net_add_rel_noprop(tbe_net a_net,
@@ -76,6 +95,28 @@ static int tbe_net_rlist_del(__tbe_net_rlist a_rlist, unsigned int a_int)
                            (void *) &rnode,
                            tbe_net_rlist_cmp,
                            tbe_list_free);
+}
+
+/* print relations between 2 nodes */
+static int tbe_net_rlist_trav_dump(const void *a_node, void *a_dump)
+{
+  __tbe_net_rlist_node *rptr;
+  __tbe_net_dump *dptr;
+
+  rptr = (__tbe_net_rlist_node *) a_node;
+  dptr = (__tbe_net_dump *) a_dump;
+
+  if (!rptr || !dptr)
+    return TBE_NULLPTR;
+
+  if (!dptr->stream)
+     return TBE_INVALIDINPUT;
+
+  fprintf(dptr->stream, "%03u ", dptr->interval);
+  tbe_rel_set_dump(rptr->relset, dptr->stream);
+  fprintf(dptr->stream, "%03u\n", rptr->interval);
+    
+  return TBE_OK;
 }
 
 /* return a reference to the node containing a_int, NULL if it doesn't exist */
@@ -142,6 +183,71 @@ static void tbe_net_free(void *a_nptr)
   }
 }
 
+/* print relations between 2 nodes, as stored in the network */
+static int tbe_net_trav_dump1(const void *a_node, void *a_stream)
+{
+  __tbe_net_node *nptr;
+  __tbe_net_dump dump;
+  FILE *sptr;
+
+  if (!(nptr = (__tbe_net_node *) a_node) || !(sptr = (FILE *) a_stream))
+    return TBE_NULLPTR;
+
+  /* check if the rlist is empty */
+  if (tbe_list_length(nptr->rlist) == 0) {
+    fprintf(sptr, "%03u\n", nptr->interval);
+    return TBE_OK;
+  }
+
+  dump.interval = nptr->interval;
+  dump.stream = sptr;
+
+  return tbe_list_traverse(nptr->rlist, tbe_net_rlist_trav_dump, &dump);
+}
+
+/* print the relations between 2 nodes, as they are conceptually */
+static int tbe_net_trav_dump2(const void *a_node, void *a_dump)
+{
+  __tbe_net_node *nptr;
+  __tbe_net_dump *dptr;
+  unsigned int rs;
+
+  nptr = (__tbe_net_node *) a_node;
+  dptr = (__tbe_net_dump *) a_dump;
+
+  if (!nptr || !dptr)
+    return TBE_NULLPTR;
+
+  if (!dptr->net || !dptr->stream)
+    return TBE_INVALIDINPUT;
+
+  /* query the net for the relation between the 2 intervals */
+  rs = tbe_net_rel(dptr->net, dptr->interval, nptr->interval);
+  
+  fprintf(dptr->stream, "%03u ", dptr->interval);
+  tbe_rel_set_dump(rs, dptr->stream);
+  fprintf(dptr->stream, "%03u\n", nptr->interval);
+
+  return TBE_OK;
+}
+
+/* print the relations between 2 nodes, as they are conceptually */
+static int tbe_net_trav_dump3(const void *a_node, void *a_dump)
+{
+  __tbe_net_node *nptr;
+  __tbe_net_dump *dptr;
+
+  nptr = (__tbe_net_node *) a_node;
+  dptr = (__tbe_net_dump *) a_dump;
+ 
+  if (!nptr || !dptr)
+    return TBE_NULLPTR;
+
+  dptr->interval = nptr->interval;
+
+  return tbe_list_traverse(dptr->net, tbe_net_trav_dump2, a_dump);
+}
+
 /* add a new relation to existing intervals, but no propagation */
 static int tbe_net_add_rel_noprop(tbe_net a_net,
                                   unsigned int a_int1,
@@ -177,14 +283,13 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
     if (TBE_REL_SET_ISFILL(a_relset))
       return tbe_net_rlist_del(nptr->rlist, a_int2);
 
-    /* replace the relset with the new one */
+    /* blindly replace the relset with the new one */
     rptr->relset = a_relset;
 
     return TBE_OK;
   }
   else {
     /* second interval not in the rlist yet */
-
     if (TBE_REL_SET_ISFILL(a_relset))
       return TBE_OK;
   
@@ -318,7 +423,7 @@ int tbe_net_add_rel(tbe_net a_net,
     if ((retval = tbe_net_add_rel_noprop(a_net, int1q, int2q, rsq)) != TBE_OK)
       break;
  
-    /* go through all intervals k that is not int1 and int2 */
+    /* go through all intervals k that is not int1 (i) and int2 (j) */
     for (i = 0; i < tbe_list_length(a_net) && retval == TBE_OK; i++) {
       unsigned int rs1;
       unsigned int rs2;
@@ -345,6 +450,7 @@ int tbe_net_add_rel(tbe_net a_net,
           break;
         }
 
+        /* put this in the queue for later processing */
         if (rs2 != rs3) {
           retval = tbe_iqueue_enq(iqueue, nptr->interval, int2q, rs3);
           if (retval != TBE_OK)
@@ -366,6 +472,7 @@ int tbe_net_add_rel(tbe_net a_net,
           break;
         }
 
+        /* put this in the queue for later processing */
         if (rs2 != rs3) {
           retval = tbe_iqueue_enq(iqueue, int1q, nptr->interval, rs3);
           if (retval != TBE_OK)
@@ -430,77 +537,22 @@ unsigned int tbe_net_rel(tbe_net a_net,
 /* print the network as it is stored physically */
 void tbe_net_dump1(tbe_net a_net, FILE *a_stream)
 {
-  unsigned int i;
-
   if (!a_stream) 
     return;
 
-  for (i = 0; i < tbe_list_length(a_net); i++) {
-    unsigned int j;
-    __tbe_net_node *nptr;
-
-    /* retrieve i'th net node */
-    tbe_list_get_index(a_net, i, (void *) &nptr);
-
-    if (!nptr)
-      continue;
-
-    /* if the interval doesn't have any rels, just dump the interval */
-    if (tbe_list_length(nptr->rlist) == 0) {
-      fprintf(a_stream, "%03u\n", nptr->interval);
-      continue;
-    }
-
-    /* now get this interval's rel list */
-    for (j = 0; j < tbe_list_length(nptr->rlist); j++) {
-      __tbe_net_rlist_node *rptr;
-
-      /* print interval 1 */
-      fprintf(a_stream, "%03u ", nptr->interval);
-
-      /* get j'th rel node */
-      tbe_list_get_index(nptr->rlist, j, (void *) &rptr);
-
-      /* dump the relset of these nodes */
-      if (rptr)
-        tbe_rel_set_dump(rptr->relset, a_stream);
-
-      /* print interval 2 */
-      fprintf(a_stream, "%03u\n", rptr->interval);
-    }
-  }
+  tbe_list_traverse(a_net, tbe_net_trav_dump1, (void *) a_stream);
 }
 
 /* print the network as it is conceptually */
 void tbe_net_dump2(tbe_net a_net, FILE *a_stream)
 {
-  unsigned int i;
-  unsigned int j;
-  unsigned int int1;
-  unsigned int int2;
-  __tbe_net_node *nptr;
+  __tbe_net_dump dump;
 
   if (!a_stream)
     return;
 
-  for (i = 0; i < tbe_list_length(a_net); i++) {
-    /* first interval */
-    tbe_list_get_index(a_net, i, (void *) &nptr);
-    int1 = nptr->interval;
+  dump.net = a_net;
+  dump.stream = a_stream;
 
-    for (j = 0; j < tbe_list_length(a_net); j++) {
-      /* second interval */
-      tbe_list_get_index(a_net, j, (void *) &nptr);
-      int2 = nptr->interval;
-
-      /* print interval 1 */
-      fprintf(a_stream, "%03u ", int1);
-
-      /* the relset */
-      tbe_rel_set_dump(tbe_net_rel(a_net, int1, int2), a_stream);
-
-      /* print interval 2 */
-      fprintf(a_stream, "%03u\n", int2);
-    }
-  }
+  tbe_list_traverse(a_net, tbe_net_trav_dump3, (void *) &dump);
 }
