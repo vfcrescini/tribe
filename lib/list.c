@@ -474,3 +474,31 @@ int tbe_list_copy(tbe_list a_list1,
 
   return TBE_OK;
 }
+
+/* traverses the list, calling fn on each node, stops at the end or when fn
+ * returns something other that TBE_OK, in which that retval is returned. the
+ * node ptr is passed as the first parameter and a_parm is passed second. */
+int tbe_list_traverse(tbe_list a_list,
+                      int (*a_fn)(const void *, void *),
+                      void *a_parm)
+{
+  __tbe_list *tmp;
+  __tbe_list_node *curr;
+  int retval = TBE_OK;
+
+  if (!(tmp = (__tbe_list *) a_list))
+    return TBE_NULLPTR;
+
+  /* nothing to do */
+  if (!a_fn)
+    return TBE_OK;
+
+  curr = tmp->head;
+
+  while (curr && retval == TBE_OK) {
+    retval = a_fn((const void *) curr->data, a_parm);
+    curr = curr->next;
+  }
+
+  return retval;
+}

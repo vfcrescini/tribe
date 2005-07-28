@@ -81,4 +81,11 @@ int tbe_list_copy(tbe_list a_list1,
                   tbe_list *a_list2,
                   int (*a_cpy)(void *, void **));
 
+/* traverses the list, calling fn on each node, stops at the end or when fn
+ * returns something other that TBE_OK, in which that retval is returned. the
+ * node ptr is passed as the first parameter and a_parm is passed second. */
+int tbe_list_traverse(tbe_list a_list,
+                      int (*a_fn)(const void *, void *),
+                      void *a_parm);
+
 #endif
