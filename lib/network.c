@@ -21,6 +21,15 @@ typedef struct {
   FILE *stream;
 } __tbe_net_dump;
 
+/* structure for propagation */
+typedef struct {
+  tbe_net net;
+  tbe_iqueue queue;
+  unsigned int int1;
+  unsigned int int2;
+  unsigned int rs;
+} __tbe_net_prop;
+
 /* relation list for each interval */
 typedef struct {
   unsigned int interval;
@@ -71,6 +80,9 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
                                   unsigned int a_int1,
                                   unsigned int a_int2,
                                   unsigned int a_relset);
+
+/* propagate the relations by adding the required operations in the queue */
+static int tbe_net_propagate(const void *a_node, void *a_prop);
 
 /* return TBE_OK if the intervals of the 2 tbe_net_rlist_nodes are equal */
 static int tbe_net_rlist_cmp(void *a_ptr1, void *a_ptr2)
@@ -304,6 +316,77 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
   }
 }
 
+/* propagate the relations by adding the required operations in the queue */
+static int tbe_net_propagate(const void *a_node, void *a_prop)
+{
+  __tbe_net_node *nptr;
+  __tbe_net_prop *pptr;
+  unsigned int rs1;
+  unsigned int rs2;
+  unsigned int rs3;
+  int retval;
+
+  nptr = (__tbe_net_node *) a_node;
+  pptr = (__tbe_net_prop *) a_prop;
+
+  if (!nptr || !pptr)
+    return TBE_NULLPTR;
+
+  if (!pptr->net || !pptr->queue)
+    return TBE_INVALIDINPUT;
+
+  /* ensure that the interval in this node is not int1 or int2, that is,
+   * a k such that k != i and k != j */
+  if (nptr->interval == pptr->int1 || nptr->interval == pptr->int2)
+    return TBE_OK;
+
+  /* find rs(k,j), given rs(k,i) and rs(i,j) */
+
+  rs1 = tbe_net_rel(pptr->net, nptr->interval, pptr->int1);
+
+  if (!TBE_NET_SKIP(rs1, pptr->rs)) {
+    rs2 = tbe_net_rel(pptr->net, nptr->interval, pptr->int2);
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, pptr->rs));
+
+    /* if the intersection of "what is in the network" and "what we
+     * have concluded is the empty set, something is wrong */
+    if (TBE_REL_SET_ISCLEAR(rs3))
+      return TBE_FAILURE;
+
+    /* put this in the queue for later processing */
+    if (rs2 != rs3) {
+      retval = tbe_iqueue_enq(pptr->queue, nptr->interval, pptr->int2, rs3);
+
+      if (retval != TBE_OK)
+        return retval;
+    }
+  }
+
+  /* find rs(i,k), given rs(i,j), rs(j,k) */
+
+  rs1 = tbe_net_rel(pptr->net, pptr->int2, nptr->interval);
+
+  if (!TBE_NET_SKIP(pptr->rs, rs1)) {
+    rs2 = tbe_net_rel(pptr->net, pptr->int1, nptr->interval);
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(pptr->rs, rs1));
+
+    /* if the intersection of "what is in the network" and "what we have
+     * concluded is the empty set, something is wrong */
+    if (TBE_REL_SET_ISCLEAR(rs3))
+      return TBE_FAILURE;
+
+    /* put this in the queue for later processing */
+    if (rs2 != rs3) {
+      retval = tbe_iqueue_enq(pptr->queue, pptr->int1, nptr->interval, rs3);
+
+      if (retval != TBE_OK)
+        return retval;
+    }
+  }
+
+  return TBE_OK;
+}
+
 /* create a new network */
 int tbe_net_create(tbe_net *a_net)
 {
@@ -381,11 +464,11 @@ int tbe_net_add_rel(tbe_net a_net,
                     unsigned int a_int2,
                     unsigned int a_relset)
 {
-  int retval;
   unsigned int rs;
-  tbe_iqueue iqueue;
+  __tbe_net_prop p;
+  int retval;
 
-  if (!a_net)
+  if (!(p.net = a_net))
     return TBE_NULLPTR;
 
   /* check if the relset to be added contains all possible relations */
@@ -399,93 +482,38 @@ int tbe_net_add_rel(tbe_net a_net,
     return TBE_INVALIDINPUT;
 
   /* intialise and load the queue */
-  if ((retval = tbe_iqueue_create(&iqueue)) != TBE_OK)
+  if ((retval = tbe_iqueue_create(&(p.queue))) != TBE_OK)
     return retval;
 
-  if ((retval = tbe_iqueue_enq(iqueue, a_int1, a_int2, rs)) != TBE_OK)
+  if ((retval = tbe_iqueue_enq(p.queue, a_int1, a_int2, rs)) != TBE_OK) {
+    tbe_iqueue_destroy(&(p.queue));
     return retval;
+  }
 
   retval = TBE_OK;
 
-  while (tbe_list_length(iqueue) && retval == TBE_OK) {
-    unsigned int i;
-    unsigned int int1q;
-    unsigned int int2q;
-    unsigned int rsq;
-
+  while (tbe_list_length(p.queue) && retval == TBE_OK) {
     /* get relation from queue */
-    if ((retval = tbe_iqueue_deq(iqueue, &int1q, &int2q, &rsq)) != TBE_OK)
+    retval = tbe_iqueue_deq(p.queue, &(p.int1), &(p.int2), &(p.rs));
+
+    if (retval != TBE_OK)
       break;
 
-    tbe_net_normalise(&int1q, &int2q, &rsq);
+    /* normalise then add this new relation to the network */
+    tbe_net_normalise(&(p.int1), &(p.int2), &(p.rs));
+    retval = tbe_net_add_rel_noprop(p.net, p.int1, p.int2, p.rs);
 
-    /* now we add this new relation to the network */
-    if ((retval = tbe_net_add_rel_noprop(a_net, int1q, int2q, rsq)) != TBE_OK)
+    if (retval != TBE_OK)
       break;
- 
-    /* go through all intervals k that is not int1 (i) and int2 (j) */
-    for (i = 0; i < tbe_list_length(a_net) && retval == TBE_OK; i++) {
-      unsigned int rs1;
-      unsigned int rs2;
-      unsigned int rs3;
-      __tbe_net_node *nptr;
- 
-      if ((retval = tbe_list_get_index(a_net, i, (void *) &nptr)) != TBE_OK)
-        break;
- 
-      if (nptr->interval == int1q || nptr->interval == int2q)
-        continue;
 
-      /* find rs(k,j), given rs(k,i) and rs(i,j) */
-      rs1 = tbe_net_rel(a_net, nptr->interval, int1q);
-
-      if (!TBE_NET_SKIP(rs1, rsq)) {
-        rs2 = tbe_net_rel(a_net, nptr->interval, int2q);
-        rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, rsq));
-
-        /* if the intersection of "what is in the network" and "what we
-         * have concluded is the empty set, something is wrong */
-        if (TBE_REL_SET_ISCLEAR(rs3)) {
-          retval = TBE_FAILURE;
-          break;
-        }
-
-        /* put this in the queue for later processing */
-        if (rs2 != rs3) {
-          retval = tbe_iqueue_enq(iqueue, nptr->interval, int2q, rs3);
-          if (retval != TBE_OK)
-            break;
-        }
-      }
-
-      /* find rs(i,k), given rs(i,j), rs(j,k) */
-      rs1 = tbe_net_rel(a_net, int2q, nptr->interval);
-
-      if (!TBE_NET_SKIP(rsq, rs1)) {
-        rs2 = tbe_net_rel(a_net, int1q, nptr->interval);
-        rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rsq, rs1));
-
-        /* if the intersection of "what is in the network" and "what we
-         * have concluded is the empty set, something is wrong */
-        if (TBE_REL_SET_ISCLEAR(rs3)) {
-          retval = TBE_FAILURE;
-          break;
-        }
-
-        /* put this in the queue for later processing */
-        if (rs2 != rs3) {
-          retval = tbe_iqueue_enq(iqueue, int1q, nptr->interval, rs3);
-          if (retval != TBE_OK)
-            break;
-        }
-      }
-    }
+    /* traverse the list, propagate the effects of this new relation */
+    retval = tbe_list_traverse(p.net, tbe_net_propagate, &p);
 
     if (retval != TBE_OK)
       break;
   }
 
-  tbe_iqueue_destroy(&iqueue);
+  tbe_iqueue_destroy(&(p.queue));
 
   return retval;
 }
@@ -523,15 +551,9 @@ unsigned int tbe_net_rel(tbe_net a_net,
     TBE_REL_SET_FILL(relset);
     return relset;
   }
-  else {
-    /* found it. now we determine whether we need to find the inverse */
-    if (int1 == a_int1)
-      return rptr->relset;
 
-    return tbe_rel_set_inverse(rptr->relset); 
-  }
-
-  return relset;
+  /* found it. now we determine whether we need to find the inverse */
+  return (int1 == a_int1) ? rptr->relset : tbe_rel_set_inverse(rptr->relset);
 }
 
 /* print the network as it is stored physically */
