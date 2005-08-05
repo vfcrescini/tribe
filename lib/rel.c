@@ -279,6 +279,77 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs)
     ((a_rs & m1) << TBE_REL_FIN) | ((a_rs & m2) >> TBE_REL_FIN) | (a_rs & m3);
 }
 
+/* gives the relation that exists between the 2 given intervals */
+int tbe_rel_calc(unsigned int a_i1s,
+                 unsigned int a_i1e,
+                 unsigned int a_i2s,
+                 unsigned int a_i2e,
+                 unsigned int *a_rel)
+{
+  if (!a_rel)
+    return TBE_NULLPTR;
+
+  /* check if the intervals are valid */
+  if (a_i1s >= a_i1e || a_i2s >= a_i2e)
+    return TBE_INVALIDINPUT;
+
+  /*
+   * eql  a_i1s = a_i2s, a_i1e = a_i2e
+   * bef  a_i1e < a_i2s
+   * dur  a_i1s > a_i2s, a_i1e < a_i2e
+   * ovr  a_i1s < a_i2s, a_i1e > a_i2e, a_i1e > a_i2s
+   * met  a_i1e = a_i2s
+   * sta  a_i1s = a_i2s, a_i1e < a_i2e
+   * fin  a_i1s > a_i2s, a_i1e = a_i2e
+   * bei  a_i1s > a_i2e
+   * dui  a_i1s < a_i2s, a_i1e > a_i2e
+   * ovi  a_i1s > a_i2s, a_i1e > a_i2e, a_i1e < a_i2s
+   * mei  a_i1s = a_i2e
+   * sti  a_i1s = a_i2s, a_ie > a_i2e
+   * fii  a_i1s < a_i2s, a_i1e = a_i2e
+   */
+ 
+
+  if (a_i1s == a_i2s) {
+    if (a_i1e == a_i2e)
+      *a_rel = TBE_REL_EQL;
+    else if (a_i1e < a_i2e)
+      *a_rel = TBE_REL_STA;
+    else
+      *a_rel = TBE_REL_STI;
+  }
+  else if (a_i1s < a_i2s) {
+    if (a_i1e == a_i2e)
+      *a_rel = TBE_REL_FII;
+    else if (a_i1e < a_i2e) {
+      if (a_i1e == a_i2s)
+        *a_rel = TBE_REL_MET;
+      else if (a_i1e < a_i2s)
+        *a_rel = TBE_REL_BEF;
+      else
+        *a_rel = TBE_REL_OVR;
+    }
+    else
+      *a_rel = TBE_REL_DUI;
+  }
+  else {
+    if (a_i1e == a_i2e)
+      *a_rel = TBE_REL_FIN;
+    else if (a_i1e < a_i2e)
+      *a_rel = TBE_REL_DUR;
+    else {
+      if (a_i1e == a_i2s)
+        *a_rel = TBE_REL_MEI;
+      else if (a_i1e < a_i2s)
+        *a_rel = TBE_REL_BEI;
+      else
+        *a_rel = TBE_REL_OVI;
+    }
+  }
+
+  return TBE_OK;
+}
+
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream)
 {

@@ -1,5 +1,14 @@
 2005-08-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Added a function, tbe_rel_calc(), that will give the relation
+	    that exists between two intervals, as defined by the given
+	    endpoints.
+
+2005-08-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
 	* VERSION :
 	* configure.ac :
 
