@@ -1,7 +1,0 @@
-dd :- __int0, not __int1.
-b.
-d :- __int2, not __int3.
-__int2.
-c.
-a(8).
-compute 2 {  }.

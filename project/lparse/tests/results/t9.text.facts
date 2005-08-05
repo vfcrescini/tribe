@@ -1,9 +1,0 @@
-c(c) :- not b(c).
-c(b) :- not b(b).
-c(a) :- not b(a).
-b(c) :- not c(c).
-b(b) :- not c(b).
-b(a) :- not c(a).
-a(c).
-a(b).
-a(a).

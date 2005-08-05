@@ -1,6 +1,0 @@
-d :- __int0, not __int1.
-__int0 :- 5 [ not b=4, a=3 ].
-a :- not b.
-b :- not a.
-c :- __int2, not __int3.
-__int2 :- 5 [ b=4, not a=3 ].
