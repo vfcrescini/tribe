@@ -1,3 +1,10 @@
+2005-08-00  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.2.0
+
 2005-07-28  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/list.h :
