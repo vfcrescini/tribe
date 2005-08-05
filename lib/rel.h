@@ -31,20 +31,20 @@
 #define TBE_REL_FII 12
 
 /* strings */
-#define TBE_STR_NUL "no-relation"
-#define TBE_STR_EQL "equals"
-#define TBE_STR_BEF "before"
-#define TBE_STR_DUR "during"
-#define TBE_STR_OVR "overlaps"
-#define TBE_STR_MET "meets"
-#define TBE_STR_STA "starts"
-#define TBE_STR_FIN "finishes"
-#define TBE_STR_BEI "after"
-#define TBE_STR_DUI "contains"
-#define TBE_STR_OVI "overlapped-by"
-#define TBE_STR_MEI "met-by"
-#define TBE_STR_STI "started-by"
-#define TBE_STR_FII "finished-by"
+#define TBE_REL_STR_NUL "no-relation"
+#define TBE_REL_STR_EQL "equals"
+#define TBE_REL_STR_BEF "before"
+#define TBE_REL_STR_DUR "during"
+#define TBE_REL_STR_OVR "overlaps"
+#define TBE_REL_STR_MET "meets"
+#define TBE_REL_STR_STA "starts"
+#define TBE_REL_STR_FIN "finishes"
+#define TBE_REL_STR_BEI "after"
+#define TBE_REL_STR_DUI "contains"
+#define TBE_REL_STR_OVI "overlapped-by"
+#define TBE_REL_STR_MEI "met-by"
+#define TBE_REL_STR_STI "started-by"
+#define TBE_REL_STR_FII "finished-by"
 
 /* clear set X */
 #define TBE_REL_SET_CLEAR(X) ((X) = 0)

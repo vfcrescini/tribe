@@ -5,6 +5,11 @@
 
 	  - Version 0.2.0
 
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Minor macro correction: from TBE_STR_* to TBE_REL_STR_*.
+
 2005-07-28  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/list.h :

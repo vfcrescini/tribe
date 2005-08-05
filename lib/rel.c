@@ -289,31 +289,31 @@ int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream)
     return TBE_NULLPTR;
 
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_EQL))
-    fprintf(a_stream, "%s ", TBE_STR_EQL);
+    fprintf(a_stream, "%s ", TBE_REL_STR_EQL);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_BEF))
-    fprintf(a_stream, "%s ", TBE_STR_BEF);
+    fprintf(a_stream, "%s ", TBE_REL_STR_BEF);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_DUR))
-    fprintf(a_stream, "%s ", TBE_STR_DUR);
+    fprintf(a_stream, "%s ", TBE_REL_STR_DUR);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_OVR))
-    fprintf(a_stream, "%s ", TBE_STR_OVR);
+    fprintf(a_stream, "%s ", TBE_REL_STR_OVR);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_MET))
-    fprintf(a_stream, "%s ", TBE_STR_MET);
+    fprintf(a_stream, "%s ", TBE_REL_STR_MET);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_STA))
-    fprintf(a_stream, "%s ", TBE_STR_STA);
+    fprintf(a_stream, "%s ", TBE_REL_STR_STA);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_FIN))
-    fprintf(a_stream, "%s ", TBE_STR_FIN);
+    fprintf(a_stream, "%s ", TBE_REL_STR_FIN);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_BEI))
-    fprintf(a_stream, "%s ", TBE_STR_BEI);
+    fprintf(a_stream, "%s ", TBE_REL_STR_BEI);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_DUI))
-    fprintf(a_stream, "%s ", TBE_STR_DUI);
+    fprintf(a_stream, "%s ", TBE_REL_STR_DUI);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_OVI))
-    fprintf(a_stream, "%s ", TBE_STR_OVI);
+    fprintf(a_stream, "%s ", TBE_REL_STR_OVI);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_MEI))
-    fprintf(a_stream, "%s ", TBE_STR_MEI);
+    fprintf(a_stream, "%s ", TBE_REL_STR_MEI);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_STI))
-    fprintf(a_stream, "%s ", TBE_STR_STI);
+    fprintf(a_stream, "%s ", TBE_REL_STR_STI);
   if (TBE_REL_SET_ISIN(a_rs, TBE_REL_FII))
-    fprintf(a_stream, "%s ", TBE_STR_FII);
+    fprintf(a_stream, "%s ", TBE_REL_STR_FII);
 
   return TBE_OK;
 }
