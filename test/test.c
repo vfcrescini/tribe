@@ -105,6 +105,36 @@ int main(int argc, char *argv[])
   tbe_net_destroy(&net);
 
 #if 0
+  printf("\nbefore: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,10,11,20), stdout);
+  printf("\nafter: ");
+  tbe_rel_set_dump(tbe_rel_calc(11,20,1,10), stdout);
+  printf("\noverlaps: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,15,10,20), stdout);
+  printf("\noverlapped-by: ");
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,15), stdout);
+  printf("\nmeets: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,10,10,20), stdout);
+  printf("\nmet-by: ");
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,10), stdout);
+  printf("\nduring: ");
+  tbe_rel_set_dump(tbe_rel_calc(5,15,1,20), stdout);
+  printf("\ncontains: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,20,5,15), stdout);
+  printf("\nstarts: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,10,1,20), stdout);
+  printf("\nstarted-by: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,20,1,10), stdout);
+  printf("\nfinishes: ");
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,20), stdout);
+  printf("\nfinished-by: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,20,10,20), stdout);
+  printf("\nequals: ");
+  tbe_rel_set_dump(tbe_rel_calc(1,10,1,10), stdout);
+  printf("\n\n");
+#endif
+
+#if 0
   tbe_net_create(&net);
   tbe_net_add_int(net, 1);
   tbe_net_add_int(net, 2);

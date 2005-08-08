@@ -8,6 +8,10 @@
 
 	  - Fixed small error in calc().
 
+	* test/test.c :
+
+	  - Added test for tbe_rel_calc().
+
 	* docs/rel.txt :
 
 	  - Added interval relation definitions to avoid confusion.
