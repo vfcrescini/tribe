@@ -296,19 +296,18 @@ int tbe_rel_calc(unsigned int a_i1s,
   /*
    * eql  a_i1s = a_i2s, a_i1e = a_i2e
    * bef  a_i1e < a_i2s
-   * dur  a_i1s > a_i2s, a_i1e < a_i2e
-   * ovr  a_i1s < a_i2s, a_i1e > a_i2e, a_i1e > a_i2s
-   * met  a_i1e = a_i2s
-   * sta  a_i1s = a_i2s, a_i1e < a_i2e
-   * fin  a_i1s > a_i2s, a_i1e = a_i2e
    * bei  a_i1s > a_i2e
+   * dur  a_i1s > a_i2s, a_i1e < a_i2e
    * dui  a_i1s < a_i2s, a_i1e > a_i2e
-   * ovi  a_i1s > a_i2s, a_i1e > a_i2e, a_i1e < a_i2s
+   * ovr  a_i1s < a_i2s, a_i1e < a_i2e, a_i1e > a_i2s
+   * ovi  a_i1s > a_i2s, a_i1e > a_i2e, a_i1s < a_i2e
+   * met  a_i1e = a_i2s
    * mei  a_i1s = a_i2e
+   * sta  a_i1s = a_i2s, a_i1e < a_i2e
    * sti  a_i1s = a_i2s, a_ie > a_i2e
+   * fin  a_i1s > a_i2s, a_i1e = a_i2e
    * fii  a_i1s < a_i2s, a_i1e = a_i2e
    */
- 
 
   if (a_i1s == a_i2s) {
     if (a_i1e == a_i2e)
@@ -338,12 +337,12 @@ int tbe_rel_calc(unsigned int a_i1s,
     else if (a_i1e < a_i2e)
       *a_rel = TBE_REL_DUR;
     else {
-      if (a_i1e == a_i2s)
+      if (a_i1s == a_i2e)
         *a_rel = TBE_REL_MEI;
-      else if (a_i1e < a_i2s)
-        *a_rel = TBE_REL_BEI;
-      else
+      else if (a_i1s < a_i2e)
         *a_rel = TBE_REL_OVI;
+      else
+        *a_rel = TBE_REL_BEI;
     }
   }
 
