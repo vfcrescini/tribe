@@ -293,21 +293,7 @@ int tbe_rel_calc(unsigned int a_i1s,
   if (a_i1s >= a_i1e || a_i2s >= a_i2e)
     return TBE_INVALIDINPUT;
 
-  /*
-   * eql  a_i1s = a_i2s, a_i1e = a_i2e
-   * bef  a_i1e < a_i2s
-   * bei  a_i1s > a_i2e
-   * dur  a_i1s > a_i2s, a_i1e < a_i2e
-   * dui  a_i1s < a_i2s, a_i1e > a_i2e
-   * ovr  a_i1s < a_i2s, a_i1e < a_i2e, a_i1e > a_i2s
-   * ovi  a_i1s > a_i2s, a_i1e > a_i2e, a_i1s < a_i2e
-   * met  a_i1e = a_i2s
-   * mei  a_i1s = a_i2e
-   * sta  a_i1s = a_i2s, a_i1e < a_i2e
-   * sti  a_i1s = a_i2s, a_ie > a_i2e
-   * fin  a_i1s > a_i2s, a_i1e = a_i2e
-   * fii  a_i1s < a_i2s, a_i1e = a_i2e
-   */
+  /* see docs/rel.txt for more info */
 
   if (a_i1s == a_i2s) {
     if (a_i1e == a_i2e)

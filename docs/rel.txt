@@ -1,0 +1,77 @@
+Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+Interval relations as defined by their endpoints:
+
+
+1s      1e                   Equals:             1s = 2s, ie = 2e
+----------
+----------
+2s      2e
+
+
+1s      1e  2s      2e       Before:             1e < 2s
+----------  ----------
+
+
+2s      2e  1s      1e       Before Inverse:     1s > 2e
+----------  ----------
+
+
+    1s      1e               During:             1s > 2s, 1e < 2e
+    ----------
+--------------------
+2s                2e
+
+
+    2s      2e               During Inverse:     1s < 2s, 1e > 2e
+    ----------
+--------------------
+1s                1e
+
+
+1s      1e
+----------                   Overlaps:           1s < 2s, 1e < 2e, 1e > 2s
+     ----------
+     2s      2e
+
+
+2s      2e
+----------                   Overlaps Inverse:   1s > 2s, 1e > 2e, 1s < 2e
+     ----------
+     1s      1e
+
+
+1s      1e                   Meets:              1e = 2s
+----------
+          ----------
+          2s      2e
+
+
+2s      2e                   Meets Inverse:      1s = 2e
+----------
+          ----------
+          1s      1e
+
+
+1s      1e
+----------                   Starts:             1s = 2s, 1e < 2e
+--------------------
+2s                2e
+
+
+2s      2e
+----------                   Starts Inverse:     1s = 2s, 1e > 2e
+--------------------
+1s                1e
+
+
+          1s      1e         Finishes:           1s > 2s, 1e = 2e
+          ----------
+--------------------
+2s                2e
+
+
+          2s      2e         Finishes Inverse:   1s < 2s, 1e = 2e
+          ----------
+--------------------
+1s                1e
