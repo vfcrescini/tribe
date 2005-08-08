@@ -71,12 +71,11 @@ unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
 /* returns a rel set that is the inverse of the given rel set */
 unsigned int tbe_rel_set_inverse(unsigned int a_rs);
-/* gives the relation that exists between the 2 given intervals */
-int tbe_rel_calc(unsigned int a_i1s,
-                 unsigned int a_i1e,
-                 unsigned int a_i2s,
-                 unsigned int a_i2e,
-                 unsigned int *a_rel);
+/* returns the relset between the 2 given intervals (time = 0 means unknown) */
+unsigned int tbe_rel_calc(unsigned int a_i1s,
+                          unsigned int a_i1e,
+                          unsigned int a_i2s,
+                          unsigned int a_i2e);
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 

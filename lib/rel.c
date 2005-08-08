@@ -279,60 +279,140 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs)
     ((a_rs & m1) << TBE_REL_FIN) | ((a_rs & m2) >> TBE_REL_FIN) | (a_rs & m3);
 }
 
-/* gives the relation that exists between the 2 given intervals */
-int tbe_rel_calc(unsigned int a_i1s,
-                 unsigned int a_i1e,
-                 unsigned int a_i2s,
-                 unsigned int a_i2e,
-                 unsigned int *a_rel)
+/* returns the relset between the 2 given intervals (time = 0 means unknown) */
+unsigned int tbe_rel_calc(unsigned int a_i1s,
+                          unsigned int a_i1e,
+                          unsigned int a_i2s,
+                          unsigned int a_i2e)
 {
-  if (!a_rel)
-    return TBE_NULLPTR;
+  unsigned int rs;
+  unsigned int tmp;
+  
+  TBE_REL_SET_FILL(rs);
 
-  /* check if the intervals are valid */
-  if (a_i1s >= a_i1e || a_i2s >= a_i2e)
-    return TBE_INVALIDINPUT;
+  /* at least one endpoint from each interval should be non-zero */
+  if ((!a_i1s && !a_i1e) || (!a_i2s && !a_i2e))
+    return rs;
 
-  /* see docs/rel.txt for more info */
+  /* obviously, start_pt must be less than end_pt */
+  if ((a_i1s && a_i1e && a_i1s >= a_i1e) || (a_i2s && a_i2e && a_i2s >= a_i2e))
+    return rs;
 
-  if (a_i1s == a_i2s) {
-    if (a_i1e == a_i2e)
-      *a_rel = TBE_REL_EQL;
-    else if (a_i1e < a_i2e)
-      *a_rel = TBE_REL_STA;
-    else
-      *a_rel = TBE_REL_STI;
-  }
-  else if (a_i1s < a_i2s) {
-    if (a_i1e == a_i2e)
-      *a_rel = TBE_REL_FII;
-    else if (a_i1e < a_i2e) {
-      if (a_i1e == a_i2s)
-        *a_rel = TBE_REL_MET;
-      else if (a_i1e < a_i2s)
-        *a_rel = TBE_REL_BEF;
-      else
-        *a_rel = TBE_REL_OVR;
+  /* see what we can conclude based on what is given (see docs/rel.txt) */
+  if (a_i1s) {
+    if (a_i2s) {
+      if (a_i1s == a_i2s) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STA);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else if (a_i1s < a_i2s) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MET);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVR);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FII);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FIN);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUR);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
     }
-    else
-      *a_rel = TBE_REL_DUI;
+    if (a_i2e) {
+      if (a_i1s == a_i2e) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else if (a_i1s < a_i2e) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MET);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVR);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STA);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUR);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FII);
+        TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FIN);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+    }
   }
-  else {
-    if (a_i1e == a_i2e)
-      *a_rel = TBE_REL_FIN;
-    else if (a_i1e < a_i2e)
-      *a_rel = TBE_REL_DUR;
-    else {
-      if (a_i1s == a_i2e)
-        *a_rel = TBE_REL_MEI;
-      else if (a_i1s < a_i2e)
-        *a_rel = TBE_REL_OVI;
-      else
-        *a_rel = TBE_REL_BEI;
+  if (a_i1e) {
+    if (a_i2s) {
+      if (a_i1e == a_i2s) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MET);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else if (a_i1e < a_i2s) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FIN);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUR);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STA);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FII);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVR);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+    }
+    if (a_i2e) {
+      if (a_i1e == a_i2e) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FIN);
+        TBE_REL_SET_ADD(tmp, TBE_REL_FII);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else if (a_i1e < a_i2e) {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MET);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVR);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STA);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUR);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
+      else {
+        TBE_REL_SET_CLEAR(tmp);
+        TBE_REL_SET_ADD(tmp, TBE_REL_BEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_OVI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_STI);
+        TBE_REL_SET_ADD(tmp, TBE_REL_DUI);
+        rs = TBE_REL_SET_INTERSECT(rs, tmp);
+      }
     }
   }
 
-  return TBE_OK;
+  return rs;
 }
 
 /* print all relations in rel set a_rs into stream a_stream */

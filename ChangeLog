@@ -1,12 +1,16 @@
 2005-08-08  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/rel.c :
+
+	  - tbe_rel_calc() now accepts partial endpoint information and
+	    returns a relset. It should be noted *somewhere* that a zero time
+	    value (an endpoint) indicates that the time value is not known.
+
+	  - Fixed small error in calc().
+
 	* docs/rel.txt :
 
 	  - Added interval relation definitions to avoid confusion.
-
-	* lib/rel.c :
-
-	  - Fixed small error in calc().
 
 2005-08-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
