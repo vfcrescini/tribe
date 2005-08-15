@@ -279,8 +279,10 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs)
     ((a_rs & m1) << TBE_REL_FIN) | ((a_rs & m2) >> TBE_REL_FIN) | (a_rs & m3);
 }
 
-/* returns the relset between the 2 given intervals (time = 0 means unknown) */
-unsigned int tbe_rel_calc(unsigned int a_i1s,
+/* returns the relset between the 2 given intervals. a_mask indicates which
+ * endpoints are given, e.g. a_mask & TBE_REL_I1S != 0 means a_i1s is given */
+unsigned int tbe_rel_calc(unsigned char a_mask,
+                          unsigned int a_i1s,
                           unsigned int a_i1e,
                           unsigned int a_i2s,
                           unsigned int a_i2e)
@@ -290,17 +292,19 @@ unsigned int tbe_rel_calc(unsigned int a_i1s,
   
   TBE_REL_SET_FILL(rs);
 
-  /* at least one endpoint from each interval should be non-zero */
-  if ((!a_i1s && !a_i1e) || (!a_i2s && !a_i2e))
+  /* at least one endpoint from each interval should be given */
+  if ((!(a_mask & TBE_REL_I1S) && !(a_mask & TBE_REL_I1E)) ||
+     (!(a_mask & TBE_REL_I2S) && !(a_mask & TBE_REL_I2E)))
     return rs;
 
   /* obviously, start_pt must be less than end_pt */
-  if ((a_i1s && a_i1e && a_i1s >= a_i1e) || (a_i2s && a_i2e && a_i2s >= a_i2e))
+  if (((a_mask & TBE_REL_I1S) && (a_mask & TBE_REL_I1E) && a_i1s >= a_i1e) ||
+     ((a_mask & TBE_REL_I2S) && (a_mask & TBE_REL_I2E) && a_i2s >= a_i2e))
     return rs;
 
   /* see what we can conclude based on what is given (see docs/rel.txt) */
-  if (a_i1s) {
-    if (a_i2s) {
+  if (a_mask & TBE_REL_I1S) {
+    if (a_mask & TBE_REL_I2S) {
       if (a_i1s == a_i2s) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
@@ -327,7 +331,7 @@ unsigned int tbe_rel_calc(unsigned int a_i1s,
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
     }
-    if (a_i2e) {
+    if (a_mask & TBE_REL_I2E) {
       if (a_i1s == a_i2e) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
@@ -355,8 +359,8 @@ unsigned int tbe_rel_calc(unsigned int a_i1s,
       }
     }
   }
-  if (a_i1e) {
-    if (a_i2s) {
+  if (a_mask & TBE_REL_I1E) {
+    if (a_mask & TBE_REL_I2S) {
       if (a_i1e == a_i2s) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_MET);
@@ -383,7 +387,7 @@ unsigned int tbe_rel_calc(unsigned int a_i1s,
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
     }
-    if (a_i2e) {
+    if (a_mask & TBE_REL_I2E) {
       if (a_i1e == a_i2e) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_EQL);

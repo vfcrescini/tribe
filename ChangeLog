@@ -1,3 +1,12 @@
+2005-08-15  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/rel.c :
+	* lib/rel.h :
+	* test/test.c :
+
+	  - tbe_rel_calc() now takes a bitmask to indicate which endpoins are
+	    defined. This change allows time == 0 to be used as a time value.
+
 2005-08-08  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/rel.c :
