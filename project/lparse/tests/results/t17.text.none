@@ -1,8 +1,0 @@
-maximize [ c(1)=-1, c(2)=-2 ].
-minimize [ a=1 ].
-a :- not b.
-c(1) :- not e(1).
-c(2) :- not e(2).
-e(1) :- not c(1).
-e(2) :- not c(2).
-b :- not a.

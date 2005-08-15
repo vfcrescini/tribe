@@ -1,8 +1,0 @@
-a(a).
-g(a) :- not a(a), not b.
-f(a,b,c) :- a(a).
-f(c,b,a) :- a(a).
-b(b,b).
-c(c,c,c).
-e(a,b,c,d) :- a(a), b(b,b), not d(a,b,c,d).
-d(a,b,c,d) :- a(a), b(b,b), not e(a,b,c,d).
