@@ -1,5 +1,10 @@
 2005-08-15  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.3.0
+
 	* lib/rel.c :
 	* lib/rel.h :
 	* test/test.c :
