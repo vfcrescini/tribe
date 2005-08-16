@@ -1,5 +1,13 @@
 2005-08-16  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/iqueue.c :
+	* lib/list.c :
+	* lib/list.h :
+	* lib/network.c :
+	* lib/rlist.c :
+
+	  - Added const qualifier in the parameters of *_cmp() functions.
+
 	* lib/Makefile.in :
 	* lib/network.c :
 	* lib/network.h :

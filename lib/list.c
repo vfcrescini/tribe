@@ -220,8 +220,8 @@ int tbe_list_del_index(tbe_list a_list,
 /* deletes all the nodes that matches data, uses cmp to compare, fr to free or
  * NULL to not free them */
 int tbe_list_del_data(tbe_list a_list,
-                      void *a_data,
-                      int (*a_cmp)(void *, void *),
+                      const void *a_data,
+                      int (*a_cmp)(const void *, const void *),
                       void (*a_fr)(void *))
 {
   __tbe_list *tmp;
@@ -328,8 +328,8 @@ int tbe_list_get_index(tbe_list a_list, unsigned int a_index, void **a_ref)
 
 /* gives a reference to all the nodes that matches data. array + size */
 int tbe_list_get_data_all(tbe_list a_list,
-                          void *a_data,
-                          int (*a_cmp)(void *, void*),
+                          const void *a_data,
+                          int (*a_cmp)(const void *, const void*),
                           void ***a_array,
                           unsigned int *a_size)
 {
@@ -359,8 +359,8 @@ int tbe_list_get_data_all(tbe_list a_list,
 
 /* gives a reference to the FIRST node that matches data */
 int tbe_list_get_data_one(tbe_list a_list,
-                          void *a_data,
-                          int (*a_cmp)(void *, void*),
+                          const void *a_data,
+                          int (*a_cmp)(const void *, const void *),
                           void **a_ref)
 {
   __tbe_list_node *curr;
@@ -385,7 +385,7 @@ int tbe_list_get_data_one(tbe_list a_list,
 /* gives a reference to the FIRST node whose hash value matches */
 int tbe_list_get_data_hash(tbe_list a_list,
                            unsigned int a_hval,
-                           unsigned int (a_hfn)(void *),
+                           unsigned int (a_hfn)(const void *),
                            void **a_ref)
 {
   __tbe_list_node *curr;
@@ -409,8 +409,8 @@ int tbe_list_get_data_hash(tbe_list a_list,
 
 /* returns 0 if data is in the list, uses cmp to compare pointers */
 int tbe_list_find_data(tbe_list a_list,
-                       void *a_data,
-                       int (*a_cmp)(void *, void *))
+                       const void *a_data,
+                       int (*a_cmp)(const void *, const void *))
 {
   __tbe_list_node *curr;
 
@@ -432,7 +432,7 @@ int tbe_list_find_data(tbe_list a_list,
 /* makes an exact copy of l1 to l2, uses cpy to make a new copy */
 int tbe_list_copy(tbe_list a_list1,
                   tbe_list *a_list2,
-                  int (*a_cpy)(void *, void **))
+                  int (*a_cpy)(const void *, void **))
 {
   __tbe_list *tmp;
   __tbe_list_node *curr;

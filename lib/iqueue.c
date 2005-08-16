@@ -10,7 +10,10 @@ typedef struct {
 } __tbe_iqueue_node;
 
 /* return TBE_OK if the 2 iqueue nodes are equal */
-static int tbe_iqueue_cmp(void *a_ptr1, void *a_ptr2)
+static int tbe_iqueue_cmp(const void *a_ptr1, const void *a_ptr2);
+
+/* return TBE_OK if the 2 iqueue nodes are equal */
+static int tbe_iqueue_cmp(const void *a_ptr1, const void *a_ptr2)
 {
   __tbe_iqueue_node *ptr1;
   __tbe_iqueue_node *ptr2;

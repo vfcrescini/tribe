@@ -38,7 +38,7 @@ typedef struct {
 } __tbe_net_node;
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
-static int tbe_net_cmp(void *a_ptr1, void *a_ptr2);
+static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2);
 
 /* return a reference to the node containing a_int, NULL if it doesn't exist */
 static __tbe_net_node *tbe_net_get_ref(tbe_net a_net, unsigned int a_int);
@@ -65,7 +65,7 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
 static int tbe_net_propagate(const void *a_node, void *a_prop);
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
-static int tbe_net_cmp(void *a_ptr1, void *a_ptr2)
+static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2)
 {
   __tbe_net_node *ptr1 = (__tbe_net_node *) a_ptr1;
   __tbe_net_node *ptr2 = (__tbe_net_node *) a_ptr2;

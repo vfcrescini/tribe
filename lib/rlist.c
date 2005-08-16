@@ -14,13 +14,13 @@ typedef struct {
 } __tbe_rlist_dump;
 
 /* return TBE_OK if the intervals of the 2 tbe_rlist_nodes are equal */
-static int tbe_rlist_cmp(void *a_ptr1, void *a_ptr2);
+static int tbe_rlist_cmp(const void *a_ptr1, const void *a_ptr2);
 
 /* dump rlist node. use with tbe_list_traverse */
 static int tbe_rlist_trav_dump(const void *a_node, void *a_dump);
 
 /* return TBE_OK if the intervals of the 2 tbe_rlist_nodes are equal */
-static int tbe_rlist_cmp(void *a_ptr1, void *a_ptr2)
+static int tbe_rlist_cmp(const void *a_ptr1, const void *a_ptr2)
 {
   __tbe_rlist_node *ptr1 = (__tbe_rlist_node *) a_ptr1;
   __tbe_rlist_node *ptr2 = (__tbe_rlist_node *) a_ptr2;
