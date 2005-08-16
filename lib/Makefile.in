@@ -19,6 +19,7 @@ INCLUDES = \
   mem.h \
   list.h \
   iqueue.h \
+  rlist.h \
   rel.h \
   network.h \
   $(NULL)
@@ -26,6 +27,7 @@ OBJECTS = \
   mem.o \
   list.o \
   iqueue.o \
+  rlist.o \
   rel.o \
   network.o \
   $(NULL)
@@ -66,8 +68,11 @@ list.o : tribe.h mem.h list.h list.c
 iqueue.o : tribe.h mem.h list.h iqueue.h iqueue.c
 	$(CC) $(CFLAGS) -o $(@) -c iqueue.c
 
+rlist.o : tribe.h mem.h list.h rel.h rlist.h rlist.c
+	$(CC) $(CFLAGS) -o $(@) -c rlist.c
+
 rel.o : tribe.h rel.h rel.c
 	$(CC) $(CFLAGS) -o $(@) -c rel.c
 
-network.o : tribe.h mem.h list.h iqueue.h network.h network.c
+network.o : tribe.h mem.h list.h iqueue.h rlist.h network.h network.c
 	$(CC) $(CFLAGS) -o $(@) -c network.c

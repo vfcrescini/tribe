@@ -15,7 +15,7 @@ void tbe_net_destroy(tbe_net *a_net);
 /* normalise the relation. a relation A rs B is normalised if A < B */
 int tbe_net_normalise(unsigned int *a_int1,
                       unsigned int *a_int2,
-                      unsigned int *a_relset);
+                      unsigned int *a_rs);
 
 /* add a new interval into the network */
 int tbe_net_add_int(tbe_net a_net, unsigned int a_int);
@@ -24,7 +24,7 @@ int tbe_net_add_int(tbe_net a_net, unsigned int a_int);
 int tbe_net_add_rel(tbe_net a_net,
                     unsigned int a_int1,
                     unsigned int a_int2,
-                    unsigned int a_relset);
+                    unsigned int a_rs);
 
 /* returns the rel set between the given two intervals in the given network */
 unsigned int tbe_net_rel(tbe_net a_net,

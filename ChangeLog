@@ -1,3 +1,16 @@
+2005-08-16  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/Makefile.in :
+	* lib/network.c :
+	* lib/network.h :
+	* lib/rlist.c :
+	* lib/rlist.h :
+
+	  - Moved rlist implementation out of network.c and into their own
+	    files.
+
+	  - Some general cleanup.
+
 2005-08-15  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* VERSION :
