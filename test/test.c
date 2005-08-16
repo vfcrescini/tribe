@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
   tbe_net_destroy(&net);
 #endif
 
+#if 1
   tbe_net_create(&net);
   tbe_net_add_int(net, 1);
   tbe_net_add_int(net, 2);
@@ -103,6 +104,7 @@ int main(int argc, char *argv[])
 
   tbe_net_dump2(net, stdout);
   tbe_net_destroy(&net);
+#endif
 
 #if 0
   printf("\nbefore: ");
