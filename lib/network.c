@@ -211,10 +211,13 @@ static int tbe_net_propagate(const void *a_node, void *a_prop)
 
   /* find rs(k,j), given rs(k,i) and rs(i,j) */
 
+  /* rs1 is the known relation between k and i */
   rs1 = tbe_net_rel(pptr->net, nptr->interval, pptr->int1);
 
   if (!TBE_NET_SKIP(rs1, pptr->rs)) {
+    /* rs2 is the known relation between k and j */
     rs2 = tbe_net_rel(pptr->net, nptr->interval, pptr->int2);
+    /* rs3 is the intersection of rs2 and the new rs derived from the table */
     rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, pptr->rs));
 
     /* if the intersection of "what is in the network" and "what we
@@ -233,10 +236,13 @@ static int tbe_net_propagate(const void *a_node, void *a_prop)
 
   /* find rs(i,k), given rs(i,j), rs(j,k) */
 
+  /* rs1 is the known relation between j and k */
   rs1 = tbe_net_rel(pptr->net, pptr->int2, nptr->interval);
 
   if (!TBE_NET_SKIP(pptr->rs, rs1)) {
+    /* rs2 is the know relation between i and k */
     rs2 = tbe_net_rel(pptr->net, pptr->int1, nptr->interval);
+    /* rs3 is the intersection of rs2 and the new rs derived from the table */
     rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(pptr->rs, rs1));
 
     /* if the intersection of "what is in the network" and "what we have
@@ -330,7 +336,8 @@ int tbe_net_add_rel(tbe_net a_net,
                     unsigned int a_int2,
                     unsigned int a_rs)
 {
-  unsigned int rs;
+  unsigned int rs1;
+  unsigned int rs2;
   __tbe_net_prop p;
   int retval;
 
@@ -341,17 +348,25 @@ int tbe_net_add_rel(tbe_net a_net,
   if (TBE_REL_SET_ISFILL(a_rs))
     return TBE_OK;
 
-  /* get intersection of what is already in the network and what is given */
-  rs = TBE_REL_SET_INTERSECT(tbe_net_rel(a_net, a_int1, a_int2), a_rs);
+  /* rs1 is the known relation between int1 and int2 */
+  rs1 = tbe_net_rel(a_net, a_int1, a_int2);
 
-  if (TBE_REL_SET_ISCLEAR(rs))
+  /* rs2 is the intersection of rs1 and the proposed relation */
+  rs2 = TBE_REL_SET_INTERSECT(rs1, a_rs);
+
+  /* see if the proposed relation clashes with what we already know */
+  if (TBE_REL_SET_ISCLEAR(rs2))
     return TBE_INVALIDINPUT;
+
+  /* see if the proposed relation is more specific than what we already know */
+  if (rs1 == rs2)
+    return TBE_OK;
 
   /* intialise and load the queue */
   if ((retval = tbe_iqueue_create(&(p.queue))) != TBE_OK)
     return retval;
 
-  if ((retval = tbe_iqueue_enq(p.queue, a_int1, a_int2, rs)) != TBE_OK) {
+  if ((retval = tbe_iqueue_enq(p.queue, a_int1, a_int2, rs2)) != TBE_OK) {
     tbe_iqueue_destroy(&(p.queue));
     return retval;
   }

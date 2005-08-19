@@ -1,3 +1,12 @@
+2005-08-19  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+
+	  - Clarified algorithms in the comments.
+
+	  - Added a check to prevent propagating relations that is not
+	    more specific than what is already known.
+
 2005-08-16  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/iqueue.c :
