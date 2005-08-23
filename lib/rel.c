@@ -1,6 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
-
 #include <tribe/rel.h>
 
 /* relsets are unsigned ints. each rel is a bit mask */

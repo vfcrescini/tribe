@@ -1,3 +1,12 @@
+2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+
+	* lib/rel.c :
+	* lib/rel.h :
+	* lib/rlist.h :
+
+	  - Include stdio.h. Needed by references to the FILE structure.
+
+
 2005-08-19  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/network.c :

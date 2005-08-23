@@ -1,6 +1,7 @@
 #ifndef __TBE_RLIST_H
 #define __TBE_RLIST_H
 
+#include <stdio.h>
 #include <tribe/tribe.h>
 #include <tribe/list.h>
 
