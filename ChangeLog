@@ -1,11 +1,20 @@
 2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
-	* lib/rel.c :
-	* lib/rel.h :
-	* lib/rlist.h :
+	* lib/rel.c
+	* lib/rel.h
+
+	  - Cleaned up the interface for tbe_rel_calc(). We now pass two masks
+	    instead of one. More parameters, more memory, but clearer.
 
 	  - Include stdio.h. Needed by references to the FILE structure.
 
+	* test/test.c :
+
+	  - Now uses new tbe_rel_calc() interface.
+
+	* lib/rlist.h :
+
+	  - Include stdio.h. Needed by references to the FILE structure.
 
 2005-08-19  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 

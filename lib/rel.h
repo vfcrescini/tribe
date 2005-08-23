@@ -67,26 +67,28 @@
 #define TBE_REL_SET_ISFILL(X) ((X) == (1 << (TBE_REL_FII + 1)) - 1)
 
 /* masks for interval flags */
-#define TBE_REL_I1S  1
-#define TBE_REL_I1E  2
-#define TBE_REL_I2S  4
-#define TBE_REL_I2E  8
-#define TBE_REL_INUL 0
-#define TBE_REL_IALL (TBE_REL_I1S | TBE_REL_I1E | TBE_REL_I2S | TBE_REL_I2E)
+#define TBE_REL_EP_1   1
+#define TBE_REL_EP_2   2
+#define TBE_REL_EP_NUL 0
+#define TBE_REL_EP_ALL (TBE_REL_EP_1 | TBE_REL_EP_2)
 
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
+
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
+
 /* returns a rel set that is the inverse of the given rel set */
 unsigned int tbe_rel_set_inverse(unsigned int a_rs);
-/* returns the relset between the 2 given intervals. a_mask indicates which
- * endpoints are given, e.g. a_mask & TBE_REL_I1S != 0 means a_i1s is given */
-unsigned int tbe_rel_calc(unsigned char a_mask,
-                          unsigned int a_i1s,
-                          unsigned int a_i1e,
-                          unsigned int a_i2s,
-                          unsigned int a_i2e);
+
+/* returns the relset between the 2 given intervals */
+unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
+                          unsigned int a_i1_ep_2,
+                          unsigned int a_i2_ep_1,
+                          unsigned int a_i2_ep_2,
+                          unsigned char a_i1_ep_mask,
+                          unsigned char a_i2_ep_mask);
+
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 

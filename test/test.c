@@ -108,33 +108,33 @@ int main(int argc, char *argv[])
 
 #if 0
   printf("\nbefore: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,10,11,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,10,11,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nafter: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,11,20,1,10), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(11,20,1,10, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\noverlaps: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,15,10,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,15,10,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\noverlapped-by: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,10,20,1,15), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,15, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nmeets: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,10,10,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,10,10,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nmet-by: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,10,20,1,10), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,10, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nduring: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,5,15,1,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(5,15,1,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\ncontains: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,20,5,15), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,20,5,15, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nstarts: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,10,1,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,10,1,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nstarted-by: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,20,1,10), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,20,1,10, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nfinishes: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,10,20,1,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(10,20,1,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nfinished-by: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,20,10,20), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,20,10,20, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\nequals: ");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_IALL,1,10,1,10), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,10,1,10, TBE_REL_EP_ALL, TBE_REL_EP_ALL), stdout);
   printf("\n");
-  tbe_rel_set_dump(tbe_rel_calc(TBE_REL_I1S | TBE_REL_I1E | TBE_REL_I2S,1,10,1,10), stdout);
+  tbe_rel_set_dump(tbe_rel_calc(1,10,1,10, TBE_REL_EP_ALL, TBE_REL_EP_1), stdout);
   printf("\n");
 #endif
 
