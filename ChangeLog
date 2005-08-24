@@ -3,6 +3,9 @@
 	* lib/network.c :
 	* lib/network.h :
 
+	  - Cleanup. Renamed tbe_net_propagate[12]() to
+	    tbe_net_trav_prop[12]().
+
 	  - Added tbe_net_add_ep() which allows endpoints of intervals to be
 	    defined. The new function tbe_net_propagate2() goes through all the
 	    intervals in the network whose endpoints are defined and works out
