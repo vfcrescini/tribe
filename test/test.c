@@ -57,6 +57,11 @@ int main(int argc, char *argv[])
   printf("adding: %d\n", tbe_net_add_rel(net, 1, 2, rs));
 
   tbe_net_dump2(net, stdout);
+
+  printf("adding: %d\n", tbe_net_add_ep(net, 1, 10, 20, TBE_REL_EP_ALL));
+  printf("adding: %d\n", tbe_net_add_ep(net, 2, 0, 4, TBE_REL_EP_ALL));
+
+  tbe_net_dump2(net, stdout);
   tbe_net_destroy(&net);
 #endif
 

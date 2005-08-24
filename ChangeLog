@@ -12,6 +12,10 @@
 	    propagate1 to avoid confusion with the new propagate functions and
 	    structures.
 
+	* test/test.c :
+
+	  - Added a test for tbe_net_add_ep().
+
 2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
 	* lib/rel.c :
