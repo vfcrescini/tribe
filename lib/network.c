@@ -22,18 +22,30 @@ typedef struct {
   FILE *stream;
 } __tbe_net_dump;
 
-/* structure for propagation */
+/* structure for propagation, no endpoints */
 typedef struct {
   tbe_net net;
   tbe_iqueue queue;
   unsigned int int1;
   unsigned int int2;
   unsigned int rs;
-} __tbe_net_prop;
+} __tbe_net_prop1;
+
+/* structure for propagation, with endpoints */
+typedef struct {
+  tbe_net net;
+  unsigned int interval;
+  unsigned int ep_1;
+  unsigned int ep_2;
+  unsigned char ep_mask;
+} __tbe_net_prop2;
 
 /* the network */
 typedef struct {
   unsigned int interval;
+  unsigned int ep_1;
+  unsigned int ep_2;
+  unsigned char ep_mask;
   tbe_rlist rlist;
 } __tbe_net_node;
 
@@ -62,7 +74,10 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
                                   unsigned int a_rs);
 
 /* propagate the relations by adding the required operations in the queue */
-static int tbe_net_propagate(const void *a_node, void *a_prop);
+static int tbe_net_propagate1(const void *a_node, void *a_prop1);
+
+/* propagate the relations derived from the endpoints */
+static int tbe_net_propagate2(const void *a_node, void *a_prop2);
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
 static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2)
@@ -189,10 +204,10 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
 }
 
 /* propagate the relations by adding the required operations in the queue */
-static int tbe_net_propagate(const void *a_node, void *a_prop)
+static int tbe_net_propagate1(const void *a_node, void *a_prop1)
 {
   __tbe_net_node *nptr = (__tbe_net_node *) a_node;
-  __tbe_net_prop *pptr = (__tbe_net_prop *) a_prop;
+  __tbe_net_prop1 *pptr = (__tbe_net_prop1 *) a_prop1;
   unsigned int rs1;
   unsigned int rs2;
   unsigned int rs3;
@@ -262,6 +277,43 @@ static int tbe_net_propagate(const void *a_node, void *a_prop)
   return TBE_OK;
 }
 
+/* propagate the relations derived from the endpoints */
+static int tbe_net_propagate2(const void *a_node, void *a_prop2)
+{
+  __tbe_net_node *nptr = (__tbe_net_node *) a_node;
+  __tbe_net_prop2 *pptr = (__tbe_net_prop2 *) a_prop2;
+  unsigned int relset;
+  int retval;
+
+  if (!nptr || !pptr)
+    return TBE_NULLPTR;
+
+  /* check that this node is not the one we are comparing against */
+  if (nptr->interval == pptr->interval)
+    return TBE_OK;
+
+  /* assuming that at least 1 endpoint in a_prop2 is defined, we then check the
+   * endpoints of a_node. if none is given, then we can do nothing */
+  if ((nptr->ep_mask & TBE_REL_EP_ALL) == TBE_REL_EP_NUL)
+    return TBE_OK;
+
+  /* see what relset we can deduce from the given endpoints */
+  relset = tbe_rel_calc(pptr->ep_1,
+                        pptr->ep_2,
+                        nptr->ep_1,
+                        nptr->ep_2,
+                        pptr->ep_mask,
+                        nptr->ep_mask);
+
+  /* now we try to add this new relation to the network */
+  retval = tbe_net_add_rel(pptr->net, pptr->interval, nptr->interval, relset);
+
+  if (retval != TBE_OK)
+    return retval; 
+
+  return TBE_OK;
+}
+
 /* create a new network */
 int tbe_net_create(tbe_net *a_net)
 {
@@ -321,6 +373,9 @@ int tbe_net_add_int(tbe_net a_net, unsigned int a_int)
   }
 
   nptr->interval = a_int;
+  nptr->ep_1 = 0;
+  nptr->ep_2 = 0;
+  nptr->ep_mask = TBE_REL_EP_NUL;
 
   if ((retval = tbe_list_add_tail(a_net, (void *) nptr)) != TBE_OK) {
     tbe_rlist_destroy(&(nptr->rlist));
@@ -338,7 +393,7 @@ int tbe_net_add_rel(tbe_net a_net,
 {
   unsigned int rs1;
   unsigned int rs2;
-  __tbe_net_prop p;
+  __tbe_net_prop1 p;
   int retval;
 
   if (!(p.net = a_net))
@@ -388,7 +443,7 @@ int tbe_net_add_rel(tbe_net a_net,
       break;
 
     /* traverse the list, propagate the effects of this new relation */
-    retval = tbe_list_traverse(p.net, tbe_net_propagate, &p);
+    retval = tbe_list_traverse(p.net, tbe_net_propagate1, &p);
 
     if (retval != TBE_OK)
       break;
@@ -397,6 +452,48 @@ int tbe_net_add_rel(tbe_net a_net,
   tbe_iqueue_destroy(&(p.queue));
 
   return retval;
+}
+
+/* bind the given interval with the given endpoints */
+int tbe_net_add_ep(tbe_net a_net, 
+                   unsigned int a_int,
+                   unsigned int a_ep_1,
+                   unsigned int a_ep_2,
+                   unsigned char a_ep_mask)
+{
+  int retval;
+  __tbe_net_node *nptr;
+  __tbe_net_prop2 p;
+
+  if (!a_net)
+    return TBE_NULLPTR;
+
+  /* check if at least one endpoint is actually given */
+  if ((a_ep_mask & TBE_REL_EP_ALL) == TBE_REL_EP_NUL)
+    return TBE_OK;
+
+  /* see if the given inerval actually exists */
+  if (!(nptr = tbe_net_get_ref(a_net, a_int)))
+    return TBE_INVALIDINPUT;
+
+  /* now we go through the network to see if the definition of these endpoints
+   * actually change anything else */
+
+  p.net = a_net;
+  p.interval = a_int;
+  p.ep_1 = a_ep_1;
+  p.ep_2 = a_ep_2;
+  p.ep_mask = a_ep_mask;
+
+  if ((retval = tbe_list_traverse(a_net, tbe_net_propagate2, &p)) != TBE_OK)
+    return retval;
+
+  /* if all went well, we add the endpoints to the network */
+  nptr->ep_1 = a_ep_1;
+  nptr->ep_2 = a_ep_2;
+  nptr->ep_mask = a_ep_mask;
+
+  return TBE_OK;
 }
 
 /* returns the rel set between the given two intervals in the given network */

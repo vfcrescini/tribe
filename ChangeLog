@@ -1,7 +1,21 @@
+2005-08-25  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added tbe_net_add_ep() which allows endpoints of intervals to be
+	    defined. The new function tbe_net_propagate2() goes through all the
+	    intervals in the network whose endpoints are defined and works out
+	    the relations between them.
+
+	  - Renamed all previous propagate functions and structures to
+	    propagate1 to avoid confusion with the new propagate functions and
+	    structures.
+
 2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
-	* lib/rel.c
-	* lib/rel.h
+	* lib/rel.c :
+	* lib/rel.h :
 
 	  - Cleaned up the interface for tbe_rel_calc(). We now pass two masks
 	    instead of one. More parameters, more memory, but clearer.
