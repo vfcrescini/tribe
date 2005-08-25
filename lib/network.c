@@ -161,7 +161,7 @@ static int tbe_net_trav_dump2_l2(const void *a_node, void *a_dump)
     return TBE_INVALIDINPUT;
 
   /* query the net for the relation between the 2 intervals */
-  rs = tbe_net_rel(dptr->net, dptr->int_id, nptr->int_id);
+  rs = tbe_net_get_rel(dptr->net, dptr->int_id, nptr->int_id);
   
   fprintf(dptr->stream, "%03u ", dptr->int_id);
   tbe_rel_set_dump(rs, dptr->stream);
@@ -194,11 +194,11 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
   /* find rs(k,j), given rs(k,i) and rs(i,j) */
 
   /* rs1 is the known relation between k and i */
-  rs1 = tbe_net_rel(pptr->net, nptr->int_id, pptr->int_id1);
+  rs1 = tbe_net_get_rel(pptr->net, nptr->int_id, pptr->int_id1);
 
   if (!TBE_NET_SKIP(rs1, pptr->rs)) {
     /* rs2 is the known relation between k and j */
-    rs2 = tbe_net_rel(pptr->net, nptr->int_id, pptr->int_id2);
+    rs2 = tbe_net_get_rel(pptr->net, nptr->int_id, pptr->int_id2);
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
     rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, pptr->rs));
 
@@ -222,11 +222,11 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
   /* find rs(i,k), given rs(i,j), rs(j,k) */
 
   /* rs1 is the known relation between j and k */
-  rs1 = tbe_net_rel(pptr->net, pptr->int_id2, nptr->int_id);
+  rs1 = tbe_net_get_rel(pptr->net, pptr->int_id2, nptr->int_id);
 
   if (!TBE_NET_SKIP(pptr->rs, rs1)) {
     /* rs2 is the know relation between i and k */
-    rs2 = tbe_net_rel(pptr->net, pptr->int_id1, nptr->int_id);
+    rs2 = tbe_net_get_rel(pptr->net, pptr->int_id1, nptr->int_id);
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
     rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(pptr->rs, rs1));
 
@@ -374,7 +374,7 @@ int tbe_net_add_rel(tbe_net a_net,
     return TBE_OK;
 
   /* rs1 is the known relation between int1 and int2 */
-  rs1 = tbe_net_rel(a_net, a_int_id1, a_int_id2);
+  rs1 = tbe_net_get_rel(a_net, a_int_id1, a_int_id2);
 
   /* rs2 is the intersection of rs1 and the proposed relation */
   rs2 = TBE_REL_SET_INTERSECT(rs1, a_rs);
@@ -461,9 +461,9 @@ int tbe_net_add_ep(tbe_net a_net, unsigned int a_int_id, tbe_interval a_int)
 }
 
 /* returns the rel set between the given two intervals in the given network */
-unsigned int tbe_net_rel(tbe_net a_net,
-                         unsigned int a_int_id1,
-                         unsigned int a_int_id2)
+unsigned int tbe_net_get_rel(tbe_net a_net,
+                             unsigned int a_int_id1,
+                             unsigned int a_int_id2)
 {
   __tbe_net_node *nptr;
   unsigned int int_id1 = TBE_INT_MIN(a_int_id1, a_int_id2);

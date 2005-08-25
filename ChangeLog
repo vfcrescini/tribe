@@ -12,6 +12,8 @@
 	* lib/network.c :
 	* lib/network.h :
 
+	  - Renamed tbe_net_rel() to tbe_net_get_rel().
+
 	  - Removed tbe_net_normalise(). This is really a relation thing, and
 	    as such, should be in rel.c.
 
