@@ -524,7 +524,7 @@ unsigned int tbe_net_rel(tbe_net a_net,
 
   /* now we look for the larger interval in the rel list of the first */
   if (tbe_rlist_get(nptr->rlist, int2, &rs) != TBE_OK)
-    return TBE_REL_SET_NUL;
+    return TBE_REL_SET_ALL;
 
   /* now determine whether we need to find the inverse */
   return (int1 == a_int1) ? rs : tbe_rel_set_inverse(rs);
