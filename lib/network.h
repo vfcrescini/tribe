@@ -13,11 +13,6 @@ int tbe_net_create(tbe_net *a_net);
 /* destroy the given network */
 void tbe_net_destroy(tbe_net *a_net);
 
-/* normalise the relation. a relation A rs B is normalised if A <= B */
-int tbe_net_normalise(unsigned int *a_int_id1,
-                      unsigned int *a_int_id2,
-                      unsigned int *a_rs);
-
 /* add a new interval into the network */
 int tbe_net_add_int(tbe_net a_net, unsigned int a_int_id);
 

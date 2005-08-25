@@ -83,6 +83,11 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs);
 /* returns the relset between the 2 given intervals */
 unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
 
+/* normalise the relation. a relation A rs B is normalised if A <= B */
+int tbe_rel_normalise(unsigned int *a_int_id1,
+                      unsigned int *a_int_id2,
+                      unsigned int *a_rs);
+
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
 

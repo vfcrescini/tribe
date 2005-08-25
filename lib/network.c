@@ -292,10 +292,6 @@ static int tbe_net_add_rel_noprop(tbe_net a_net,
   if (a_int_id1 == a_int_id2)
     return TBE_OK;
 
-  /* make sure relation is already normalised */
-  if (a_int_id1 > a_int_id2)
-    return TBE_INVALIDINPUT;
-
   /* get a reference of the node containing the first interval */
   if (!(nptr = tbe_net_get_ref(a_net, a_int_id1)))
     return TBE_INVALIDINPUT;
@@ -317,29 +313,6 @@ int tbe_net_create(tbe_net *a_net)
 void tbe_net_destroy(tbe_net *a_net)
 {
   tbe_list_destroy(a_net, tbe_net_free);
-}
-
-/* normalise the relation. a relation A rs B is normalised if A <= B */
-int tbe_net_normalise(unsigned int *a_int_id1,
-                      unsigned int *a_int_id2,
-                      unsigned int *a_rs)
-{
-  unsigned int min;
-  unsigned int max;
-  
-  if (!a_int_id1 || !a_int_id2 || !a_rs)
-    return TBE_NULLPTR;
-
-  if (*a_int_id1 > *a_int_id2 )
-    *a_rs = tbe_rel_set_inverse(*a_rs);
-
-  min = TBE_INT_MIN(*a_int_id1, *a_int_id2);
-  max = TBE_INT_MAX(*a_int_id1, *a_int_id2);
-
-  *a_int_id1 = min;
-  *a_int_id2 = max;
-
-  return TBE_OK;
 }
 
 /* add a new interval into the network */
@@ -435,7 +408,7 @@ int tbe_net_add_rel(tbe_net a_net,
       break;
 
     /* normalise then add this new relation to the network */
-    tbe_net_normalise(&(p.int_id1), &(p.int_id2), &(p.rs));
+    tbe_rel_normalise(&(p.int_id1), &(p.int_id2), &(p.rs));
     retval = tbe_net_add_rel_noprop(p.net, p.int_id1, p.int_id2, p.rs);
 
     if (retval != TBE_OK)

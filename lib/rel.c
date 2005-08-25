@@ -410,6 +410,29 @@ unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2)
   return rs;
 }
 
+/* normalise the relation. a relation A rs B is normalised if A <= B */
+int tbe_rel_normalise(unsigned int *a_int_id1,
+                      unsigned int *a_int_id2,
+                      unsigned int *a_rs)
+{
+  unsigned int min;
+  unsigned int max;
+
+  if (!a_int_id1 || !a_int_id2 || !a_rs)
+    return TBE_NULLPTR;
+
+  if (*a_int_id1 > *a_int_id2 )
+    *a_rs = tbe_rel_set_inverse(*a_rs);
+
+  min = TBE_INT_MIN(*a_int_id1, *a_int_id2);
+  max = TBE_INT_MAX(*a_int_id1, *a_int_id2);
+
+  *a_int_id1 = min;
+  *a_int_id2 = max;
+
+  return TBE_OK;
+}
+
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream)
 {

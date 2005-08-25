@@ -12,6 +12,9 @@
 	* lib/network.c :
 	* lib/network.h :
 
+	  - Removed tbe_net_normalise(). This is really a relation thing, and
+	    as such, should be in rel.c.
+
 	  - Renamed interval identifiers to int_id.
 
 	  - Used the new tbe_interval structure where two endpoints and a mask
@@ -40,6 +43,8 @@
 
 	* lib/rel.c :
 	* lib/rel.h :
+
+	  - Added tbe_rel_normalise(), previously called tbe_net_normalise().
 
 	  - Removed any interval-related macros (moved to interval.h).
 
