@@ -65,6 +65,10 @@
 #define TBE_REL_SET_ISCLEAR(X) ((X) == 0)
 /* returns non-zero if set X contains all possible relations */
 #define TBE_REL_SET_ISFILL(X) ((X) == (1 << (TBE_REL_FII + 1)) - 1)
+/* returns a rel set containing no relations */
+#define TBE_REL_SET_NUL (0)
+/* returns a rel set containing all relations */
+#define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
 /* masks for interval flags */
 #define TBE_REL_EP_1   1

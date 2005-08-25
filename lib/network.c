@@ -504,32 +504,30 @@ unsigned int tbe_net_rel(tbe_net a_net,
   __tbe_net_node *nptr;
   unsigned int int1 = TBE_INT_MIN(a_int1, a_int2);
   unsigned int int2 = TBE_INT_MAX(a_int1, a_int2);
-  unsigned int erelset;
-  unsigned int trelset;
+  unsigned int rs;
 
-  TBE_REL_SET_CLEAR(erelset);
-  TBE_REL_SET_CLEAR(trelset);
+  TBE_REL_SET_CLEAR(rs);
 
   /* first, we eliminate the trivial case */
   if (a_int1 == a_int2) {
-    TBE_REL_SET_ADD(trelset, TBE_REL_EQL);
-    return trelset;
+    TBE_REL_SET_ADD(rs, TBE_REL_EQL);
+    return rs;
   }
 
   /* get a reference of the node containing the smaller of the 2 intervals */
   if (!(nptr = tbe_net_get_ref(a_net, int1)))
-    return erelset;
+    return TBE_REL_SET_NUL;
 
   /* then we check if the larger interval exists */
   if (!tbe_net_get_ref(a_net, int2))
-    return erelset;
+    return TBE_REL_SET_NUL;
 
   /* now we look for the larger interval in the rel list of the first */
-  if (tbe_rlist_get(nptr->rlist, int2, &trelset) != TBE_OK)
-    return erelset;
+  if (tbe_rlist_get(nptr->rlist, int2, &rs) != TBE_OK)
+    return TBE_REL_SET_NUL;
 
   /* now determine whether we need to find the inverse */
-  return (int1 == a_int1) ? trelset : tbe_rel_set_inverse(trelset);
+  return (int1 == a_int1) ? rs : tbe_rel_set_inverse(rs);
 }
 
 /* print the network as it is stored physically */
