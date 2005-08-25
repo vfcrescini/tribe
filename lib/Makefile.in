@@ -20,6 +20,7 @@ INCLUDES = \
   list.h \
   iqueue.h \
   rlist.h \
+  interval.h \
   rel.h \
   network.h \
   $(NULL)
@@ -71,7 +72,7 @@ iqueue.o : tribe.h mem.h list.h iqueue.h iqueue.c
 rlist.o : tribe.h mem.h list.h rel.h rlist.h rlist.c
 	$(CC) $(CFLAGS) -o $(@) -c rlist.c
 
-rel.o : tribe.h rel.h rel.c
+rel.o : tribe.h interval.h rel.h rel.c
 	$(CC) $(CFLAGS) -o $(@) -c rel.c
 
 network.o : tribe.h mem.h list.h iqueue.h rlist.h network.h network.c

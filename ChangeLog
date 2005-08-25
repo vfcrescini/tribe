@@ -1,11 +1,30 @@
 2005-08-25  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
-	* lib/rel.h :
+	* lib/interval.h :
 
-	  - Added TBE_REL_SET_ALL and TBE_REL_SET_NUL macros.
+	  - A new header file that contains an interval structure (endpoints
+	    and mask) plus some useful macros.
+
+	* lib/Makefile.in :
+
+	  - Include interval.h.
 
 	* lib/network.c :
 	* lib/network.h :
+
+	  - Renamed interval identifiers to int_id.
+
+	  - Used the new tbe_interval structure where two endpoints and a mask
+	    were previously used.
+
+	  - In tbe_net_add_ep(), there's no need to check the validity of
+	    endpoints or to see if at least one endpoint is given. These checks
+	    are done by tbe_rel_calc().
+
+	  - Inte tbe_net_add_rel(), we have to make sure that the given relset
+	    is not empty.
+
+	  - Cleanup of tbe_net_normalise().
 
 	  - Cleanup. Renamed tbe_net_propagate[12]() to
 	    tbe_net_trav_prop[12]().
@@ -19,9 +38,24 @@
 	    propagate1 to avoid confusion with the new propagate functions and
 	    structures.
 
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Removed any interval-related macros (moved to interval.h).
+
+	  - tbe_rel_calc() now uses the tbe_interval structure.
+
+	  - Added TBE_REL_SET_ALL and TBE_REL_SET_NUL macros.
+
 	* test/test.c :
 
+	  - Now uses new tbe_rel_calc() and tbe_net_add_ep() interface.
+
 	  - Added a test for tbe_net_add_ep().
+
+	* test/Makefile.in :
+
+	  - Add interval.h as dependency.
 
 2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 

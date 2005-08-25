@@ -278,12 +278,7 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs)
 }
 
 /* returns the relset between the 2 given intervals */
-unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
-                          unsigned int a_i1_ep_2,
-                          unsigned int a_i2_ep_1,
-                          unsigned int a_i2_ep_2,
-                          unsigned char a_i1_ep_mask,
-                          unsigned char a_i2_ep_mask)
+unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2)
 {
   unsigned int rs;
   unsigned int tmp;
@@ -291,32 +286,24 @@ unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
   TBE_REL_SET_FILL(rs);
 
   /* at least one endpoint from each interval should be given */
-  if ((!(a_i1_ep_mask & TBE_REL_EP_1) && !(a_i1_ep_mask & TBE_REL_EP_2)) ||
-     (!(a_i2_ep_mask & TBE_REL_EP_1) && !(a_i2_ep_mask & TBE_REL_EP_2)))
-    return rs;
+  if (TBE_INTERVAL_EP_ISCLEAR(a_int1) || TBE_INTERVAL_EP_ISCLEAR(a_int2))
+    return TBE_REL_SET_ALL;
 
-  /* obviously, start_pt must be less than end_pt */
-  if ((a_i1_ep_mask & TBE_REL_EP_1) &&
-     (a_i1_ep_mask & TBE_REL_EP_2) &&
-     a_i1_ep_1 >= a_i1_ep_2)
-    return rs;
-
-  if ((a_i2_ep_mask & TBE_REL_EP_1) &&
-     (a_i2_ep_mask & TBE_REL_EP_2) &&
-     a_i2_ep_1 >= a_i2_ep_2)
-    return rs;
+  /* check for validity */
+  if (!TBE_INTERVAL_ISVALID(a_int1) || !TBE_INTERVAL_ISVALID(a_int2))
+    return TBE_REL_SET_NUL;
 
   /* see what we can conclude based on what is given (see docs/rel.txt) */
-  if (a_i1_ep_mask & TBE_REL_EP_1) {
-    if (a_i2_ep_mask & TBE_REL_EP_1) {
-      if (a_i1_ep_1 == a_i2_ep_1) {
+  if (TBE_INTERVAL_EP_ISSET(a_int1, TBE_INTERVAL_EP_1)) {
+    if (TBE_INTERVAL_EP_ISSET(a_int2, TBE_INTERVAL_EP_1)) {
+      if (a_int1.ep_1 == a_int2.ep_1) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
         TBE_REL_SET_ADD(tmp, TBE_REL_STA);
         TBE_REL_SET_ADD(tmp, TBE_REL_STI);
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
-      else if (a_i1_ep_1 < a_i2_ep_1) {
+      else if (a_int1.ep_1 < a_int2.ep_1) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
         TBE_REL_SET_ADD(tmp, TBE_REL_MET);
@@ -335,13 +322,13 @@ unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
     }
-    if (a_i2_ep_mask & TBE_REL_EP_2) {
-      if (a_i1_ep_1 == a_i2_ep_2) {
+    if (TBE_INTERVAL_EP_ISSET(a_int2, TBE_INTERVAL_EP_2)) {
+      if (a_int1.ep_1 == a_int2.ep_2) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_MEI);
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
-      else if (a_i1_ep_1 < a_i2_ep_2) {
+      else if (a_int1.ep_1 < a_int2.ep_2) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
         TBE_REL_SET_ADD(tmp, TBE_REL_MET);
@@ -363,14 +350,14 @@ unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
       }
     }
   }
-  if (a_i1_ep_mask & TBE_REL_EP_2) {
-    if (a_i2_ep_mask & TBE_REL_EP_1) {
-      if (a_i1_ep_2 == a_i2_ep_1) {
+  if (TBE_INTERVAL_EP_ISSET(a_int1, TBE_INTERVAL_EP_2)) {
+    if (TBE_INTERVAL_EP_ISSET(a_int2, TBE_INTERVAL_EP_1)) {
+      if (a_int1.ep_2 == a_int2.ep_1) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_MET);
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
-      else if (a_i1_ep_2 < a_i2_ep_1) {
+      else if (a_int1.ep_2 < a_int2.ep_1) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
@@ -391,15 +378,15 @@ unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
     }
-    if (a_i2_ep_mask & TBE_REL_EP_2) {
-      if (a_i1_ep_2 == a_i2_ep_2) {
+    if (TBE_INTERVAL_EP_ISSET(a_int2, TBE_INTERVAL_EP_2)) {
+      if (a_int1.ep_2 == a_int2.ep_2) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_EQL);
         TBE_REL_SET_ADD(tmp, TBE_REL_FIN);
         TBE_REL_SET_ADD(tmp, TBE_REL_FII);
         rs = TBE_REL_SET_INTERSECT(rs, tmp);
       }
-      else if (a_i1_ep_2 < a_i2_ep_2) {
+      else if (a_int1.ep_2 < a_int2.ep_2) {
         TBE_REL_SET_CLEAR(tmp);
         TBE_REL_SET_ADD(tmp, TBE_REL_BEF);
         TBE_REL_SET_ADD(tmp, TBE_REL_MET);

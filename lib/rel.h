@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <tribe/tribe.h>
+#include <tribe/interval.h>
 
 /* equal */
 #define TBE_REL_EQL 0
@@ -70,12 +71,6 @@
 /* returns a rel set containing all relations */
 #define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
-/* masks for interval flags */
-#define TBE_REL_EP_1   1
-#define TBE_REL_EP_2   2
-#define TBE_REL_EP_NUL 0
-#define TBE_REL_EP_ALL (TBE_REL_EP_1 | TBE_REL_EP_2)
-
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 
@@ -86,12 +81,7 @@ unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
 unsigned int tbe_rel_set_inverse(unsigned int a_rs);
 
 /* returns the relset between the 2 given intervals */
-unsigned int tbe_rel_calc(unsigned int a_i1_ep_1,
-                          unsigned int a_i1_ep_2,
-                          unsigned int a_i2_ep_1,
-                          unsigned int a_i2_ep_2,
-                          unsigned char a_i1_ep_mask,
-                          unsigned char a_i2_ep_mask);
+unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
 
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
