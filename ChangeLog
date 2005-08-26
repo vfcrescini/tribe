@@ -1,3 +1,31 @@
+2005-08-26  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+
+	* lib/interval.h :
+
+	  - Renamed macros for clarity.
+
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Defined a new tbe_rel structure to encapsulate two interval id's
+	    and a relset.
+
+	  - Changed the interface of tbe_rel_normalise() to use the new
+	    tbe_rel structure.
+
+	* lib/network.c :
+	* lib/network.h :
+
+          - Changed the interface of the following functions to use the new
+            tbe_rel structure:
+
+            - tbe_net_add_rel_noprop()
+            - tbe_net_add_rel()
+
+	* test/test.c :
+
+	  - Now uses the new interfaces and macros.
+
 2005-08-25  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
 	* lib/interval.h :

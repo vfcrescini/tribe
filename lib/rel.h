@@ -5,6 +5,12 @@
 #include <tribe/tribe.h>
 #include <tribe/interval.h>
 
+typedef struct {
+  unsigned int int_id1;
+  unsigned int int_id2;
+  unsigned int rs;
+} tbe_rel;
+
 /* equal */
 #define TBE_REL_EQL 0
 /* before */
@@ -71,6 +77,18 @@
 /* returns a rel set containing all relations */
 #define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
+/* more macros */
+#define TBE_REL_INIT(X,Y1,Y2,Y3) \
+  (X).int_id1 = (Y1); \
+  (X).int_id2 = (Y2); \
+  (X).rs      = (Y3)
+#define TBE_REL_CLEAR(X) \
+  (X).int_id1 = 0; \
+  (X).int_id2 = 0; \
+  TBE_REL_SET_CLEAR((X).rs)
+#define TBE_REL_ADD(X,Y) \
+  TBE_REL_SET_ADD((X).rs, (Y))
+
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
 
@@ -84,9 +102,7 @@ unsigned int tbe_rel_set_inverse(unsigned int a_rs);
 unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
 
 /* normalise the relation. a relation A rs B is normalised if A <= B */
-int tbe_rel_normalise(unsigned int *a_int_id1,
-                      unsigned int *a_int_id2,
-                      unsigned int *a_rs);
+int tbe_rel_normalise(tbe_rel *a_rel);
 
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
