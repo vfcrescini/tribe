@@ -404,15 +404,12 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
 
     /* normalise then add this new relation to the network */
     tbe_rel_normalise(&(p.rel));
-    retval = tbe_net_add_rel_noprop(p.net, p.rel);
 
-    if (retval != TBE_OK)
+    if ((retval = tbe_net_add_rel_noprop(p.net, p.rel)) != TBE_OK)
       break;
 
     /* traverse the list, propagate the effects of this new relation */
-    retval = tbe_list_traverse(p.net, tbe_net_trav_prop1, &p);
-
-    if (retval != TBE_OK)
+    if ((retval = tbe_list_traverse(p.net, tbe_net_trav_prop1, &p)) != TBE_OK)
       break;
   }
 
