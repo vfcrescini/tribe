@@ -18,7 +18,7 @@
 #define TBE_REL_MSK_FII (1 << TBE_REL_FII)
 #define TBE_REL_MSK_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
-static int tbe_rel_table[13][13] = {
+static int __tbe_rel_table[13][13] = {
   /* equal */
   {
     TBE_REL_MSK_EQL,
@@ -230,16 +230,19 @@ static int tbe_rel_table[13][13] = {
 };
 
 /* A r1 B,  B r2 C --> A rs3 C, return rs3 */
-unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2)
+static unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
+
+/* A r1 B,  B r2 C --> A rs3 C, return rs3 */
+static unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2)
 {
   if (a_r1 > TBE_REL_FII || a_r2 > TBE_REL_FII)
     return TBE_REL_MSK_NUL;
 
-  return tbe_rel_table[a_r1][a_r2];
+  return __tbe_rel_table[a_r1][a_r2];
 }
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
-unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2)
+unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2)
 {
   int i;
   int j;
@@ -267,7 +270,7 @@ unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2)
 }
 
 /* returns a rel set that is the inverse of the given rel set */
-unsigned int tbe_rel_set_inverse(unsigned int a_rs)
+unsigned int tbe_rel_inverse(unsigned int a_rs)
 {
   unsigned int m1 = ((1 << TBE_REL_FIN) - 1) << 1;
   unsigned int m2 = ((1 << TBE_REL_FIN) - 1) << (TBE_REL_FIN + 1);
@@ -420,7 +423,7 @@ int tbe_rel_normalise(tbe_rel *a_rel)
     return TBE_NULLPTR;
 
   if (a_rel->int_id1 > a_rel->int_id2)
-    a_rel->rs = tbe_rel_set_inverse(a_rel->rs);
+    a_rel->rs = tbe_rel_inverse(a_rel->rs);
 
   min = TBE_INT_MIN(a_rel->int_id1, a_rel->int_id2);
   max = TBE_INT_MAX(a_rel->int_id1, a_rel->int_id2);
@@ -432,7 +435,7 @@ int tbe_rel_normalise(tbe_rel *a_rel)
 }
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream)
+int tbe_rel_dump(unsigned int a_rs, FILE *a_stream)
 {
   if (a_rs > TBE_REL_MSK_ALL)
     return TBE_INVALIDINPUT;

@@ -159,7 +159,7 @@ static int tbe_net_trav_dump2_l2(const void *a_node, void *a_dump)
   rs = tbe_net_get_rel(dptr->net, dptr->int_id, nptr->int_id);
   
   fprintf(dptr->stream, "%03u ", dptr->int_id);
-  tbe_rel_set_dump(rs, dptr->stream);
+  tbe_rel_dump(rs, dptr->stream);
   fprintf(dptr->stream, "%03u\n", nptr->int_id);
 
   return TBE_OK;
@@ -195,7 +195,7 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
     /* rs2 is the known relation between k and j */
     rs2 = tbe_net_get_rel(pptr->net, nptr->int_id, pptr->rel.int_id2);
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
-    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(rs1, pptr->rel.rs));
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(rs1, pptr->rel.rs));
 
     /* if the intersection of "what is in the network" and "what we
      * have concluded is the empty set, something is wrong */
@@ -223,7 +223,7 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
     /* rs2 is the know relation between i and k */
     rs2 = tbe_net_get_rel(pptr->net, pptr->rel.int_id1, nptr->int_id);
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
-    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_set_lookup(pptr->rel.rs, rs1));
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(pptr->rel.rs, rs1));
 
     /* if the intersection of "what is in the network" and "what we have
      * concluded is the empty set, something is wrong */
@@ -483,7 +483,7 @@ unsigned int tbe_net_get_rel(tbe_net a_net,
     return TBE_REL_SET_ALL;
 
   /* now determine whether we need to find the inverse */
-  return (a_int_id1 <= a_int_id2) ? rs : tbe_rel_set_inverse(rs);
+  return (a_int_id1 <= a_int_id2) ? rs : tbe_rel_inverse(rs);
 }
 
 /* print the network as it is stored physically */

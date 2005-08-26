@@ -7,6 +7,8 @@
 	* lib/rel.c :
 	* lib/rel.h :
 
+	  - Cleanup of identifier names.
+
 	  - Defined a new tbe_rel structure to encapsulate two interval id's
 	    and a relset.
 

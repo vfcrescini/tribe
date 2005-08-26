@@ -89,14 +89,11 @@ typedef struct {
 #define TBE_REL_ADD(X,Y) \
   TBE_REL_SET_ADD((X).rs, (Y))
 
-/* A r1 B,  B r2 C --> A rs3 C, return rs3 */
-unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2);
-
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
-unsigned int tbe_rel_set_lookup(unsigned int a_rs1, unsigned int a_rs2);
+unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2);
 
 /* returns a rel set that is the inverse of the given rel set */
-unsigned int tbe_rel_set_inverse(unsigned int a_rs);
+unsigned int tbe_rel_inverse(unsigned int a_rs);
 
 /* returns the relset between the 2 given intervals */
 unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
@@ -105,6 +102,6 @@ unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
 int tbe_rel_normalise(tbe_rel *a_rel);
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_set_dump(unsigned int a_rs, FILE *a_stream);
+int tbe_rel_dump(unsigned int a_rs, FILE *a_stream);
 
 #endif

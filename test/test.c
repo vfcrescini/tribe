@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   for (i = TBE_REL_EQL; i <= TBE_REL_FII; i++) {
     TBE_REL_SET_CLEAR(rs1);
     TBE_REL_SET_ADD(rs1, i);
-    printf("%2d FILL=%d\n", i, TBE_REL_SET_ISFILL(tbe_rel_set_lookup(rs1, rs2)));
+    printf("%2d FILL=%d\n", i, TBE_REL_SET_ISFILL(tbe_rel_trans(rs1, rs2)));
   }
 #endif
 
@@ -124,59 +124,59 @@ int main(int argc, char *argv[])
   printf("\nbefore: ");
   TBE_INTERVAL_INIT(i, 1,  10, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 11, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nafter: ");
   TBE_INTERVAL_INIT(i, 11, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1,  10, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\noverlaps: ");
   TBE_INTERVAL_INIT(i, 1,  15, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 10, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\noverlapped-by: ");
   TBE_INTERVAL_INIT(i, 10, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1,  15, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nmeets: ");
   TBE_INTERVAL_INIT(i, 1,  10, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 10, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nmet-by: ");
   TBE_INTERVAL_INIT(i, 10, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1,  10, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nduring: ");
   TBE_INTERVAL_INIT(i, 5, 15, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\ncontains: ");
   TBE_INTERVAL_INIT(i, 1, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 5, 15, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nstarts: ");
   TBE_INTERVAL_INIT(i, 1, 10, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nstarted-by: ");
   TBE_INTERVAL_INIT(i, 1, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 10, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nfinishes: ");
   TBE_INTERVAL_INIT(i, 10, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nfinished-by: ");
   TBE_INTERVAL_INIT(i, 1, 20, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 10, 20, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\nequals: ");
   TBE_INTERVAL_INIT(i, 1, 10, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 10, TBE_INTERVAL_EP_ALL);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\n");
   TBE_INTERVAL_INIT(i, 1, 10, TBE_INTERVAL_EP_ALL);
   TBE_INTERVAL_INIT(j, 1, 10, TBE_INTERVAL_EP_1);
-  tbe_rel_set_dump(tbe_rel_calc(i, j), stdout);
+  tbe_rel_dump(tbe_rel_calc(i, j), stdout);
   printf("\n");
 #endif
 

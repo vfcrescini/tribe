@@ -44,7 +44,7 @@ static int tbe_rlist_trav_dump(const void *a_node, void *a_dump)
     return TBE_INVALIDINPUT;
 
   fprintf(dptr->stream, "%03u ", dptr->interval);
-  tbe_rel_set_dump(rptr->relset, dptr->stream);
+  tbe_rel_dump(rptr->relset, dptr->stream);
   fprintf(dptr->stream, "%03u\n", rptr->interval);
 
   return TBE_OK;
