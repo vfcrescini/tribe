@@ -5,6 +5,8 @@
 	* lib/iqueue.c :
 	* lib/iqueue.h :
 
+	  - Dequeue function now requires that all fields are given.
+
 	  - Now relations are normalised before they are enqueued.
 
 	  - The queue implementation now uses the tbe_rel structure, and

@@ -11,9 +11,7 @@ static int tbe_rqueue_cmp(const void *a_ptr1, const void *a_ptr2)
   tbe_rel *ptr1;
   tbe_rel *ptr2;
 
-  if (!(ptr1 = (tbe_rel *) a_ptr1))
-    return TBE_NULLPTR;
-  if (!(ptr2 = (tbe_rel *) a_ptr2))
+  if (!(ptr1 = (tbe_rel *) a_ptr1) || !(ptr2 = (tbe_rel *) a_ptr2))
     return TBE_NULLPTR;
 
   return TBE_REL_ISEQL(*ptr1, *ptr2) ? TBE_OK : TBE_FAILURE;
@@ -87,21 +85,15 @@ int tbe_rqueue_deq1(tbe_rqueue a_rqueue,
   tbe_rel *ptr;
   int retval;
 
-  if (!a_rqueue)
-    return TBE_NULLPTR;
-
-  if (!a_int_id1 && !a_int_id2 && !a_rs)
+  if (!_a_rqueue || !a_int_id1 || !a_int_id2 || !a_rs)
     return TBE_OK;
 
   if ((retval = tbe_list_get_head(a_rqueue, (void *) &ptr)) != TBE_OK)
     return retval;
 
-  if (a_int_id1)
-    *a_int_id1 = ptr->int_id1;
-  if (a_int_id2)
-    *a_int_id2 = ptr->int_id2;
-  if (a_rs)
-    *a_rs = ptr->rs;
+  *a_int_id1 = ptr->int_id1;
+  *a_int_id2 = ptr->int_id2;
+  *a_rs = ptr->rs;
 
   return tbe_list_del_head(a_rqueue, tbe_rel_free);
 }
