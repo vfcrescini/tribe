@@ -1,5 +1,10 @@
 2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.3.1
+
 	* lib/rqueue.c :
 	* lib/rqueue.h :
 	* lib/iqueue.c :
