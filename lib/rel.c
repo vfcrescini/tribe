@@ -266,8 +266,7 @@ void tbe_rel_destroy(tbe_rel *a_rel)
 /* as above, but with a void ptr */
 void tbe_rel_free(void *a_rel)
 {
-  if (a_rel)
-    TBE_MEM_FREE((tbe_rel *) a_rel);
+  tbe_rel_destroy((tbe_rel *) a_rel);
 }
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */

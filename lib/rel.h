@@ -78,16 +78,21 @@ typedef struct {
 #define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
 /* more macros */
+
+/* initialise relation with the given values */
 #define TBE_REL_INIT(X,Y1,Y2,Y3) \
   (X).int_id1 = (Y1); \
   (X).int_id2 = (Y2); \
   (X).rs      = (Y3)
+/* set values of relation to 0 */
 #define TBE_REL_CLEAR(X) \
   (X).int_id1 = 0; \
   (X).int_id2 = 0; \
   TBE_REL_SET_CLEAR((X).rs)
+/* add a relation to the relset of the relation structure */
 #define TBE_REL_ADD(X,Y) \
   TBE_REL_SET_ADD((X).rs, (Y))
+/* returns non-zero if the two relations are equal */
 #define TBE_REL_ISEQL(X,Y) \
   ( \
     (X).int_id1 == (Y).int_id1 && \
