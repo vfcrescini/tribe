@@ -88,6 +88,21 @@ typedef struct {
   TBE_REL_SET_CLEAR((X).rs)
 #define TBE_REL_ADD(X,Y) \
   TBE_REL_SET_ADD((X).rs, (Y))
+#define TBE_REL_ISEQL(X,Y) \
+  ( \
+    (X).int_id1 == (Y).int_id1 && \
+    (X).int_id2 == (Y).int_id2 && \
+    (X).rs == (Y).rs \
+  )
+
+/* create a new rel structure */
+int tbe_rel_create(tbe_rel **a_rel);
+
+/* destroy an existing rel structure */
+void tbe_rel_destroy(tbe_rel *a_rel);
+
+/* as above, but with a void ptr */
+void tbe_rel_free(void *a_rel);
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2);

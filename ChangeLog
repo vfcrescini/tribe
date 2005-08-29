@@ -1,3 +1,13 @@
+2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Added create(), destroy() and free() functions to support the
+	    tbe_rel structure.
+
+	  - Added an ISEQL macro.
+
 2005-08-26  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
 	* lib/interval.h :

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <tribe/mem.h>
 #include <tribe/rel.h>
 
 /* relsets are unsigned ints. each rel is a bit mask */
@@ -239,6 +240,34 @@ static unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2)
     return TBE_REL_MSK_NUL;
 
   return __tbe_rel_table[a_r1][a_r2];
+}
+
+/* create a new rel structure */
+int tbe_rel_create(tbe_rel **a_rel)
+{
+  if (!a_rel)
+    return TBE_NULLPTR;
+
+  if (!(*a_rel = TBE_MEM_MALLOC(tbe_rel, 1)))
+    return TBE_MALLOCFAILED;
+
+  TBE_REL_INIT(**a_rel, 0, 0, 0);
+
+  return TBE_OK;
+}
+
+/* destroy an existing rel structure */ 
+void tbe_rel_destroy(tbe_rel *a_rel)
+{
+  if (a_rel)
+    TBE_MEM_FREE(a_rel);
+}
+
+/* as above, but with a void ptr */
+void tbe_rel_free(void *a_rel)
+{
+  if (a_rel)
+    TBE_MEM_FREE((tbe_rel *) a_rel);
 }
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
