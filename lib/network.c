@@ -350,10 +350,10 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
 {
   unsigned int rs1;
   unsigned int rs2;
-  __tbe_net_prop1 p;
+  __tbe_net_prop1 pr;
   int retval;
 
-  if (!(p.net = a_net))
+  if (!(pr.net = a_net))
     return TBE_NULLPTR;
 
   /* check if relset if empty */
@@ -379,30 +379,30 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
     return TBE_OK;
 
   /* intialise and load the queue */
-  if ((retval = tbe_rqueue_create(&(p.queue))) != TBE_OK)
+  if ((retval = tbe_rqueue_create(&(pr.queue))) != TBE_OK)
     return retval;
 
-  retval = (tbe_rqueue_enq1(p.queue, a_rel.int_id1, a_rel.int_id2, rs2));
+  retval = (tbe_rqueue_enq1(pr.queue, a_rel.int_id1, a_rel.int_id2, rs2));
 
   if (retval != TBE_OK) {
-    tbe_rqueue_destroy(&(p.queue));
+    tbe_rqueue_destroy(&(pr.queue));
     return retval;
   }
 
-  while (tbe_list_length(p.queue) && retval == TBE_OK) {
+  while (tbe_list_length(pr.queue) && retval == TBE_OK) {
     /* get relation from queue */
-    if ((retval = tbe_rqueue_deq2(p.queue, &(p.rel))) != TBE_OK)
+    if ((retval = tbe_rqueue_deq2(pr.queue, &(pr.rel))) != TBE_OK)
       break;
 
-    if ((retval = tbe_net_add_rel_noprop(p.net, p.rel)) != TBE_OK)
+    if ((retval = tbe_net_add_rel_noprop(a_net, pr.rel)) != TBE_OK)
       break;
 
     /* traverse the list, propagate the effects of this new relation */
-    if ((retval = tbe_list_traverse(p.net, tbe_net_trav_prop1, &p)) != TBE_OK)
+    if ((retval = tbe_list_traverse(a_net, tbe_net_trav_prop1, &pr)) != TBE_OK)
       break;
   }
 
-  tbe_rqueue_destroy(&(p.queue));
+  tbe_rqueue_destroy(&(pr.queue));
 
   return retval;
 }
@@ -412,7 +412,7 @@ int tbe_net_add_ep(tbe_net a_net, unsigned int a_int_id, tbe_interval a_int)
 {
   int retval;
   __tbe_net_node *nptr;
-  __tbe_net_prop2 p;
+  __tbe_net_prop2 pr;
 
   if (!a_net)
     return TBE_NULLPTR;
@@ -428,11 +428,11 @@ int tbe_net_add_ep(tbe_net a_net, unsigned int a_int_id, tbe_interval a_int)
   /* now we go through the network to see if the definition of these endpoints
    * actually change anything else */
 
-  p.net = a_net;
-  p.int_id = a_int_id;
-  p.interval = a_int;
+  pr.net = a_net;
+  pr.int_id = a_int_id;
+  pr.interval = a_int;
 
-  if ((retval = tbe_list_traverse(a_net, tbe_net_trav_prop2, &p)) != TBE_OK)
+  if ((retval = tbe_list_traverse(a_net, tbe_net_trav_prop2, &pr)) != TBE_OK)
     return retval;
 
   /* if all went well, we copy the endpoints to the node */
