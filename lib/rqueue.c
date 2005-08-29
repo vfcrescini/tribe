@@ -34,7 +34,7 @@ void tbe_rqueue_destroy(tbe_rqueue *a_rqueue)
 /* purge the queue */
 void tbe_rqueue_purge(tbe_rqueue a_rqueue)
 {
-  tbe_list_purge(a_rqueue, tbe_list_free);
+  tbe_list_purge(a_rqueue, tbe_rel_free);
 }
 
 /* add rel at the end of the queue */
