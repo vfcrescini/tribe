@@ -85,7 +85,7 @@ int tbe_rqueue_deq1(tbe_rqueue a_rqueue,
   tbe_rel *ptr;
   int retval;
 
-  if (!_a_rqueue || !a_int_id1 || !a_int_id2 || !a_rs)
+  if (!a_rqueue || !a_int_id1 || !a_int_id2 || !a_rs)
     return TBE_OK;
 
   if ((retval = tbe_list_get_head(a_rqueue, (void *) &ptr)) != TBE_OK)
