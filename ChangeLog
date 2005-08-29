@@ -1,5 +1,12 @@
 2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
+	* lib/rlist.c :
+	* lib/rlist.h :
+
+	  - Parameter cleanup.
+
+2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+
 	* VERSION :
 	* configure.ac :
 
