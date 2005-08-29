@@ -18,18 +18,18 @@ INCLUDES = \
   tribe.h \
   mem.h \
   list.h \
-  iqueue.h \
-  rlist.h \
   interval.h \
   rel.h \
+  rqueue.h \
+  rlist.h \
   network.h \
   $(NULL)
 OBJECTS = \
   mem.o \
   list.o \
-  iqueue.o \
-  rlist.o \
   rel.o \
+  rqueue.o \
+  rlist.o \
   network.o \
   $(NULL)
 TEMPS1 =
@@ -66,14 +66,14 @@ mem.o : tribe.h mem.h mem.c
 list.o : tribe.h mem.h list.h list.c
 	$(CC) $(CFLAGS) -o $(@) -c list.c
 
-iqueue.o : tribe.h mem.h list.h iqueue.h iqueue.c
-	$(CC) $(CFLAGS) -o $(@) -c iqueue.c
+rel.o : tribe.h interval.h rel.h rel.c
+	$(CC) $(CFLAGS) -o $(@) -c rel.c
+
+rqueue.o : tribe.h mem.h list.h rel.h rqueue.h rqueue.c
+	$(CC) $(CFLAGS) -o $(@) -c rqueue.c
 
 rlist.o : tribe.h mem.h list.h rel.h rlist.h rlist.c
 	$(CC) $(CFLAGS) -o $(@) -c rlist.c
 
-rel.o : tribe.h interval.h rel.h rel.c
-	$(CC) $(CFLAGS) -o $(@) -c rel.c
-
-network.o : tribe.h mem.h list.h iqueue.h rlist.h network.h network.c
+network.o : tribe.h mem.h list.h rel.h interval.h rqueue.h rlist.h network.h network.c
 	$(CC) $(CFLAGS) -o $(@) -c network.c

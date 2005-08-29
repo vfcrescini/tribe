@@ -1,5 +1,21 @@
 2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
 
+	* lib/rqueue.c :
+	* lib/rqueue.h :
+	* lib/iqueue.c :
+	* lib/iqueue.h :
+
+	  - The queue implementation now uses the tbe_rel structure, and
+	    as a tbe_rel queue, is apropriately renamed to rqueue.
+
+	* lib/network.c :
+
+	  - Now uses rqueue.
+
+	* lib/Makefile :
+
+	  - Compile rqueue.c instead of iqueue.c.
+
 	* lib/rel.c :
 	* lib/rel.h :
 

@@ -3,7 +3,7 @@
 #include <tribe/rel.h>
 #include <tribe/mem.h>
 #include <tribe/network.h>
-#include <tribe/iqueue.h>
+#include <tribe/rqueue.h>
 #include <tribe/rlist.h>
 
 #define TBE_NET_SKIP(X,Y) \
@@ -25,7 +25,7 @@ typedef struct {
 /* structure for propagation, no endpoints */
 typedef struct {
   tbe_net net;
-  tbe_iqueue queue;
+  tbe_rqueue queue;
   tbe_rel rel;
 } __tbe_net_prop1;
 
@@ -204,10 +204,10 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
 
     /* put this in the queue for later processing */
     if (rs2 != rs3) {
-      retval = tbe_iqueue_enq(pptr->queue,
-                              nptr->int_id,
-                              pptr->rel.int_id2,
-                              rs3);
+      retval = tbe_rqueue_enq1(pptr->queue,
+                               nptr->int_id,
+                               pptr->rel.int_id2,
+                               rs3);
 
       if (retval != TBE_OK)
         return retval;
@@ -232,10 +232,10 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
 
     /* put this in the queue for later processing */
     if (rs2 != rs3) {
-      retval = tbe_iqueue_enq(pptr->queue,
-                              pptr->rel.int_id1,
-                              nptr->int_id,
-                              rs3);
+      retval = tbe_rqueue_enq1(pptr->queue,
+                               pptr->rel.int_id1,
+                               nptr->int_id,
+                               rs3);
 
       if (retval != TBE_OK)
         return retval;
@@ -263,9 +263,10 @@ static int tbe_net_trav_prop2(const void *a_node, void *a_prop2)
   /* we calculate a new relation set based on the endpoints. then we try to add
    * this new relation into the network */
 
-  tmp.int_id1 = pptr->int_id;
-  tmp.int_id2 = nptr->int_id;
-  tmp.rs = tbe_rel_calc(pptr->interval, nptr->interval);
+  TBE_REL_INIT(tmp, 
+               pptr->int_id,
+               nptr->int_id,
+               tbe_rel_calc(pptr->interval, nptr->interval));
 
   if ((retval = tbe_net_add_rel(pptr->net, tmp)) != TBE_OK)
     return retval; 
@@ -380,26 +381,19 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
     return TBE_OK;
 
   /* intialise and load the queue */
-  if ((retval = tbe_iqueue_create(&(p.queue))) != TBE_OK)
+  if ((retval = tbe_rqueue_create(&(p.queue))) != TBE_OK)
     return retval;
 
-  retval = (tbe_iqueue_enq(p.queue, a_rel.int_id1, a_rel.int_id2, rs2));
+  retval = (tbe_rqueue_enq1(p.queue, a_rel.int_id1, a_rel.int_id2, rs2));
 
   if (retval != TBE_OK) {
-    tbe_iqueue_destroy(&(p.queue));
+    tbe_rqueue_destroy(&(p.queue));
     return retval;
   }
 
-  retval = TBE_OK;
-
   while (tbe_list_length(p.queue) && retval == TBE_OK) {
     /* get relation from queue */
-    retval = tbe_iqueue_deq(p.queue,
-                            &(p.rel.int_id1),
-                            &(p.rel.int_id2),
-                            &(p.rel.rs));
-
-    if (retval != TBE_OK)
+    if ((retval = tbe_rqueue_deq2(p.queue, &(p.rel))) != TBE_OK)
       break;
 
     /* normalise then add this new relation to the network */
@@ -413,7 +407,7 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
       break;
   }
 
-  tbe_iqueue_destroy(&(p.queue));
+  tbe_rqueue_destroy(&(p.queue));
 
   return retval;
 }
