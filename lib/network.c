@@ -282,8 +282,6 @@ static int tbe_net_add_rel_noprop(tbe_net a_net, tbe_rel a_rel)
   if (!a_net)
     return TBE_NULLPTR;
 
-  /* assumption: a_rel is already normalised */
-
   /* firstly, we check whether we are trying to add something trivial */
   if (a_rel.int_id1 == a_rel.int_id2)
     return TBE_OK;
@@ -395,9 +393,6 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
     /* get relation from queue */
     if ((retval = tbe_rqueue_deq2(p.queue, &(p.rel))) != TBE_OK)
       break;
-
-    /* normalise then add this new relation to the network */
-    tbe_rel_normalise(&(p.rel));
 
     if ((retval = tbe_net_add_rel_noprop(p.net, p.rel)) != TBE_OK)
       break;

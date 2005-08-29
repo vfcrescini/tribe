@@ -54,6 +54,9 @@ int tbe_rqueue_enq1(tbe_rqueue a_rqueue,
 
   TBE_REL_INIT(*ptr, a_int_id1, a_int_id2, a_rs);
 
+  /* a good place to normalise the relation */
+  tbe_rel_normalise(ptr);
+
   retval = tbe_list_find_data(a_rqueue, (void *) ptr, tbe_rqueue_cmp);
 
   switch (retval) {
