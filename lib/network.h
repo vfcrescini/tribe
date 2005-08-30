@@ -5,7 +5,7 @@
 #include <tribe/list.h>
 #include <tribe/interval.h>
 
-typedef tbe_list tbe_net;
+typedef void *tbe_net;
 
 /* create a new network */
 int tbe_net_create(tbe_net *a_net);

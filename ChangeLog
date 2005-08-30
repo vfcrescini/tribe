@@ -1,11 +1,21 @@
-2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+2005-08-30  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Redefined the tbe_net structure as void *. Internally, this is
+	    defined as a structure. At the moment, it only contains a single
+	    field -- the original list. In the future, additional fields will
+	    be added.
+
+2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/rlist.c :
 	* lib/rlist.h :
 
 	  - Parameter cleanup.
 
-2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+2005-08-29  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* VERSION :
 	* configure.ac :
@@ -40,7 +50,7 @@
 
 	  - Added an ISEQL macro.
 
-2005-08-26  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+2005-08-26  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/interval.h :
 
@@ -70,7 +80,7 @@
 
 	  - Now uses the new interfaces and macros.
 
-2005-08-25  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+2005-08-25  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/interval.h :
 
@@ -136,7 +146,7 @@
 
 	  - Add interval.h as dependency.
 
-2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au.
+2005-08-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/rel.c :
 	* lib/rel.h :
