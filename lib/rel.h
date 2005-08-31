@@ -5,9 +5,10 @@
 #include <tribe/tribe.h>
 #include <tribe/interval.h>
 
+/* a relation is two interval id's and a relset between them */
 typedef struct {
-  unsigned int int_id1;
-  unsigned int int_id2;
+  unsigned int id1;
+  unsigned int id2;
   unsigned int rs;
 } tbe_rel;
 
@@ -81,13 +82,13 @@ typedef struct {
 
 /* initialise relation with the given values */
 #define TBE_REL_INIT(X,Y1,Y2,Y3) \
-  (X).int_id1 = (Y1); \
-  (X).int_id2 = (Y2); \
+  (X).id1 = (Y1); \
+  (X).id2 = (Y2); \
   (X).rs      = (Y3)
 /* set values of relation to 0 */
 #define TBE_REL_CLEAR(X) \
-  (X).int_id1 = 0; \
-  (X).int_id2 = 0; \
+  (X).id1 = 0; \
+  (X).id2 = 0; \
   TBE_REL_SET_CLEAR((X).rs)
 /* add a relation to the relset of the relation structure */
 #define TBE_REL_ADD(X,Y) \
@@ -95,8 +96,8 @@ typedef struct {
 /* returns non-zero if the two relations are equal */
 #define TBE_REL_ISEQL(X,Y) \
   ( \
-    (X).int_id1 == (Y).int_id1 && \
-    (X).int_id2 == (Y).int_id2 && \
+    (X).id1 == (Y).id1 && \
+    (X).id2 == (Y).id2 && \
     (X).rs == (Y).rs \
   )
 

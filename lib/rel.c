@@ -450,14 +450,14 @@ int tbe_rel_normalise(tbe_rel *a_rel)
   if (!a_rel)
     return TBE_NULLPTR;
 
-  if (a_rel->int_id1 > a_rel->int_id2)
+  if (a_rel->id1 > a_rel->id2)
     a_rel->rs = tbe_rel_inverse(a_rel->rs);
 
-  min = TBE_INT_MIN(a_rel->int_id1, a_rel->int_id2);
-  max = TBE_INT_MAX(a_rel->int_id1, a_rel->int_id2);
+  min = TBE_INT_MIN(a_rel->id1, a_rel->id2);
+  max = TBE_INT_MAX(a_rel->id1, a_rel->id2);
 
-  a_rel->int_id1 = min;
-  a_rel->int_id2 = max;
+  a_rel->id1 = min;
+  a_rel->id2 = max;
 
   return TBE_OK;
 }
