@@ -17,7 +17,10 @@ void tbe_net_destroy(tbe_net *a_net);
 int tbe_net_add_int(tbe_net a_net, unsigned int a_id);
 
 /* add a new relation to an existing interval, also propagate the relation */
-int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel);
+int tbe_net_add_rel(tbe_net a_net,
+                    unsigned int a_id1,
+                    unsigned int a_id2,
+                    unsigned int a_rs);
 
 /* bind the given (existing) interval with the given endpoints */
 int tbe_net_add_ep(tbe_net a_net, unsigned int a_id, tbe_interval a_int);

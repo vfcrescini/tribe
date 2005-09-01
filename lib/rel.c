@@ -242,33 +242,6 @@ static unsigned int tbe_rel_lookup(unsigned int a_r1, unsigned int a_r2)
   return __tbe_rel_table[a_r1][a_r2];
 }
 
-/* create a new rel structure */
-int tbe_rel_create(tbe_rel **a_rel)
-{
-  if (!a_rel)
-    return TBE_NULLPTR;
-
-  if (!(*a_rel = TBE_MEM_MALLOC(tbe_rel, 1)))
-    return TBE_MALLOCFAILED;
-
-  TBE_REL_INIT(**a_rel, 0, 0, 0);
-
-  return TBE_OK;
-}
-
-/* destroy an existing rel structure */ 
-void tbe_rel_destroy(tbe_rel *a_rel)
-{
-  if (a_rel)
-    TBE_MEM_FREE(a_rel);
-}
-
-/* as above, but with a void ptr */
-void tbe_rel_free(void *a_rel)
-{
-  tbe_rel_destroy((tbe_rel *) a_rel);
-}
-
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2)
 {
@@ -439,27 +412,6 @@ unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2)
   }
 
   return rs;
-}
-
-/* normalise the relation. a relation A rs B is normalised if A <= B */
-int tbe_rel_normalise(tbe_rel *a_rel)
-{
-  unsigned int min;
-  unsigned int max;
-
-  if (!a_rel)
-    return TBE_NULLPTR;
-
-  if (a_rel->id1 > a_rel->id2)
-    a_rel->rs = tbe_rel_inverse(a_rel->rs);
-
-  min = TBE_INT_MIN(a_rel->id1, a_rel->id2);
-  max = TBE_INT_MAX(a_rel->id1, a_rel->id2);
-
-  a_rel->id1 = min;
-  a_rel->id2 = max;
-
-  return TBE_OK;
 }
 
 /* print all relations in rel set a_rs into stream a_stream */

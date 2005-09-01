@@ -6,6 +6,7 @@
 #include <tribe/rqueue.h>
 #include <tribe/rlist.h>
 
+/* Van Beek's skipping conditions */
 #define TBE_NET_SKIP(X,Y) \
   ( \
     TBE_REL_SET_ISCLEAR(X) || \
@@ -38,7 +39,9 @@ typedef struct {
 typedef struct {
   __tbe_net *net;
   tbe_rqueue queue;
-  tbe_rel rel;
+  unsigned int id1;
+  unsigned int id2;
+  unsigned int rs;
 } __tbe_net_prop1;
 
 /* structure for propagation, with endpoints */
@@ -73,7 +76,10 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1);
 static int tbe_net_trav_prop2(const void *a_node, void *a_prop2);
 
 /* add a new relation to existing intervals, but no propagation */
-static int tbe_net_add_rel_noprop(__tbe_net *a_net, tbe_rel a_rel);
+static int tbe_net_add_rel_noprop(__tbe_net *a_net,
+                                  unsigned int a_id1,
+                                  unsigned int a_id2,
+                                  unsigned int a_rs);
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
 static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2)
@@ -205,20 +211,20 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
 
   /* ensure that the interval in this node is not int1 or int2, that is,
    * a k such that k != i and k != j */
-  if ((pnode->id == pprop->rel.id1 || pnode->id == pprop->rel.id2))
+  if ((pnode->id == pprop->id1 || pnode->id == pprop->id2))
     return TBE_OK;
 
   /* find rs(k,j), given rs(k,i) and rs(i,j) */
 
   /* rs1 is the known relation between k and i */
-  rs1 = tbe_net_get_rel((tbe_net) pprop->net, pnode->id, pprop->rel.id1);
+  rs1 = tbe_net_get_rel((tbe_net) pprop->net, pnode->id, pprop->id1);
 
-  if (!TBE_NET_SKIP(rs1, pprop->rel.rs)) {
+  if (!TBE_NET_SKIP(rs1, pprop->rs)) {
     /* rs2 is the known relation between k and j */
-    rs2 = tbe_net_get_rel((tbe_net) pprop->net, pnode->id, pprop->rel.id2);
+    rs2 = tbe_net_get_rel((tbe_net) pprop->net, pnode->id, pprop->id2);
 
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
-    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(rs1, pprop->rel.rs));
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(rs1, pprop->rs));
 
     /* if the intersection of "what is in the network" and "what we
      * have concluded is the empty set, something is wrong */
@@ -227,7 +233,7 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
 
     /* put this in the queue for later processing */
     if (rs2 != rs3) {
-      retval = tbe_rqueue_enq1(pprop->queue, pnode->id, pprop->rel.id2, rs3);
+      retval = tbe_rqueue_enq(pprop->queue, pnode->id, pprop->id2, rs3);
 
       if (retval != TBE_OK)
         return retval;
@@ -237,14 +243,14 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
   /* find rs(i,k), given rs(i,j), rs(j,k) */
 
   /* rs1 is the known relation between j and k */
-  rs1 = tbe_net_get_rel((tbe_net) pprop->net, pprop->rel.id2, pnode->id);
+  rs1 = tbe_net_get_rel((tbe_net) pprop->net, pprop->id2, pnode->id);
 
-  if (!TBE_NET_SKIP(pprop->rel.rs, rs1)) {
+  if (!TBE_NET_SKIP(pprop->rs, rs1)) {
     /* rs2 is the know relation between i and k */
-    rs2 = tbe_net_get_rel((tbe_net) pprop->net, pprop->rel.id1, pnode->id);
+    rs2 = tbe_net_get_rel((tbe_net) pprop->net, pprop->id1, pnode->id);
 
     /* rs3 is the intersection of rs2 and the new rs derived from the table */
-    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(pprop->rel.rs, rs1));
+    rs3 = TBE_REL_SET_INTERSECT(rs2, tbe_rel_trans(pprop->rs, rs1));
 
     /* if the intersection of "what is in the network" and "what we have
      * concluded is the empty set, something is wrong */
@@ -253,7 +259,7 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1)
 
     /* put this in the queue for later processing */
     if (rs2 != rs3) {
-      retval = tbe_rqueue_enq1(pprop->queue, pprop->rel.id1, pnode->id, rs3);
+      retval = tbe_rqueue_enq(pprop->queue, pprop->id1, pnode->id, rs3);
 
       if (retval != TBE_OK)
         return retval;
@@ -268,7 +274,6 @@ static int tbe_net_trav_prop2(const void *a_node, void *a_prop2)
 {
   __tbe_net_node *pnode;
   __tbe_net_prop2 *pprop;
-  tbe_rel rel;
   int retval;
 
   pnode = (__tbe_net_node *) a_node;
@@ -283,20 +288,19 @@ static int tbe_net_trav_prop2(const void *a_node, void *a_prop2)
 
   /* we calculate a new relation set based on the endpoints. then we try to add
    * this new relation into the network */
+  retval = tbe_net_add_rel((tbe_net) pprop->net,
+                           pprop->id,
+                           pnode->id,
+                           tbe_rel_calc(pprop->interval, pnode->interval));
 
-  TBE_REL_INIT(rel,
-               pprop->id,
-               pnode->id,
-               tbe_rel_calc(pprop->interval, pnode->interval));
-
-  if ((retval = tbe_net_add_rel((tbe_net) pprop->net, rel)) != TBE_OK)
-    return retval; 
-
-  return TBE_OK;
+  return (retval != TBE_OK) ? retval : TBE_OK;
 }
 
 /* add a new relation to existing intervals, but no propagation */
-static int tbe_net_add_rel_noprop(__tbe_net *a_net, tbe_rel a_rel)
+static int tbe_net_add_rel_noprop(__tbe_net *a_net,
+                                  unsigned int a_id1,
+                                  unsigned int a_id2,
+                                  unsigned int a_rs)
 {
   __tbe_net *pnet;
   __tbe_net_node *pnode;
@@ -305,18 +309,18 @@ static int tbe_net_add_rel_noprop(__tbe_net *a_net, tbe_rel a_rel)
     return TBE_NULLPTR;
 
   /* firstly, we check whether we are trying to add something trivial */
-  if (a_rel.id1 == a_rel.id2)
+  if (a_id1 == a_id2)
     return TBE_OK;
 
   /* get a reference of the node containing the first interval */
-  if (!(pnode = tbe_net_get_ref(pnet, a_rel.id1)))
+  if (!(pnode = tbe_net_get_ref(pnet, a_id1)))
     return TBE_INVALIDINPUT;
 
   /* check if the second interval exists */
-  if (!tbe_net_get_ref(pnet, a_rel.id2))
+  if (!tbe_net_get_ref(pnet, a_id2))
     return TBE_INVALIDINPUT;
 
-  return tbe_rlist_add(pnode->rlist, a_rel.id2, a_rel.rs);
+  return tbe_rlist_add(pnode->rlist, a_id2, a_rs);
 }
 
 /* create a new network */
@@ -394,7 +398,10 @@ int tbe_net_add_int(tbe_net a_net, unsigned int a_id)
 }
 
 /* add a new relation to an existing interval, also propagate the relation */
-int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
+int tbe_net_add_rel(tbe_net a_net,
+                    unsigned int a_id1,
+                    unsigned int a_id2,
+                    unsigned int a_rs)
 {
   __tbe_net_prop1 prop;
   unsigned int rs1;
@@ -405,18 +412,18 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
     return TBE_NULLPTR;
 
   /* check if relset if empty */
-  if (TBE_REL_SET_ISCLEAR(a_rel.rs))
+  if (TBE_REL_SET_ISCLEAR(a_rs))
     return TBE_INVALIDINPUT;
 
   /* check if the relset to be added contains all possible relations */
-  if (TBE_REL_SET_ISFILL(a_rel.rs))
+  if (TBE_REL_SET_ISFILL(a_rs))
     return TBE_OK;
 
   /* rs1 is the known relation between int1 and int2 */
-  rs1 = tbe_net_get_rel(a_net, a_rel.id1, a_rel.id2);
+  rs1 = tbe_net_get_rel(a_net, a_id1, a_id2);
 
   /* rs2 is the intersection of rs1 and the proposed relation */
-  rs2 = TBE_REL_SET_INTERSECT(rs1, a_rel.rs);
+  rs2 = TBE_REL_SET_INTERSECT(rs1, a_rs);
 
   /* see if the proposed relation clashes with what we already know */
   if (TBE_REL_SET_ISCLEAR(rs2))
@@ -430,25 +437,24 @@ int tbe_net_add_rel(tbe_net a_net, tbe_rel a_rel)
   if ((retval = tbe_rqueue_create(&(prop.queue))) != TBE_OK)
     return retval;
 
-  retval = (tbe_rqueue_enq1(prop.queue, a_rel.id1, a_rel.id2, rs2));
-
-  if (retval != TBE_OK) {
+  if ((retval = (tbe_rqueue_enq(prop.queue, a_id1, a_id2, rs2))) != TBE_OK) {
     tbe_rqueue_destroy(&(prop.queue));
     return retval;
   }
 
   while (tbe_list_length(prop.queue) && retval == TBE_OK) {
     /* get relation from queue */
-    if ((retval = tbe_rqueue_deq2(prop.queue, &(prop.rel))) != TBE_OK)
+    retval = tbe_rqueue_deq(prop.queue, &(prop.id1), &(prop.id2), &(prop.rs));
+    if (retval != TBE_OK)
       break;
 
     /* add blindly, disregarding existing relations */
-    if ((retval = tbe_net_add_rel_noprop(prop.net, prop.rel)) != TBE_OK)
+    retval = tbe_net_add_rel_noprop(prop.net, prop.id1, prop.id2, prop.rs);
+    if (retval != TBE_OK)
       break;
 
     /* traverse the list, propagate the effects of this new relation */
     retval = tbe_list_traverse((prop.net)->list, tbe_net_trav_prop1, &prop);
-
     if (retval != TBE_OK)
       break;
   }

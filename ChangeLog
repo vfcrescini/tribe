@@ -1,3 +1,20 @@
+2005-09-02  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+	* lib/network.h :
+	* lib/rel.c :
+	* lib/rel.h :
+	* lib/rqueue.c :
+	* lib/rqueue.h :
+	* test/test.c :
+
+	  - Removed tbe_rel structure. Everything is back to using 2 ids and a
+	    relset. Cleaner this way. It was a bloody stupid idea to have
+	    tbe_rel.
+
+	  - Moved the normalise() function to rqueue since it is the only
+	    module that uses it.
+
 2005-08-31  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/network.c :

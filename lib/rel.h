@@ -5,13 +5,6 @@
 #include <tribe/tribe.h>
 #include <tribe/interval.h>
 
-/* a relation is two interval id's and a relset between them */
-typedef struct {
-  unsigned int id1;
-  unsigned int id2;
-  unsigned int rs;
-} tbe_rel;
-
 /* equal */
 #define TBE_REL_EQL 0
 /* before */
@@ -78,38 +71,6 @@ typedef struct {
 /* returns a rel set containing all relations */
 #define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
-/* more macros */
-
-/* initialise relation with the given values */
-#define TBE_REL_INIT(X,Y1,Y2,Y3) \
-  (X).id1 = (Y1); \
-  (X).id2 = (Y2); \
-  (X).rs      = (Y3)
-/* set values of relation to 0 */
-#define TBE_REL_CLEAR(X) \
-  (X).id1 = 0; \
-  (X).id2 = 0; \
-  TBE_REL_SET_CLEAR((X).rs)
-/* add a relation to the relset of the relation structure */
-#define TBE_REL_ADD(X,Y) \
-  TBE_REL_SET_ADD((X).rs, (Y))
-/* returns non-zero if the two relations are equal */
-#define TBE_REL_ISEQL(X,Y) \
-  ( \
-    (X).id1 == (Y).id1 && \
-    (X).id2 == (Y).id2 && \
-    (X).rs == (Y).rs \
-  )
-
-/* create a new rel structure */
-int tbe_rel_create(tbe_rel **a_rel);
-
-/* destroy an existing rel structure */
-void tbe_rel_destroy(tbe_rel *a_rel);
-
-/* as above, but with a void ptr */
-void tbe_rel_free(void *a_rel);
-
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
 unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2);
 
@@ -118,9 +79,6 @@ unsigned int tbe_rel_inverse(unsigned int a_rs);
 
 /* returns the relset between the 2 given intervals */
 unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
-
-/* normalise the relation. a relation A rs B is normalised if A <= B */
-int tbe_rel_normalise(tbe_rel *a_rel);
 
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_dump(unsigned int a_rs, FILE *a_stream);
