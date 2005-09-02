@@ -4,7 +4,7 @@
 typedef struct {
   unsigned int ep_1;
   unsigned int ep_2;
-  unsigned int ep_mask;
+  unsigned char ep_mask;
 } tbe_interval;
 
 /* masks for interval flags */

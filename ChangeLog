@@ -1,5 +1,9 @@
 2005-09-02  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/interval.h :
+
+	  - Changed type of ep_mask from unsigned int to unsigned char.
+
 	* lib/network.c :
 	* lib/network.h :
 	* lib/rel.c :
