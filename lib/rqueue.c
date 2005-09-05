@@ -6,16 +6,13 @@
 typedef struct {
   unsigned int id1;
   unsigned int id2;
+  unsigned int type1;
+  unsigned int type2;
   unsigned int rs;
 } __tbe_rqueue_node;
 
 /* return TBE_OK if the 2 rqueue nodes are equal */
 static int tbe_rqueue_cmp(const void *a_ptr1, const void *a_ptr2);
-
-/* normalise the relation, a relation "A rs B" is normalised if A <= B */
-static int tbe_rqueue_normalise(unsigned int *a_id1,
-                                unsigned int *a_id2,
-                                unsigned int *a_rs);
 
 /* return TBE_OK if the 2 rqueue nodes are equal */
 static int tbe_rqueue_cmp(const void *a_ptr1, const void *a_ptr2)
@@ -32,31 +29,10 @@ static int tbe_rqueue_cmp(const void *a_ptr1, const void *a_ptr2)
   return 
     (pnode1->id1 == pnode2->id1) &&
     (pnode1->id2 == pnode2->id2) &&
+    (pnode1->type1 == pnode2->type1) &&
+    (pnode1->type2 == pnode2->type2) &&
     (pnode1->rs == pnode2->rs) ? 
     TBE_OK : TBE_FAILURE;
-}
-
-/* normalise the relation, a relation "A rs B" is normalised if A <= B */
-static int tbe_rqueue_normalise(unsigned int *a_id1,
-                                unsigned int *a_id2,
-                                unsigned int *a_rs)
-{
-  unsigned int min;
-  unsigned int max;
-
-  if (!a_id1 || !a_id2 || !a_rs)
-    return TBE_NULLPTR;
-
-  if (*a_id1 > *a_id2)
-    *a_rs = tbe_rel_inverse(*a_rs);
-
-  min = TBE_INT_MIN(*a_id1, *a_id2);
-  max = TBE_INT_MAX(*a_id1, *a_id2);
-
-  *a_id1 = min;
-  *a_id2 = max;
-
-  return TBE_OK;
 }
 
 /* create a new rqueue */
@@ -81,6 +57,8 @@ void tbe_rqueue_purge(tbe_rqueue a_rqueue)
 int tbe_rqueue_enq(tbe_rqueue a_rqueue,
                    unsigned int a_id1,
                    unsigned int a_id2,
+                   unsigned char a_type1,
+                   unsigned char a_type2,
                    unsigned int a_rs)
 {
   __tbe_rqueue_node *pnode;
@@ -89,13 +67,16 @@ int tbe_rqueue_enq(tbe_rqueue a_rqueue,
   if (!a_rqueue)
     return TBE_NULLPTR;
 
-  tbe_rqueue_normalise(&a_id1, &a_id2, &a_rs);
+  /* a good place to normalise */
+  tbe_rel_normalise(&a_id1, &a_id2, &a_type1, &a_type2, &a_rs);
 
   if (!(pnode = TBE_MEM_MALLOC(__tbe_rqueue_node, 1)))
     return TBE_MALLOCFAILED;
 
   pnode->id1 = a_id1;
   pnode->id2 = a_id2;
+  pnode->type1 = a_type1;
+  pnode->type2 = a_type2;
   pnode->rs = a_rs;
 
   retval = tbe_list_find_data(a_rqueue, (void *) pnode, tbe_rqueue_cmp);
@@ -117,12 +98,14 @@ int tbe_rqueue_enq(tbe_rqueue a_rqueue,
 int tbe_rqueue_deq(tbe_rqueue a_rqueue,
                    unsigned int *a_id1,
                    unsigned int *a_id2,
+                   unsigned char *a_type1,
+                   unsigned char *a_type2,
                    unsigned int *a_rs)
 {
   __tbe_rqueue_node *pnode;
   int retval;
 
-  if (!a_rqueue || !a_id1 || !a_id2 || !a_rs)
+  if (!a_rqueue || !a_id1 || !a_id2 || !a_type1 || !a_type2 || !a_rs)
     return TBE_OK;
 
   if ((retval = tbe_list_get_head(a_rqueue, (void *) &pnode)) != TBE_OK)
@@ -130,6 +113,8 @@ int tbe_rqueue_deq(tbe_rqueue a_rqueue,
 
   *a_id1 = pnode->id1;
   *a_id2 = pnode->id2;
+  *a_type1 = pnode->type1;
+  *a_type2 = pnode->type2;
   *a_rs = pnode->rs;
 
   return tbe_list_del_head(a_rqueue, tbe_list_free);

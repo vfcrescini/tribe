@@ -414,6 +414,47 @@ unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2)
   return rs;
 }
 
+/* returns TBE_OK if relation is normalised, TBE_FAILURE otherwise */
+int tbe_rel_is_normalised(unsigned int a_id1,
+                          unsigned int a_id2,
+                          unsigned char a_type1,
+                          unsigned char a_type2)
+{
+  if (a_type1 == a_type2)
+    return (a_id1 <= a_id2) ? TBE_OK : TBE_FAILURE;
+
+  return (a_type1 < a_type2) ? TBE_OK : TBE_FAILURE;
+}
+
+/* normalise the relation, a relation "A rs B" is normalised if A <= B */
+int tbe_rel_normalise(unsigned int *a_id1,
+                      unsigned int *a_id2,
+                      unsigned char *a_type1,
+                      unsigned char *a_type2,
+                      unsigned int *a_rs)
+{
+    unsigned int itmp;
+    unsigned char ctmp;
+
+  if (!a_id1 || !a_id2 || !a_type1 || !a_type2)
+    return TBE_NULLPTR;
+
+  if (tbe_rel_is_normalised(*a_id1, *a_id2, *a_type1, *a_type2) != TBE_OK) {
+    itmp = *a_id1;
+    *a_id1 = *a_id2;
+    *a_id2 = itmp;
+
+    ctmp = *a_type1;
+    *a_type1 = *a_type2;
+    *a_type2 = ctmp;
+
+    if (a_rs)
+      *a_rs = tbe_rel_inverse(*a_rs);
+  }
+
+  return TBE_OK;
+}
+
 /* print all relations in rel set a_rs into stream a_stream */
 int tbe_rel_dump(unsigned int a_rs, FILE *a_stream)
 {

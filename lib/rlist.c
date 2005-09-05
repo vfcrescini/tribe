@@ -1,15 +1,20 @@
 #include <stdlib.h>
 #include <tribe/mem.h>
+#include <tribe/interval.h>
 #include <tribe/rel.h>
 #include <tribe/rlist.h>
 
+#define TBE_INTERVAL_PREFIX(X) (((X) == TBE_INTERVAL_INTRNL) ? "I" : "E")
+
 typedef struct {
   unsigned int id;
+  unsigned int type;
   unsigned int rs;
 } __tbe_rlist_node;
 
 typedef struct {
   unsigned int id;
+  unsigned int type;
   FILE *stream;
 } __tbe_rlist_dump;
 
@@ -31,7 +36,10 @@ static int tbe_rlist_cmp(const void *a_ptr1, const void *a_ptr2)
   if (!pnode1 || !pnode2)
     return TBE_NULLPTR;
 
-  return ((pnode1->id == pnode2->id) ? TBE_OK : TBE_FAILURE);
+  return
+    (pnode1->id == pnode2->id) &&
+    (pnode1->type == pnode2->type) ?
+    TBE_OK : TBE_FAILURE;
 }
 
 /* dump rlist node. use with tbe_list_traverse */
@@ -46,9 +54,17 @@ static int tbe_rlist_trav_dump(const void *a_node, void *a_dump)
   if (!pnode || !pdump)
     return TBE_NULLPTR;
 
-  fprintf(pdump->stream, "%03u ", pdump->id);
+  fprintf(pdump->stream,
+          "%s%03u ",
+          TBE_INTERVAL_PREFIX(pdump->type),
+          pdump->id);
+
   tbe_rel_dump(pnode->rs, pdump->stream);
-  fprintf(pdump->stream, "%03u\n", pnode->id);
+
+  fprintf(pdump->stream,
+          "%s%03u\n",
+          TBE_INTERVAL_PREFIX(pnode->type),
+          pnode->id);
 
   return TBE_OK;
 }
@@ -72,7 +88,10 @@ void tbe_rlist_purge(tbe_rlist a_rlist)
 }
 
 /* add to the list. if a_rs contains all rels, it is removed (or not added) */
-int tbe_rlist_add(tbe_rlist a_rlist, unsigned int a_id, unsigned int a_rs)
+int tbe_rlist_add(tbe_rlist a_rlist,
+                  unsigned int a_id,
+                  unsigned char a_type,
+                  unsigned int a_rs)
 {
   __tbe_rlist_node *pnode;
   __tbe_rlist_node node;
@@ -82,6 +101,7 @@ int tbe_rlist_add(tbe_rlist a_rlist, unsigned int a_id, unsigned int a_rs)
     return TBE_NULLPTR;
 
   node.id = a_id;
+  node.type = a_type;
 
   /* see if a_id is already in this rlist */
   retval = tbe_list_get_data_one(a_rlist,
@@ -116,6 +136,7 @@ int tbe_rlist_add(tbe_rlist a_rlist, unsigned int a_id, unsigned int a_rs)
         return TBE_MALLOCFAILED;
 
       pnode->id = a_id;
+      pnode->type = a_type;
       pnode->rs = a_rs;
 
       return tbe_list_add_tail(a_rlist, (void *) pnode);
@@ -125,8 +146,11 @@ int tbe_rlist_add(tbe_rlist a_rlist, unsigned int a_id, unsigned int a_rs)
   return retval;
 }
 
-/* gives the rs of a_id. if a_id isn't in, a_rs is set to all */
-int tbe_rlist_get(tbe_rlist a_rlist, unsigned int a_id, unsigned int *a_rs)
+/* gives the rs. if the interval is not in, a_rs is set to all */
+int tbe_rlist_get(tbe_rlist a_rlist,
+                  unsigned int a_id,
+                  unsigned char a_type,
+                  unsigned int *a_rs)
 {
   __tbe_rlist_node *pnode;
   __tbe_rlist_node node;
@@ -136,6 +160,7 @@ int tbe_rlist_get(tbe_rlist a_rlist, unsigned int a_id, unsigned int *a_rs)
     return TBE_NULLPTR;
 
   node.id = a_id;
+  node.type = a_type;
 
   retval = tbe_list_get_data_one(a_rlist,
                                  (void *) &node,
@@ -154,8 +179,11 @@ int tbe_rlist_get(tbe_rlist a_rlist, unsigned int a_id, unsigned int *a_rs)
   return retval;
 }
 
-/* dumps the list, each printed with a_id */
-int tbe_rlist_dump(tbe_rlist a_rlist, unsigned int a_id, FILE *a_stream)
+/* dumps the list, each prefixed with an interval */
+int tbe_rlist_dump(tbe_rlist a_rlist,
+                   unsigned int a_id,
+                   unsigned char a_type,
+                   FILE *a_stream)
 {
   __tbe_rlist_dump dump;
 
@@ -163,11 +191,15 @@ int tbe_rlist_dump(tbe_rlist a_rlist, unsigned int a_id, FILE *a_stream)
     return TBE_NULLPTR;
 
   dump.id = a_id;
+  dump.type = a_type;
   dump.stream = a_stream;
 
   /* if the given rlist is empty, just print the given interval */
   if (tbe_list_length(a_rlist) == 0) {
-    fprintf(a_stream, "%03u\n", a_id);
+    fprintf(a_stream,
+            "%s%03u\n",
+            TBE_INTERVAL_PREFIX(a_type),
+            a_id);
     return TBE_OK;
   }
 

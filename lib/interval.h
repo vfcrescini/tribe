@@ -7,6 +7,10 @@ typedef struct {
   unsigned char ep_mask;
 } tbe_interval;
 
+/* interval type */
+#define TBE_INTERVAL_INTRNL 0
+#define TBE_INTERVAL_EXTRNL 1
+
 /* masks for interval flags */
 #define TBE_INTERVAL_EP_1   1
 #define TBE_INTERVAL_EP_2   2
@@ -29,5 +33,7 @@ typedef struct {
   (X).ep_1 = (Y1); \
   (X).ep_2 = (Y2); \
   (X).ep_mask = (Y3)
+
+#define TBE_INTERVAL_PREFIX(X) (((X) == TBE_INTERVAL_INTRNL) ? "I" : "E")
 
 #endif

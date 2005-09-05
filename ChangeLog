@@ -1,3 +1,21 @@
+2005-09-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/interval.h :
+	* lib/network.c :
+	* lib/network.h :
+	* lib/rel.c ;
+	* lib/rel.h :
+	* lib/rlist.c :
+	* lib/rlist.h :
+	* lib/rqueue.c :
+	* lib/rqueue.h :
+	* test/test.c :
+
+	  - Added a "type" parameter in interval. This is really an id, i.e.
+	    "id" and "type" together uniquely identifies an interval. This
+	    allows for internal intervals to be defined which is transparent
+	    from the network interface.
+
 2005-09-02  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/interval.h :
