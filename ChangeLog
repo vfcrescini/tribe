@@ -1,6 +1,18 @@
 2005-09-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
-	* lib/interval.h:
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added a new get_rel() function to return the relations between an
+	    existing interval and a pair of endpoints.
+
+	  - Renamed existing get_rel() function to get_rel1() to make way for
+	    the new one.
+
+	  - Added an int_cnt field in the net structure to keep track of the
+	    number of internal intervals created.
+
+	* lib/interval.h :
 
 	  - Added a macro for checking equality between two intervals.
 

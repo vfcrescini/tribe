@@ -28,9 +28,14 @@ int tbe_net_add_endpoints(tbe_net a_net,
                           tbe_interval a_int);
 
 /* returns the rel set between the given two intervals in the given network */
-unsigned int tbe_net_get_relation(tbe_net a_net,
-                                  unsigned int a_id1,
-                                  unsigned int a_id2);
+unsigned int tbe_net_get_relation1(tbe_net a_net,
+                                   unsigned int a_id1,
+                                   unsigned int a_id2);
+
+/* returns the rel set between the given interval and endpoints */
+unsigned int tbe_net_get_relation2(tbe_net a_net,
+                                   unsigned int a_id,
+                                   tbe_interval a_interval);
 
 /* print the network as it is stored physically */
 void tbe_net_dump1(tbe_net a_net, FILE *a_stream);

@@ -28,6 +28,7 @@ typedef struct {
 /* the network */
 typedef struct {
   tbe_list list;
+  unsigned int int_cnt;
 } __tbe_net;
 
 /* structure for dumping the network */
@@ -58,7 +59,10 @@ typedef struct {
 } __tbe_net_prop2;
 
 /* return TBE_OK if the intervals of the 2 net nodes are equal */
-static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2);
+static int tbe_net_cmp1(const void *a_ptr1, const void *a_ptr2);
+
+/* return TBE_OK if the endpoints of the intervals of the 2 nodes are equal */
+static int tbe_net_cmp2(const void *a_ptr1, const void *a_ptr2);
 
 /* return a reference to a node, NULL if it doesn't exist */
 static __tbe_net_node *tbe_net_get_ref(__tbe_net *a_net,
@@ -118,7 +122,7 @@ static unsigned int tbe_net_get_rel(tbe_net a_net,
                                     unsigned char a_type2);
 
 /* return TBE_OK if the intervals of the 2 tbe_net_nodes are equal */
-static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2)
+static int tbe_net_cmp1(const void *a_ptr1, const void *a_ptr2)
 {
   __tbe_net_node *pnode1;
   __tbe_net_node *pnode2;
@@ -131,6 +135,23 @@ static int tbe_net_cmp(const void *a_ptr1, const void *a_ptr2)
 
   return
     (pnode1->id == pnode2->id) && (pnode1->type == pnode2->type) ?
+    TBE_OK : TBE_FAILURE;
+}
+
+/* return TBE_OK if the endpoints of the intervals of the 2 nodes are equal */
+static int tbe_net_cmp2(const void *a_ptr1, const void *a_ptr2)
+{
+  __tbe_net_node *pnode1;
+  __tbe_net_node *pnode2;
+
+  pnode1 = (__tbe_net_node *) a_ptr1;
+  pnode2 = (__tbe_net_node *) a_ptr2;
+
+  if (!pnode1 || !pnode2)
+    return TBE_NULLPTR; 
+
+  return
+    TBE_INTERVAL_ISEQUAL(pnode1->interval, pnode2->interval) ?
     TBE_OK : TBE_FAILURE;
 }
 
@@ -153,7 +174,7 @@ static __tbe_net_node *tbe_net_get_ref(__tbe_net *a_net,
   /* there should be only one */
   retval = tbe_list_get_data_one(pnet->list,
                                  (void *) &node,
-                                 tbe_net_cmp,
+                                 tbe_net_cmp1,
                                  (void *) &pnode);
 
   return (retval == TBE_OK) ? pnode : NULL;
@@ -639,6 +660,7 @@ int tbe_net_create(tbe_net *a_net)
     return retval;
   }
   
+  pnet->int_cnt = 0;
   *a_net = (tbe_net) pnet;
 
   return TBE_OK;
@@ -686,15 +708,83 @@ int tbe_net_add_endpoints(tbe_net a_net,
 }
 
 /* returns the rel set between the given two intervals in the given network */
-unsigned int tbe_net_get_relation(tbe_net a_net,
-                                  unsigned int a_id1,
-                                  unsigned int a_id2)
+unsigned int tbe_net_get_relation1(tbe_net a_net,
+                                   unsigned int a_id1,
+                                   unsigned int a_id2)
 {
   return tbe_net_get_rel(a_net,
                          a_id1,
                          a_id2,
                          TBE_INTERVAL_EXTRNL,
                          TBE_INTERVAL_EXTRNL);
+}
+
+/* returns the rel set between the given interval and endpoints */
+unsigned int tbe_net_get_relation2(tbe_net a_net,
+                                   unsigned int a_id,
+                                   tbe_interval a_interval)
+{
+  __tbe_net *pnet;
+  __tbe_net_node *pnode;
+  __tbe_net_node node;
+  unsigned int rs;
+  int retval;
+
+  if (!(pnet = (__tbe_net *) a_net))
+    return TBE_REL_SET_NUL;
+
+  if (!TBE_INTERVAL_ISVALID(a_interval))
+    return TBE_REL_SET_NUL;
+
+  /* try to find an interval with the given endpoints. any match will do */
+
+  node.interval = a_interval;
+
+  retval = tbe_list_get_data_one(pnet->list,
+                                 (void *) &node,
+                                 tbe_net_cmp2,
+                                 (void *) &pnode);
+
+  switch (retval) {
+    case TBE_NOTFOUND :
+      /* no interval that contains the given endpoints exists, so we add one */
+      retval = tbe_net_add_int(a_net, pnet->int_cnt, TBE_INTERVAL_INTRNL);
+
+      if (retval != TBE_OK)
+        return TBE_REL_SET_NUL;
+
+      /* assign the given endpoints to the new interval */
+      retval = tbe_net_add_ep(a_net,
+                              pnet->int_cnt,
+                              TBE_INTERVAL_INTRNL,
+                              a_interval);
+
+      if (retval != TBE_OK)
+        return TBE_REL_SET_NUL;
+
+      /* now get the relation between the given interval and the new one */
+      rs = tbe_net_get_rel(a_net,
+                           a_id,
+                           pnet->int_cnt,
+                           TBE_INTERVAL_EXTRNL,
+                           TBE_INTERVAL_INTRNL);
+
+      /* don't forget to increment the internal interval counter */
+      pnet->int_cnt = pnet->int_cnt + 1;
+
+      return rs;
+    case TBE_OK :
+      /* an interval whose endpoints matches the given exists */
+      rs = tbe_net_get_rel(a_net,
+                           a_id,
+                           pnode->id,
+                           TBE_INTERVAL_EXTRNL,
+                           pnode->type);
+
+      return rs;
+  }
+
+  return TBE_REL_SET_NUL;
 }
 
 /* print the network as it is stored physically */
