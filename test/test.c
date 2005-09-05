@@ -69,6 +69,19 @@ int main(int argc, char *argv[])
   printf("adding: %d\n", tbe_net_add_endpoints(net, 2, i));
 
   tbe_net_dump2(net, stdout);
+
+  printf("interval 2 to [3,15]: ");
+  TBE_INTERVAL_INIT(i, 3, 15, TBE_INTERVAL_EP_ALL);
+  tbe_rel_dump(tbe_net_get_relation2(net, 2, i), stdout);
+  printf("\n");
+
+  printf("interval 2 to [0,5]: ");
+  TBE_INTERVAL_INIT(j, 0, 5, TBE_INTERVAL_EP_ALL);
+  tbe_rel_dump(tbe_net_get_relation2(net, 2, j), stdout);
+  printf("\n");
+
+  tbe_net_dump2(net, stdout);
+
   tbe_net_destroy(&net);
 #endif
 

@@ -1,5 +1,10 @@
 2005-09-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* test/test.c :
+
+	  - Addded some tests to check correct operation of the new get_rel()
+	    function.
+
 	* lib/network.c :
 	* lib/network.h :
 
