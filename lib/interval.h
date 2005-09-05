@@ -27,6 +27,12 @@ typedef struct {
 
 #define TBE_INTERVAL_ISVALID(X) \
   (TBE_INTERVAL_EP_ISFILL(X) ? ((X).ep_1 < (X).ep_2) : 1)
+#define TBE_INTERVAL_ISEQUAL(X,Y) \
+  ( \
+    ((X).ep_1 == (Y).ep_1) && \
+    ((X).ep_2 == (Y).ep_2) && \
+    ((X).ep_mask == (Y).ep_mask) \
+  )
 #define TBE_INTERVAL_CLEAR(X) \
   (X).ep_1 = 0; (X).ep_2 = 0; (X).ep_mask = TBE_INTERVAL_EP_NUL
 #define TBE_INTERVAL_INIT(X,Y1,Y2,Y3) \
