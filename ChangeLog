@@ -1,3 +1,10 @@
+2005-09-07  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.3.2
+
 2005-09-05  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* test/test.c :
