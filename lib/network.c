@@ -58,6 +58,15 @@ typedef struct {
   tbe_interval interval;
 } __tbe_net_prop2;
 
+/* structure for the traversing get_interval */
+typedef struct {
+  tbe_net *net;
+  unsigned int id;
+  unsigned int rs;
+  void *parm;
+  int (*fn)(unsigned int, void *);
+} __tbe_net_gint;
+
 /* return TBE_OK if the intervals of the 2 net nodes are equal */
 static int tbe_net_cmp1(const void *a_ptr1, const void *a_ptr2);
 
@@ -86,6 +95,9 @@ static int tbe_net_trav_prop1(const void *a_node, void *a_prop1);
 
 /* propagate the relations derived from the endpoints */
 static int tbe_net_trav_prop2(const void *a_node, void *a_prop2);
+
+/* find intervals with a specific rel with a given interval */
+static int tbe_net_trav_gint(const void *a_node, void *a_gint);
 
 /* add a new interval into the network, with type parameter */
 static int tbe_net_add_int(tbe_net a_net,
@@ -399,6 +411,29 @@ static int tbe_net_trav_prop2(const void *a_node, void *a_prop2)
                                               pnode->interval));
 
   return (retval != TBE_OK) ? retval : TBE_OK;
+}
+
+/* find intervals with a specific rel with a given interval */
+static int tbe_net_trav_gint(const void *a_node, void *a_gint)
+{
+  __tbe_net_node *pnode;
+  __tbe_net_gint *pgint;
+  unsigned int rs;
+
+  pnode = (__tbe_net_node *) a_node;
+  pgint = (__tbe_net_gint *) a_gint;
+
+  if (!pnode || !pgint || !pgint->fn)
+    return TBE_NULLPTR;
+
+  /* get rel set between the given interval and this node's interval */
+  rs = tbe_net_get_relation1(pgint->net, pgint->id, pnode->id);
+
+  /* if the intersection is equal to rs, then rs is a subset */
+  if (TBE_REL_SET_INTERSECT(rs, pgint->rs) == rs)
+    return pgint->fn(pnode->id, pgint->parm);
+
+  return TBE_OK;
 }
 
 /* add a new interval into the network, with type parameter */
@@ -785,6 +820,29 @@ unsigned int tbe_net_get_relation2(tbe_net a_net,
   }
 
   return TBE_REL_SET_NUL;
+}
+
+/* generates a list of intervals whose relation with a_id is a subset of rs,
+ * then call a_fn for each interval generated */
+int tbe_net_get_intervals(tbe_net a_net,
+                          unsigned int a_id,
+                          unsigned int a_rs,
+                          void *a_parm,
+                          int (*a_fn)(unsigned int, void *))
+{
+  __tbe_net *pnet;
+  __tbe_net_gint gint;
+
+  if (!(pnet = (__tbe_net *) a_net) || !a_fn)
+    return TBE_NULLPTR;
+
+  gint.net = a_net;
+  gint.id = a_id;
+  gint.rs = a_rs;
+  gint.parm = a_parm;
+  gint.fn = a_fn;
+
+  return tbe_list_traverse(pnet->list, tbe_net_trav_gint, &gint);
 }
 
 /* print the network as it is stored physically */

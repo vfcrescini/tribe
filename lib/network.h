@@ -37,6 +37,14 @@ unsigned int tbe_net_get_relation2(tbe_net a_net,
                                    unsigned int a_id,
                                    tbe_interval a_interval);
 
+/* generates a list of intervals whose relation with a_id is a subset of rs,
+ * then call a_fn for each interval generated */
+int tbe_net_get_intervals(tbe_net a_net,
+                          unsigned int a_id,
+                          unsigned int a_rs,
+                          void *a_parm,
+                          int (*a_fn)(unsigned int, void *));
+
 /* print the network as it is stored physically */
 void tbe_net_dump1(tbe_net a_net, FILE *a_stream);
 

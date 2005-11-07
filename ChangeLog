@@ -1,3 +1,16 @@
+2005-11-07  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added get_intervals() which generates a list of intervals whose
+	    relation with a given interval is a subset of a given relset, then
+	    calls a given function for every matching interval.
+
+	* test/test.c :
+
+	  - Added a test for the new get_interval() function.
+
 2005-09-07  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* VERSION :

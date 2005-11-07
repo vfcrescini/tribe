@@ -3,6 +3,12 @@
 #include <tribe/rel.h>
 #include <tribe/network.h>
 
+int dump(unsigned int a_id, void *a_stream)
+{
+  fprintf((FILE *) a_stream, "%d\n", a_id);
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   tbe_net net;
@@ -126,6 +132,14 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs, TBE_REL_FII);
 
   printf("adding: %d\n", tbe_net_add_relation(net, 1, 3, rs));
+
+  TBE_REL_SET_CLEAR(rs);
+  TBE_REL_SET_ADD(rs, TBE_REL_DUR);
+  TBE_REL_SET_ADD(rs, TBE_REL_DUI);
+  TBE_REL_SET_ADD(rs, TBE_REL_FIN);
+  TBE_REL_SET_ADD(rs, TBE_REL_FII);
+
+  tbe_net_get_intervals(net, 1, rs, (void *) stdout, dump);
 
   tbe_net_dump2(net, stdout);
   tbe_net_destroy(&net);
