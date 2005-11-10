@@ -60,7 +60,7 @@ typedef struct {
 
 /* structure for the traversing get_interval */
 typedef struct {
-  tbe_net *net;
+  tbe_net net;
   unsigned int id;
   unsigned int rs;
   void *parm;
