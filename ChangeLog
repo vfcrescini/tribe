@@ -1,3 +1,10 @@
+2005-11-13  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+
+	  - get_intervals() will now only consider externally defined
+	    intervals.
+
 2005-11-07  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/network.c :

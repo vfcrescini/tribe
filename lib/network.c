@@ -426,6 +426,10 @@ static int tbe_net_trav_gint(const void *a_node, void *a_gint)
   if (!pnode || !pgint || !pgint->fn)
     return TBE_NULLPTR;
 
+  /* we only consider externally defined intervals */
+  if (pnode->type == TBE_INTERVAL_INTRNL)
+    return TBE_OK;
+
   /* get rel set between the given interval and this node's interval */
   rs = tbe_net_get_relation1(pgint->net, pgint->id, pnode->id);
 
