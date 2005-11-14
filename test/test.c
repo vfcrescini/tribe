@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs, TBE_REL_FIN);
   TBE_REL_SET_ADD(rs, TBE_REL_FII);
 
-  tbe_net_get_intervals(net, 1, rs, (void *) stdout, dump);
+  tbe_net_get_intervals(net, 1, rs, dump, (void *) stdout);
 
   tbe_net_dump2(net, stdout);
   tbe_net_destroy(&net);

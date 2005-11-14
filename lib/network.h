@@ -42,8 +42,8 @@ unsigned int tbe_net_get_relation2(tbe_net a_net,
 int tbe_net_get_intervals(tbe_net a_net,
                           unsigned int a_id,
                           unsigned int a_rs,
-                          void *a_parm,
-                          int (*a_fn)(unsigned int, void *));
+                          int (*a_fn)(unsigned int, void *),
+                          void *a_parm);
 
 /* print the network as it is stored physically */
 void tbe_net_dump1(tbe_net a_net, FILE *a_stream);

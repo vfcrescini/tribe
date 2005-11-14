@@ -3,9 +3,10 @@
 #include <tribe/mem.h>
 #include <tribe/interval.h>
 #include <tribe/rel.h>
-#include <tribe/network.h>
 #include <tribe/rqueue.h>
 #include <tribe/rlist.h>
+#include <tribe/clist.h>
+#include <tribe/network.h>
 
 /* Van Beek's skipping conditions */
 #define TBE_NET_SKIP(X,Y) \
@@ -831,8 +832,8 @@ unsigned int tbe_net_get_relation2(tbe_net a_net,
 int tbe_net_get_intervals(tbe_net a_net,
                           unsigned int a_id,
                           unsigned int a_rs,
-                          void *a_parm,
-                          int (*a_fn)(unsigned int, void *))
+                          int (*a_fn)(unsigned int, void *),
+                          void *a_parm)
 {
   __tbe_net *pnet;
   __tbe_net_gint gint;
