@@ -63,8 +63,8 @@ typedef struct {
   tbe_net net;
   unsigned int id;
   unsigned int rs;
-  void *parm;
   int (*fn)(unsigned int, void *);
+  void *parm;
 } __tbe_net_gint;
 
 /* return TBE_OK if the intervals of the 2 net nodes are equal */
@@ -843,8 +843,8 @@ int tbe_net_get_intervals(tbe_net a_net,
   gint.net = a_net;
   gint.id = a_id;
   gint.rs = a_rs;
-  gint.parm = a_parm;
   gint.fn = a_fn;
+  gint.parm = a_parm;
 
   return tbe_list_traverse(pnet->list, tbe_net_trav_gint, &gint);
 }
