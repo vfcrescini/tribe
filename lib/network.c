@@ -5,7 +5,6 @@
 #include <tribe/rel.h>
 #include <tribe/rqueue.h>
 #include <tribe/rlist.h>
-#include <tribe/clist.h>
 #include <tribe/network.h>
 
 /* Van Beek's skipping conditions */
