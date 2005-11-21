@@ -22,7 +22,8 @@ void *tbe_realloc(void *a_ptr, size_t a_size)
    * given a NULL ptr or 0 size or both. since free(NULL) is legal, we simply
    * treat all calls to realloc as a call to "free" then "malloc" */
 
-  fprintf(stderr, "%s F %p\n", TBE_MEM_PREFIX_STR, a_ptr);
+  if (a_ptr)
+    fprintf(stderr, "%s F %p\n", TBE_MEM_PREFIX_STR, a_ptr);
 
   ptr = realloc(a_ptr, a_size);
   

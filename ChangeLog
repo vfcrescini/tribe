@@ -1,3 +1,10 @@
+2005-11-21  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/mem.c :
+
+	  - Debug version of tbe_mem_realloc() will no longer print FREE if the
+	    original pointer is null.
+
 2005-11-19  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/Makefile.in :
