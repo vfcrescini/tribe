@@ -1,3 +1,9 @@
+2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* test/test.c :
+
+	  - Renamed all test intervals so that they start with 0.
+
 2005-11-21  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* lib/mem.c :
