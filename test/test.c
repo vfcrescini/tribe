@@ -1,18 +1,35 @@
 #include <stdio.h>
 #include <tribe/tribe.h>
 #include <tribe/rel.h>
+#include <tribe/clist.h>
 #include <tribe/network.h>
 
-int dump(unsigned int a_id, void *a_stream)
+int dump1(unsigned int a_id, void *a_stream)
 {
   fprintf((FILE *) a_stream, "%d\n", a_id);
   return 0;
+}
+
+int dump2(unsigned int a_tuple[], unsigned int a_size, void *a_parm)
+{
+  unsigned int i;
+
+  for (i = 0; i < a_size; i++)
+    fprintf((FILE *) a_parm, "%d ", a_tuple[i]);
+
+  fprintf((FILE *) a_parm, "\n");
+
+  return TBE_OK;
 }
 
 int main(int argc, char *argv[])
 {
   tbe_net net;
   unsigned int rs;
+#if 1
+  tbe_clist clist;
+  unsigned int array[2];
+#endif
 #if 0
   tbe_interval i;
   tbe_interval j;
@@ -139,7 +156,39 @@ int main(int argc, char *argv[])
   TBE_REL_SET_ADD(rs, TBE_REL_FIN);
   TBE_REL_SET_ADD(rs, TBE_REL_FII);
 
-  tbe_net_get_intervals(net, 0, rs, dump, (void *) stdout);
+  tbe_net_get_intervals(net, 0, rs, dump1, (void *) stdout);
+
+  /* 6 variables:
+   *   0. the literal interval 0
+   *   1. the literal interval 2
+   *   2. & 3. all intervals whose relation is met | sta | bef | ovr
+   *   4. all intervals that is fin | fin | eql by interval 0 (variable 0)
+   *   5. any interval
+   */
+
+  tbe_clist_create(&clist);
+
+  array[0] = 0;
+  array[1] = 2;
+
+  TBE_REL_SET_CLEAR(rs);
+  TBE_REL_SET_ADD(rs, TBE_REL_MET);
+  TBE_REL_SET_ADD(rs, TBE_REL_STA);
+  TBE_REL_SET_ADD(rs, TBE_REL_BEF);
+  TBE_REL_SET_ADD(rs, TBE_REL_OVR);
+
+  tbe_clist_add(clist, 2, 3, rs);
+
+  TBE_REL_SET_CLEAR(rs);
+  TBE_REL_SET_ADD(rs, TBE_REL_FIN);
+  TBE_REL_SET_ADD(rs, TBE_REL_FII);
+  TBE_REL_SET_ADD(rs, TBE_REL_EQL);
+
+  tbe_clist_add(clist, 4, 0, rs);
+
+  tbe_net_get_tuples(net, 4, 2, array, clist, dump2, (void *) stdout);
+
+  tbe_clist_destroy(&clist);
 
   tbe_net_dump2(net, stdout);
   tbe_net_destroy(&net);

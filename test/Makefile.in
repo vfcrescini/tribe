@@ -45,5 +45,5 @@ ifndef DEBUG
   endif
 endif
 
-test.o : $(LIBDIR)/interval.h $(LIBDIR)/rel.h $(LIBDIR)/network.h test.c
+test.o : $(LIBDIR)/interval.h $(LIBDIR)/rel.h $(LIBDIR)/clist.h $(LIBDIR)/network.h test.c
 	$(CC) $(CFLAGS) -o $(@) -c test.c

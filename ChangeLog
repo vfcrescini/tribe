@@ -1,5 +1,13 @@
 2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* test/Makefile.in :
+
+	  - tribe_test is now dependent on clist.h.
+
+	* test/test.c :
+
+	  - Added a test for tbe_net_get_tuples().
+
 	* lib/Makefile.in :
 
 	  - Now network.o is dependent on clist.h.
