@@ -80,5 +80,5 @@ rlist.o : tribe.h mem.h list.h rel.h rlist.h rlist.c
 clist.o : tribe.h mem.h rel.h list.h clist.h clist.c
 	$(CC) $(CFLAGS) -o $(@) -c clist.c
 
-network.o : tribe.h mem.h list.h rel.h interval.h rqueue.h rlist.h network.h network.c
+network.o : tribe.h mem.h list.h rel.h interval.h rqueue.h rlist.h clist.h network.h network.c
 	$(CC) $(CFLAGS) -o $(@) -c network.c

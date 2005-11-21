@@ -3,6 +3,7 @@
 
 #include <tribe/tribe.h>
 #include <tribe/list.h>
+#include <tribe/clist.h>
 #include <tribe/interval.h>
 
 typedef void *tbe_net;
@@ -44,6 +45,19 @@ int tbe_net_get_intervals(tbe_net a_net,
                           unsigned int a_rs,
                           int (*a_fn)(unsigned int, void *),
                           void *a_parm);
+
+/* generates a list of tuples (set of intervals) of size a_num_vars +
+ * a_num_lits that satisfies the constraints in a_clist, then calls a_fn()
+ * for each tuple, passing the tuple, its size and the given parameter.
+ * a_arr_lits contains intervals that correspond to the first a_num_lits
+ * variables in a_clist. */
+int tbe_net_get_tuples(tbe_net a_net,
+                       unsigned int a_num_vars,
+                       unsigned int a_num_lits,
+                       unsigned int a_arr_lits[],
+                       tbe_clist a_clist,
+                       int (*a_fn)(unsigned int[], unsigned int, void *),
+                       void *a_parm);
 
 /* print the network as it is stored physically */
 void tbe_net_dump1(tbe_net a_net, FILE *a_stream);

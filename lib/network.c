@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <tribe/mem.h>
 #include <tribe/interval.h>
 #include <tribe/rel.h>
 #include <tribe/rqueue.h>
 #include <tribe/rlist.h>
+#include <tribe/clist.h>
 #include <tribe/network.h>
 
 /* Van Beek's skipping conditions */
@@ -58,7 +60,7 @@ typedef struct {
   tbe_interval interval;
 } __tbe_net_prop2;
 
-/* structure for the traversing get_interval */
+/* structure for the traversing get_intervals() */
 typedef struct {
   tbe_net net;
   unsigned int id;
@@ -66,6 +68,17 @@ typedef struct {
   int (*fn)(unsigned int, void *);
   void *parm;
 } __tbe_net_gint;
+
+/* structure for traversing get_tuples() */
+typedef struct {
+  tbe_net net;
+  tbe_clist clist;
+  int (*fn)(unsigned int[], unsigned int, void *);
+  void *parm;
+  unsigned int iteration;
+  unsigned int max;
+  unsigned int *tuple;
+}  __tbe_net_gtup;
 
 /* return TBE_OK if the intervals of the 2 net nodes are equal */
 static int tbe_net_cmp1(const void *a_ptr1, const void *a_ptr2);
@@ -98,6 +111,14 @@ static int tbe_net_trav_prop2(const void *a_node, void *a_prop2);
 
 /* find intervals with a specific rel with a given interval */
 static int tbe_net_trav_gint(const void *a_node, void *a_gint);
+
+/* find tuples that satisfies all given constraints */
+static int tbe_net_trav_gtup(const void *a_node, void *a_gtup);
+
+/* gtup's own get_relation() */
+static unsigned int tbe_net_gtup_get_relation(unsigned int a_id1,
+                                              unsigned int a_id2,
+                                              void *a_net);
 
 /* add a new interval into the network, with type parameter */
 static int tbe_net_add_int(tbe_net a_net,
@@ -438,6 +459,61 @@ static int tbe_net_trav_gint(const void *a_node, void *a_gint)
     return pgint->fn(pnode->id, pgint->parm);
 
   return TBE_OK;
+}
+
+/* find tuples that satisfies all given constraints */
+static int tbe_net_trav_gtup(const void *a_node, void *a_gtup)
+{
+  __tbe_net_node *pnode;
+  __tbe_net_gtup *pgtup;
+  __tbe_net_gtup gtup;
+
+  unsigned int retval;
+
+  pnode = (__tbe_net_node *) a_node;
+  pgtup = (__tbe_net_gtup *) a_gtup;
+
+  if (!pnode || !pgtup)
+    return TBE_NULLPTR;
+
+  /* unfortunately, we have to make a local copy for the next iteration */
+  gtup = *pgtup;
+
+  /* we only consider externally defined intervals */
+  if (pnode->type == TBE_INTERVAL_INTRNL)
+    return TBE_OK;
+
+  /* load this node's id into the tuple */
+  (gtup.tuple)[gtup.iteration] = pnode->id;
+
+  /* check if the tuple is full (i.e. this is the last iteration) */
+  if (gtup.iteration + 1 >= gtup.max) {
+    retval = tbe_clist_validate(gtup.clist,
+                                gtup.tuple,
+                                gtup.max,
+                                tbe_net_gtup_get_relation,
+                                (void *) gtup.net);
+    if (retval == TBE_OK)
+      return gtup.fn(gtup.tuple, gtup.max, gtup.parm);
+
+    /* TBE_FAILURE indicates constraints are not satisfied */
+    return (retval == TBE_FAILURE) ? TBE_OK : retval;
+  }
+
+  /* tuple is not full yet, so we traverse yet again */
+  gtup.iteration = gtup.iteration + 1;
+
+  return tbe_list_traverse(((__tbe_net *)(gtup.net))->list,
+                           tbe_net_trav_gtup,
+                           &gtup);
+}
+
+/* gtup's own get_relation() */
+unsigned int tbe_net_gtup_get_relation(unsigned int a_id1,
+                                       unsigned int a_id2,
+                                       void *a_net)
+{
+  return tbe_net_get_relation1((tbe_net) a_net, a_id1, a_id2);
 }
 
 /* add a new interval into the network, with type parameter */
@@ -847,6 +923,75 @@ int tbe_net_get_intervals(tbe_net a_net,
   gint.parm = a_parm;
 
   return tbe_list_traverse(pnet->list, tbe_net_trav_gint, &gint);
+}
+
+/* generates a list of tuples (set of intervals) of size a_num_vars +
+ * a_num_lits that satisfies the constraints in a_clist, then calls a_fn()
+ * for each tuple, passing the tuple, its size and the given parameter.
+ * a_arr_lits contains intervals that correspond to the first a_num_lits
+ * variables in a_clist. */
+int tbe_net_get_tuples(tbe_net a_net,
+                       unsigned int a_num_vars,
+                       unsigned int a_num_lits,
+                       unsigned int a_arr_lits[],
+                       tbe_clist a_clist,
+                       int (*a_fn)(unsigned int[], unsigned int, void *),
+                       void *a_parm)
+{
+  __tbe_net *pnet;
+  __tbe_net_gtup gtup;
+  unsigned int *tuple;
+  int retval;
+
+  if (!(pnet = (__tbe_net *) a_net) || !a_fn)
+    return TBE_NULLPTR;
+
+  /* make sure there is something to do */
+  if (a_num_vars == 0) {
+    if (a_num_lits == 0) {
+      /* no variables or literals: nothing to ground */
+      return TBE_OK;
+    }
+
+    /* only literals so we check against clist */
+    retval = tbe_clist_validate(a_clist,
+                                a_arr_lits,
+                                a_num_lits,
+                                tbe_net_gtup_get_relation,
+                                (void *) a_net);
+    if (retval != TBE_OK)
+      return retval;
+
+    /* the literals satisfies the constraints, so we call fn() */
+    return a_fn(a_arr_lits, a_num_lits, a_parm);
+  }
+
+  /* ok, there are variables */
+  if (!(tuple = TBE_MEM_MALLOC(unsigned int, a_num_lits + a_num_vars)))
+    return TBE_NULLPTR;
+
+  if (a_num_lits != 0) {
+    /* there are some literals too, so we pre-load them into the tuple */
+    if (!memcpy(tuple, a_arr_lits, sizeof(unsigned int) * a_num_lits)) {
+      TBE_MEM_FREE(tuple);
+      return TBE_FAILURE;
+    }
+  }
+
+  /* load the structure */
+  gtup.net = a_net;
+  gtup.clist = a_clist;
+  gtup.fn = a_fn;
+  gtup.parm = a_parm;
+  gtup.iteration = a_num_lits;
+  gtup.max = a_num_lits + a_num_vars;
+  gtup.tuple = tuple;
+
+  retval = tbe_list_traverse(pnet->list, tbe_net_trav_gtup, &gtup);
+
+  TBE_MEM_FREE(tuple);
+
+  return retval;
 }
 
 /* print the network as it is stored physically */

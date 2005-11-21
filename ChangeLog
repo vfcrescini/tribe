@@ -1,5 +1,15 @@
 2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/Makefile.in :
+
+	  - Now network.o is dependent on clist.h.
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added a get_tuple() function so that a set of interval variables
+	    can be grounded with intervals that satisfy the given constraints.
+
 	* lib/clist.h :
 	* lib/clist.c :
 
