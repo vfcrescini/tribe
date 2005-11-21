@@ -1,5 +1,11 @@
 2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* lib/clist.h :
+	* lib/clist.c :
+
+	  - Removed the offset parameter. clist doesn't care about literals. It
+	    only cares about variables and the tuple in validate().
+
 	* test/test.c :
 
 	  - Renamed all test intervals so that they start with 0.

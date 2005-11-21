@@ -22,7 +22,6 @@ typedef struct {
 typedef struct {
   unsigned int *tuple;
   unsigned int size;
-  unsigned int offset;
   unsigned int (*fn)(unsigned int, unsigned int, void *);
   void *parm;
 } __tbe_clist_trav;
@@ -108,8 +107,8 @@ static int tbe_clist_trav_validate(const void *a_node, void *a_parm)
 
   /* the variables are actually indices of the tuple. there's no way to check
    * the size of the tuple. if this barfs, it is because of a bad tuple. */
-  int1 = tptr->tuple[nptr->v1 - tptr->offset];
-  int2 = tptr->tuple[nptr->v2 - tptr->offset];
+  int1 = tptr->tuple[nptr->v1];
+  int2 = tptr->tuple[nptr->v2];
 
   /* we assume vptr->fn() is a function that will give the relset */
   rs = tptr->fn(int1, int2, tptr->parm);
@@ -238,12 +237,11 @@ int tbe_clist_verify(tbe_clist a_clist, unsigned int a_max)
 /* return TBE_OK if the given tuple of the given size satisfies the given
  * clist, TBE_FAILURE if it doesn't, but no other error occurs. calls a_fn()
  * with the given parameter to get the relset of 2 intervals. each variable in
- * the clist is an index of the tuple (minus the offset). important: assumes
- * a_tuple is of size a_size. */
+ * the clist is an index of the tuple. important: assumes a_tuple is of size
+ * a_size. */
 int tbe_clist_validate(tbe_clist a_clist,
                        unsigned int *a_tuple,
                        unsigned int a_size,
-                       unsigned int a_offset,
                        unsigned int (*a_fn)(unsigned int, unsigned int, void *),
                        void *a_parm)
 {
@@ -263,7 +261,6 @@ int tbe_clist_validate(tbe_clist a_clist,
   /* clist is not empty, so we have to traverse it */
   tnode.tuple = a_tuple;
   tnode.size = a_size;
-  tnode.offset = a_offset;
   tnode.fn = a_fn;
   tnode.parm = a_parm;
 
