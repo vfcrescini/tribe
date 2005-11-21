@@ -24,9 +24,10 @@ int tbe_clist_add(tbe_clist a_clist,
 int tbe_clist_verify(tbe_clist a_clist, unsigned int a_max);
 
 /* return TBE_OK if the given tuple of the given size satisfies the given
- * clist. calls a_fn() with the given parameter to get the relset of 2
- * intervals. each variable in the clist is an index of the tuple (minus the
- * offset). important: assumes a_tuple is of size a_size. */
+ * clist, TBE_FAILURE if it doesn't, but no other error occurs. calls a_fn()
+ * with the given parameter to get the relset of 2 intervals. each variable in
+ * the clist is an index of the tuple (minus the offset). important: assumes
+ * a_tuple is of size a_size. */
 int tbe_clist_validate(tbe_clist a_clist,
                        unsigned int *a_tuple,
                        unsigned int a_size,

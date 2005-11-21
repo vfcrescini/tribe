@@ -38,7 +38,7 @@ static int tbe_clist_add_array(unsigned int *a_count,
 /* to be used by traverse. goes through each node, and checks whether the
  * given tuple satisfies each constraint, in which case TBE_OK is returned.
  * the tuple must be an array of the specified size */
-static int tbe_clist_trav_verify(const void *a_node, void *a_parm);
+static int tbe_clist_trav_validate(const void *a_node, void *a_parm);
 
 /* return TBE_OK if the 2 clist nodes are equal */
 static int tbe_clist_cmp(const void *a_ptr1, const void *a_ptr2)
@@ -88,7 +88,7 @@ static int tbe_clist_add_array(unsigned int *a_count,
 /* to be used by traverse. goes through each node, and checks whether the
  * given tuple satisfies each constraint, in which case TBE_OK is returned.
  * the tuple must be an array of the specified size */
-static int tbe_clist_trav_verify(const void *a_node, void *a_parm)
+static int tbe_clist_trav_validate(const void *a_node, void *a_parm)
 {
   __tbe_clist_node *nptr;
   __tbe_clist_trav *tptr;
@@ -236,9 +236,10 @@ int tbe_clist_verify(tbe_clist a_clist, unsigned int a_max)
 }
 
 /* return TBE_OK if the given tuple of the given size satisfies the given
- * clist. calls a_fn() with the given parameter to get the relset of 2
- * intervals. each variable in the clist is an index of the tuple (minus the
- * offset). important: assumes a_tuple is of size a_size. */
+ * clist, TBE_FAILURE if it doesn't, but no other error occurs. calls a_fn()
+ * with the given parameter to get the relset of 2 intervals. each variable in
+ * the clist is an index of the tuple (minus the offset). important: assumes
+ * a_tuple is of size a_size. */
 int tbe_clist_validate(tbe_clist a_clist,
                        unsigned int *a_tuple,
                        unsigned int a_size,
@@ -266,5 +267,7 @@ int tbe_clist_validate(tbe_clist a_clist,
   tnode.fn = a_fn;
   tnode.parm = a_parm;
 
-  return tbe_list_traverse(cptr->list, tbe_clist_trav_verify, (void *) &tnode);
+  return tbe_list_traverse(cptr->list,
+                           tbe_clist_trav_validate,
+                           (void *) &tnode);
 }
