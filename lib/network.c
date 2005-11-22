@@ -946,6 +946,10 @@ int tbe_net_get_tuples(tbe_net a_net,
   if (!(pnet = (__tbe_net *) a_net) || !a_fn)
     return TBE_NULLPTR;
 
+  /* make sure the variables in clist are all within range */
+  if ((retval = tbe_clist_verify(a_clist, a_num_lits + a_num_vars)) != TBE_OK)
+    return retval;
+
   /* make sure there is something to do */
   if (a_num_vars == 0) {
     if (a_num_lits == 0) {

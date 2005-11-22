@@ -20,6 +20,9 @@
 	* lib/network.c :
 	* lib/network.h :
 
+	  - Added a call to clist_verify() in get_tuple() to ensure that all
+	    the variables in the clist are valid.
+
 	  - Added a get_tuple() function so that a set of interval variables
 	    can be grounded with intervals that satisfy the given constraints.
 
