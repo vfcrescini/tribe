@@ -1,5 +1,10 @@
 2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.3.3.
+
 	* test/Makefile.in :
 
 	  - tribe_test is now dependent on clist.h.
