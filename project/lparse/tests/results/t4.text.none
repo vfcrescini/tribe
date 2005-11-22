@@ -1,2 +1,0 @@
-e(a,b,c,d) :- not d(a,b,c,d).
-d(a,b,c,d) :- not e(a,b,c,d).

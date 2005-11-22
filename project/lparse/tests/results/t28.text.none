@@ -1,8 +1,0 @@
-maximize { b(a(1)), b(a(2)) }.
-minimize { not d(a(1)), not d(a(2)) }.
-d(a(1)) :- not c(a(1)).
-d(a(2)) :- not c(a(2)).
-c(a(1)) :- not d(a(1)).
-c(a(2)) :- not d(a(2)).
-bar :- __int1.
-__int1 :- 1 { d(a(2)), d(a(1)) }.
