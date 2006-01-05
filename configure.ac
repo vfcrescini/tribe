@@ -6,7 +6,7 @@ AC_CONFIG_HEADERS(lib/config.h)
 AC_LANG(C)
 
 # set vars to itself to prevent the macros from setting default value
-CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -DTRIBE"
 
 # set flags
 TBE_C_WFLG="-Wall -Wshadow -Wcast-align -Wstrict-prototypes"
