@@ -1,7 +1,12 @@
 #ifndef __TBE_REL_H
 #define __TBE_REL_H
 
-#include <stdio.h>
+#ifdef __cplusplus
+  #include <cstdio>
+#else
+  #include <stdio.h>
+#endif
+
 #include <tribe/tribe.h>
 #include <tribe/interval.h>
 
@@ -72,28 +77,28 @@
 #define TBE_REL_SET_ALL ((1 << (TBE_REL_FII + 1)) - 1)
 
 /* A rs1 B, B rs2 C --> A rs3 C, return rs3 */
-unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2);
+TBE_EXTERN unsigned int tbe_rel_trans(unsigned int a_rs1, unsigned int a_rs2);
 
 /* returns a rel set that is the inverse of the given rel set */
-unsigned int tbe_rel_inverse(unsigned int a_rs);
+TBE_EXTERN unsigned int tbe_rel_inverse(unsigned int a_rs);
 
 /* returns the relset between the 2 given intervals */
-unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
+TBE_EXTERN unsigned int tbe_rel_calc(tbe_interval a_int1, tbe_interval a_int2);
 
 /* returns TBE_OK if relation is normalised, TBE_FAILURE otherwise */
-int tbe_rel_is_normalised(unsigned int a_id1,
-                          unsigned int a_id2,
-                          unsigned char a_type1,
-                          unsigned char a_type2);
+TBE_EXTERN int tbe_rel_is_normalised(unsigned int a_id1,
+                                     unsigned int a_id2,
+                                     unsigned char a_type1,
+                                     unsigned char a_type2);
 
 /* normalise the relation, a relation "A rs B" is normalised if A <= B */
-int tbe_rel_normalise(unsigned int *a_id1,
-                      unsigned int *a_id2,
-                      unsigned char *a_type1,
-                      unsigned char *a_type2,
-                      unsigned int *a_rs);
+TBE_EXTERN int tbe_rel_normalise(unsigned int *a_id1,
+                                 unsigned int *a_id2,
+                                 unsigned char *a_type1,
+                                 unsigned char *a_type2,
+                                 unsigned int *a_rs);
 
 /* print all relations in rel set a_rs into stream a_stream */
-int tbe_rel_dump(unsigned int a_rs, FILE *a_stream);
+TBE_EXTERN int tbe_rel_dump(unsigned int a_rs, FILE *a_stream);
 
 #endif

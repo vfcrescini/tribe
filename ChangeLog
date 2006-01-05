@@ -1,3 +1,19 @@
+2006-01-06  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* configure.ac :
+
+	  - Every source is now compiled with -DTRIBE.
+
+	* lib/list.h :
+	* lib/mem.h :
+	* lib/network.h :
+	* lib/rel.h :
+	* lib/rlist.h :
+	* lib/rqueue.h :
+	* lib/tribe.h :
+
+	  - Added a smart EXTERN macro in front of each function.
+
 2005-11-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* VERSION :

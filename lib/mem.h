@@ -1,6 +1,12 @@
 #ifndef __TBE_MEM_H
 #define __TBE_MEM_H
 
+#ifdef __cplusplus
+  #include <cstdlib>
+#else
+  #include <stdlib.h>
+#endif
+
 #include <tribe/tribe.h>
 
 #ifdef TBE_DEBUG
@@ -10,9 +16,9 @@
 
 #ifdef TBE_DEBUG
   /* our own debug versions */
-  void *tbe_malloc(size_t a_size);
-  void *tbe_realloc(void *a_ptr, size_t a_size);
-  void tbe_free(void *a_ptr);
+  TBE_EXTERN void *tbe_malloc(size_t a_size);
+  TBE_EXTERN void *tbe_realloc(void *a_ptr, size_t a_size);
+  TBE_EXTERN void tbe_free(void *a_ptr);
 #endif
 
 /* malloc(element type, number of elements) */

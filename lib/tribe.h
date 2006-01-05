@@ -3,6 +3,16 @@
 
 #include <tribe/config.h>
 
+#ifdef TRIBE
+  #define TBE_EXTERN
+#else
+  #ifdef __cplusplus
+    #define TBE_EXTERN extern "C"
+  #else
+    #define TBE_EXTERN extern
+  #endif
+#endif
+
 /* error codes */
 
 #define TBE_OK                   0
