@@ -1,3 +1,14 @@
+2006-01-07  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/config.h.in :
+	* lib/tribe.h :
+
+	  - Moved the ifdef'ed #include from config.h.in to tribe.h.
+
+	* lib/network.h :
+
+	  - Header now include stdio.h (or cstdio on c++).
+
 2006-01-06  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
 
 	* configure.ac :

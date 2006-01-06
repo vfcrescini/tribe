@@ -4,8 +4,4 @@
 #define TBE_VERSION "0.0.0"
 #undef TBE_DEBUG
 
-#ifdef TBE_DEBUG
-  #include <stdio.h>
-#endif
-
 #endif

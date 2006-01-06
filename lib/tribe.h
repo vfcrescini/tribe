@@ -13,6 +13,14 @@
   #endif
 #endif
 
+#ifdef TBE_DEBUG
+  #ifdef __cplusplus
+    #include <cstdio>
+  #else
+    #include <stdio.h>
+  #endif
+#endif
+
 /* error codes */
 
 #define TBE_OK                   0
