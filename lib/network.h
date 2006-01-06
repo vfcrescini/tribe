@@ -1,6 +1,12 @@
 #ifndef __TBE_NETWORK_H
 #define __TBE_NETWORK_H
 
+#ifdef __cplusplus
+  #include <cstdio>
+#else
+  #include <stdio.h>
+#endif
+
 #include <tribe/tribe.h>
 #include <tribe/list.h>
 #include <tribe/clist.h>
