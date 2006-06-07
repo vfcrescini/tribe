@@ -1,4 +1,4 @@
-Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+Vino Fernando Crescini  <jcrescin@scm.uws.edu.au>
 
 Interval relations as defined by their endpoints:
 
