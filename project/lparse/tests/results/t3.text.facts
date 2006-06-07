@@ -1,5 +1,0 @@
-f :- not e.
-e :- not f.
-c.
-b.
-a.

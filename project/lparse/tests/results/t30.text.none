@@ -1,4 +1,0 @@
-f(bar(2)) :- not e(foo(2)).
-f(bar(3)) :- not e(foo(3)).
-e(foo(2)) :- not f(bar(2)).
-e(foo(3)) :- not f(bar(3)).
