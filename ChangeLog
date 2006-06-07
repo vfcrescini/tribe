@@ -1,5 +1,10 @@
 2006-06-07  Vino Fernando Crescini  <jcrescin@scm.uws.edu.au>
 
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.4.0
+
 	* (all source files) :
 
 	  - Added license header.

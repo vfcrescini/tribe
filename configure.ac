@@ -17,7 +17,7 @@
 # along with PolicyUpdater; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-AC_INIT(tribe,0.3.3,jcrescin@scm.uws.edu.au)
+AC_INIT(tribe,0.4.0,jcrescin@scm.uws.edu.au)
 
 AC_CONFIG_HEADERS(lib/config.h)
 
