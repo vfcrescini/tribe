@@ -1,0 +1,135 @@
+2005-07-20  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.0.4.
+
+	* lib/network.c :
+
+	  - Casting to type void ** triggers a "dereferencing type-punned
+	    pointer will break strict-aliasing rules" compiler warning. These
+	    pointers are now cast to void * instead.
+
+	* configure.ac :
+
+	  - Added a new option --enable-testprog.
+
+	* test/Makefile.in :
+
+	  - Test program is now compiled when --enable-testprog is given
+	    in configure, regardless of whether --enable-debug is given or
+	    not.
+
+	  - Renamed the test program to tribe_test.
+
+2005-03-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+
+	  - Some minor cleanup.
+
+	* lib/list.c :
+
+	  - Fixed bug that required initialisation of pointers to null before
+	    use the list_get() functions.
+
+2005-03-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Added a normalise() function to ensure that a relation:
+
+	      a rs b
+
+	    will have a <= b.
+
+	  - The enque() function now normalises the relation before it is
+	    added in. Enqueue also checks whether the relation is already
+	    in the queue.
+
+	  - Added other cleanup functions.
+
+2005-03-04  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/rel.c :
+	* lib/rel.h :
+
+	  - Changed order of relation macros.
+
+	  - Simplified inverse().
+
+
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.0.3.
+
+2005-03-02  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* lib/network.c :
+
+	  - Added checks for skipping conditions (Van Beek's optimisation).
+
+	  - More cleanup of tbe_net_add_rel(). Now we only check for the
+	    intersection once.
+
+	  - Cleanup so we dont have to purge the queue everytime we see an
+	    error condition in tbe_net_add_rel().
+
+	  - A little bit of cleanup. no point having 2 for loops in
+	    tbe_net_add_rel().
+
+2005-02-23  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* VERSION :
+	* configure.ac :
+
+	  - Version 0.0.2.
+
+	* lib/network.c :
+	* lib/network.h :
+
+	  - Cleanup: removed rlist typedef from header file.
+
+	  - Now uses an efficient queue instead of making recursive calls to
+	    add().
+
+	  - Fixed logic error in adding to queue / network (the second for
+	    loop).
+
+	* test/test.c :
+
+	  - Added another node in test network.
+
+	* lib/list.c :
+	* lib/list.h :
+	* lib/network.c :
+
+	  - Added head and tail list operations (add, get, del) for
+	    efficiency.
+
+	* configure.ac :
+	* test/Makefile.in :
+
+	  - Added a LIBDIR variable to allow libtribe and its headers to be
+	    the dependencies of the test program.
+
+2005-02-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* test/Makefile.in :
+
+	  - test only gets built if --enable-debug is specified in configure.
+
+	* VERSION :
+
+	  - Added VERSION file.
+
+	* configure.ac :
+
+	  - Removed CXX definitions carried over from vlad.
+
+	* ChangeLog :
+
+	  - Started change log.
