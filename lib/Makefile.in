@@ -1,0 +1,73 @@
+TOPSRCDIR = @top_srcdir@
+DISTDIR = @DISTDIR@
+CURDIR = lib
+CC = @CC@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LN_S = @LN_S@
+DEBUG = @DEBUG@
+STRIP = @STRIP@
+BUILDSHARED = @BUILDSHARED@
+STATIC = @STATIC@
+VERSION = @VERSION@
+BINS =
+STATIC_LIBS = libtribe.a
+SHARED_LIBS = libtribe.so.$(VERSION)
+INCLUDES = \
+  config.h \
+  tribe.h \
+  mem.h \
+  list.h \
+  iqueue.h \
+  rel.h \
+  network.h \
+  $(NULL)
+OBJECTS = \
+  mem.o \
+  list.o \
+  iqueue.o \
+  rel.o \
+  network.o \
+  $(NULL)
+TEMPS1 =
+TEMPS2 = \
+  config.h \
+  $(NULL)
+
+ifdef BUILDSHARED
+CFLAGS += -f$(BUILDSHARED)
+endif
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+
+include $(TOPSRCDIR)/rules.mk
+
+libtribe.a : $(OBJECTS)
+	$(AR) -rcs $(@) $(OBJECTS)
+
+libtribe.so.$(VERSION) : $(OBJECTS)
+	$(CC) $(LDFLAGS) $(CFLAGS) -shared -Wl,-soname,`echo $(@) | cut -d. -f1,2,3` -o $(@) $(OBJECTS)
+ifndef DEBUG
+  ifdef STRIP
+	strip $(@)
+  endif
+endif
+
+mem.o : tribe.h mem.h mem.c
+	$(CC) $(CFLAGS) -o $(@) -c mem.c
+
+list.o : tribe.h mem.h list.h list.c
+	$(CC) $(CFLAGS) -o $(@) -c list.c
+
+iqueue.o : tribe.h mem.h list.h iqueue.h iqueue.c
+	$(CC) $(CFLAGS) -o $(@) -c iqueue.c
+
+rel.o : tribe.h rel.h rel.c
+	$(CC) $(CFLAGS) -o $(@) -c rel.c
+
+network.o : tribe.h mem.h list.h iqueue.h network.h network.c
+	$(CC) $(CFLAGS) -o $(@) -c network.c
