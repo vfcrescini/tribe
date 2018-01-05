@@ -1,0 +1,17 @@
+2005-02-22  Vino Fernando Crescini  <jcrescin@cit.uws.edu.au>
+
+	* test/Makefile.in :
+
+	  - test only gets built if --enable-debug is specified in configure.
+
+	* VERSION :
+
+	  - Added VERSION file.
+
+	* configure.ac :
+
+	  - Removed CXX definitions carried over from vlad.
+
+	* ChangeLog :
+
+	  - Started change log.
