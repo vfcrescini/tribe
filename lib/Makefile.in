@@ -1,0 +1,103 @@
+# This file is part of Tribe.
+#
+# Copyright (C) 2005, 2006 University of Western Sydney
+# by Vino Fernando Crescini <jcrescin@scm.uws.edu.au>
+#
+# Tribe is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Tribe is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Tribe; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+TOPSRCDIR = @top_srcdir@
+DISTDIR = @DISTDIR@
+CURDIR = lib
+CC = @CC@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LN_S = @LN_S@
+DEBUG = @DEBUG@
+STRIP = @STRIP@
+BUILDSHARED = @BUILDSHARED@
+STATIC = @STATIC@
+VERSION = @VERSION@
+BINS =
+STATIC_LIBS = libtribe.a
+SHARED_LIBS = libtribe.so.$(VERSION)
+INCLUDES = \
+  config.h \
+  tribe.h \
+  mem.h \
+  list.h \
+  interval.h \
+  rel.h \
+  rqueue.h \
+  rlist.h \
+  clist.h \
+  network.h \
+  $(NULL)
+OBJECTS = \
+  mem.o \
+  list.o \
+  rel.o \
+  rqueue.o \
+  rlist.o \
+  clist.o \
+  network.o \
+  $(NULL)
+TEMPS1 =
+TEMPS2 = \
+  config.h \
+  $(NULL)
+
+ifdef BUILDSHARED
+CFLAGS += -f$(BUILDSHARED)
+endif
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+
+include $(TOPSRCDIR)/rules.mk
+
+libtribe.a : $(OBJECTS)
+	$(AR) -rcs $(@) $(OBJECTS)
+
+libtribe.so.$(VERSION) : $(OBJECTS)
+	$(CC) $(LDFLAGS) $(CFLAGS) -shared -Wl,-soname,`echo $(@) | cut -d. -f1,2,3` -o $(@) $(OBJECTS)
+ifndef DEBUG
+  ifdef STRIP
+	strip $(@)
+  endif
+endif
+
+mem.o : tribe.h mem.h mem.c
+	$(CC) $(CFLAGS) -o $(@) -c mem.c
+
+list.o : tribe.h mem.h list.h list.c
+	$(CC) $(CFLAGS) -o $(@) -c list.c
+
+rel.o : tribe.h interval.h rel.h rel.c
+	$(CC) $(CFLAGS) -o $(@) -c rel.c
+
+rqueue.o : tribe.h mem.h list.h rel.h rqueue.h rqueue.c
+	$(CC) $(CFLAGS) -o $(@) -c rqueue.c
+
+rlist.o : tribe.h mem.h list.h rel.h rlist.h rlist.c
+	$(CC) $(CFLAGS) -o $(@) -c rlist.c
+
+clist.o : tribe.h mem.h rel.h list.h clist.h clist.c
+	$(CC) $(CFLAGS) -o $(@) -c clist.c
+
+network.o : tribe.h mem.h list.h rel.h interval.h rqueue.h rlist.h clist.h network.h network.c
+	$(CC) $(CFLAGS) -o $(@) -c network.c
